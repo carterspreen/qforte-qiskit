@@ -1,0 +1,1424 @@
+# Manual run:
+#   conda activate qiskit_env_v1
+#   python scripts/qiskit/build_uqk_overlap_matrix.py
+#
+# Summary:
+#   Build a unitary quantum Krylov overlap matrix S. In standard mode, each
+#   Krylov time step uses the deterministic non-scalar Trotter block plus an
+#   analytic scalar phase. In stochastic mode, each correlation value is
+#   estimated from qDRIFT-sampled grouped chunks plus the same analytic scalar
+#   phase. Both modes use the same MFE templates to estimate C_k = <HF|U^k|HF>,
+#   then assemble S_mn = C_(n-m).
+#
+# Hard-coded options:
+#   INPUT_QPY = circuits/transpiled/h4_linear_sto3g_grouped_evolution.qpy
+#   INPUT_CIRCUIT_METADATA_JSON = circuits/transpiled/h4_linear_sto3g_grouped_evolution_metadata.json
+#   INPUT_MOLECULE_METADATA_JSON = data/molecules/h4_linear_sto3g_metadata.json
+#   INPUT_HERMITIAN_PAIR_JSON = data/hamiltonians/h4_linear_sto3g_hermitian_pairs.json
+#   INPUT_GROUPED_PAULI_JSON = data/hamiltonians/h4_linear_sto3g_grouped_paulis.json
+#   UQK_MODE = standard
+#   KRYLOV_DIMENSION = 3
+#   MAX_CORRELATION_POWER = KRYLOV_DIMENSION
+#   DT = read from circuit metadata
+#   TROTTER_ORDER = read from circuit metadata, expected first order here
+#   SHOTS_PER_MFE_EXPERIMENT = 2000
+#   BACKEND_MODE = local_noiseless_statevector
+#   QDRIFT_SEGMENT_COUNT_ND = 16
+#   STOCHASTIC_INSTANCES_PER_CORRELATION = 20
+#   STOCHASTIC_WEIGHT_CONVENTION = group_pauli_l1_norm
+#   RANDOM_SEED = 230623
+#   output path is results/krylov/h4_{UQK_MODE}_uqk_overlap_matrix.*
+#
+# Scalar convention:
+#   The zero-body scalar energy is not included in qDRIFT lambda and is not
+#   placed inside the MFE circuits. The MFE superposition experiment measures
+#   the HF branch relative to the vacuum reference branch. If
+#       r_k = <vac|V_k|vac>
+#   is not exactly 1, then the raw MFE arithmetic returns C_k*r_k^*. We
+#   therefore divide the raw MFE estimate by r_k^*, then multiply by the scalar
+#   phase exp(-i E_scalar k dt) analytically. When r_k is only a phase, this is
+#   the same as multiplying by r_k.
+
+from __future__ import annotations
+
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+from qiskit import QuantumCircuit, qpy, transpile
+from qiskit.circuit.library import PauliEvolutionGate
+from qiskit.quantum_info import SparsePauliOp, Statevector
+from qiskit.synthesis import LieTrotter
+from qiskit_aer import AerSimulator
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+sys.path.insert(0, str(SCRIPT_DIR))
+
+from mfe_measurement_building_blocks import (  # noqa: E402
+    F1_LABEL,
+    F2_I_LABEL,
+    F2_PLUS_LABEL,
+    build_mfe_templates,
+    estimate_z_from_counts,
+    occupied_qubits_from_occupation,
+    validate_hf_metadata,
+)
+
+
+INPUT_QPY = (
+    REPO_ROOT / "circuits" / "transpiled" / "h4_linear_sto3g_grouped_evolution.qpy"
+)
+INPUT_CIRCUIT_METADATA_JSON = (
+    REPO_ROOT
+    / "circuits"
+    / "transpiled"
+    / "h4_linear_sto3g_grouped_evolution_metadata.json"
+)
+INPUT_MOLECULE_METADATA_JSON = (
+    REPO_ROOT / "data" / "molecules" / "h4_linear_sto3g_metadata.json"
+)
+INPUT_HERMITIAN_PAIR_JSON = (
+    REPO_ROOT / "data" / "hamiltonians" / "h4_linear_sto3g_hermitian_pairs.json"
+)
+INPUT_GROUPED_PAULI_JSON = (
+    REPO_ROOT / "data" / "hamiltonians" / "h4_linear_sto3g_grouped_paulis.json"
+)
+OUTPUT_DIR = REPO_ROOT / "results" / "krylov"
+
+# UQK_MODE chooses the physical workflow branch.
+#
+#   "standard"
+#       Deterministic UQK. For each k, build V_k = U(dt)^k by composing the
+#       saved non-scalar first-order Trotter step k times. This is the most direct
+#       implementation of C_k = <HF|U^k|HF>, but circuit depth grows roughly
+#       linearly with k times the non-scalar Trotter-step depth.
+#
+#   "stochastic"
+#       Stochastic UQK. For each nonzero k, estimate C_k by averaging several
+#       qDRIFT-sampled chunks for total time t = k*dt. Each chunk samples grouped
+#       non-scalar indices rather than applying every grouped factor.
+# UQK_MODE = "standard"
+UQK_MODE = "stochastic"
+
+# KRYLOV_DIMENSION is the matrix dimension M. The overlap matrix uses basis
+# states |phi_n> = U^n |HF> for n = 0, ..., M-1, so S has shape (M, M).
+#
+# Reasonable first values:
+#   2-4 for fast debugging.
+#   5-10 once the simulator/runtime path is stable.
+#   Larger M can make S ill-conditioned and requires more C_k estimates.
+KRYLOV_DIMENSION = 3
+
+# MAX_CORRELATION_POWER is the largest nonnegative k for C_k=<HF|U^k|HF>.
+# To assemble S alone, it must be at least M-1. Keeping MAX_CORRELATION_POWER=M
+# also gives C_M, which is useful later for the projected unitary matrix
+# U_mn = C_(n+1-m).
+MAX_CORRELATION_POWER = KRYLOV_DIMENSION
+
+# SHOTS_PER_MFE_EXPERIMENT is used for each of the three MFE circuits:
+# F1, F2_plus, and F2_i. In stochastic mode this is per stochastic instance,
+# so total circuit shots scale like
+#   3 * SHOTS_PER_MFE_EXPERIMENT * STOCHASTIC_INSTANCES_PER_CORRELATION
+# for each nonzero k.
+#
+# Reasonable ranges:
+#   100-1000 for smoke tests.
+#   2000-10000 for less jumpy simulator studies.
+#   Hardware runs should be chosen with queue time and budget in mind.
+SHOTS_PER_MFE_EXPERIMENT = 2_000
+
+# BACKEND_MODE selects where the MFE circuits are executed.
+#
+# Valid options:
+#   "local_noiseless_statevector"
+#       AerSimulator(method="statevector") with shot sampling. No credentials,
+#       noise model, or hardware access.
+BACKEND_MODE = "local_noiseless_statevector"
+
+# QDRIFT_SEGMENT_COUNT_ND is N_d in the qDRIFT formula. Larger N_d generally
+# gives a better stochastic approximation to exp(-i H t), but each sampled
+# instance gets deeper because it contains more grouped factors:
+#
+#   sampled chunk = prod_{s=1}^{N_d} exp[-i (lambda*t/N_d) G_{mu_s}].
+#
+# The zero-body scalar term is excluded from lambda and applied analytically to
+# C_k as exp(-i E_scalar*k*dt).
+#
+# Reasonable first values:
+#   2-8 for quick debugging.
+#   10-100 for serious stochastic convergence experiments.
+QDRIFT_SEGMENT_COUNT_ND = 16
+
+# STOCHASTIC_INSTANCES_PER_CORRELATION is the number of independent sampled
+# qDRIFT chunks averaged for each C_k. Larger values reduce stochastic sampling
+# noise but increase total circuit executions linearly.
+#
+# Reasonable first values:
+#   1-5 for plumbing checks.
+#   10-100 for convergence studies.
+STOCHASTIC_INSTANCES_PER_CORRELATION = 20
+
+# STOCHASTIC_WEIGHT_CONVENTION defines the qDRIFT weights w_mu.
+#
+# Valid option currently implemented:
+#   "group_pauli_l1_norm"
+#       Define K_mu as the full saved grouped Pauli Hamiltonian contribution,
+#       K_mu = sum_rho alpha_{mu rho} P_{mu rho}. Use
+#       h_mu = w_mu = sum_rho |alpha_{mu rho}| and
+#       G_mu = K_mu / h_mu. Then lambda = sum_mu w_mu and
+#       p_mu = w_mu / lambda.
+#
+#       The sum over mu excludes the zero-body scalar group. Identity Pauli
+#       terms that live inside a non-scalar grouped operator remain part of
+#       K_mu because they are needed for the correct fermion-to-qubit action.
+#
+# Important convention note:
+#   The grouped Pauli archive stores full K_mu coefficients. A stochastic
+#   sampled factor is implemented as
+#
+#       exp[-i theta_k G_mu],
+#       theta_k = lambda * (k*dt) / N_d.
+#
+#   The sign information is retained in G_mu because G_mu is the signed grouped
+#   operator K_mu divided by the positive weight h_mu.
+STOCHASTIC_WEIGHT_CONVENTION = "group_pauli_l1_norm"
+
+# RANDOM_SEED controls stochastic group sampling and the Aer simulator shot
+# sampler. Change it to generate an independent stochastic run while keeping all
+# other hard-coded options fixed.
+RANDOM_SEED = 230623
+
+# ENFORCE_C0_EXACT stores C_0=1 in the final Toeplitz matrix. The script still
+# measures the identity case and records that diagnostic separately because it
+# is useful for seeing finite-shot MFE behavior.
+ENFORCE_C0_EXACT = True
+
+# MFE_VERBOSE_FOR_FIRST_NONZERO_POWER prints the detailed F1/F2_plus/F2_i
+# template explanation for k=1. Keep it True while teaching/debugging; set it
+# False for large sweeps.
+MFE_VERBOSE_FOR_FIRST_NONZERO_POWER = True
+
+# PRINT_CORRELATION_TABLE controls the final C_k summary printed before S.
+PRINT_CORRELATION_TABLE = True
+
+VALID_UQK_MODES = {"standard", "stochastic"}
+
+
+def now_utc():
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def print_header(title):
+    print("\n" + "=" * 78)
+    print(title)
+    print("=" * 78)
+
+
+def print_kv(label, value):
+    print(f"{label:<36} {value}")
+
+
+def load_json(path):
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_qpy_circuits(path):
+    with path.open("rb") as handle:
+        return list(qpy.load(handle))
+
+
+def operation_counts(circuit):
+    return {name: int(count) for name, count in circuit.count_ops().items()}
+
+
+def reference_branch_amplitude(evolution_circuit):
+    """Return r=<vac|V|vac> for the circuit used in one MFE experiment.
+
+    The Cortes-Gray-style MFE arithmetic compares the HF branch to a reference
+    branch. Our reference branch is the computational vacuum. If the supplied
+    evolution circuit V gives the vacuum a deterministic phase, the raw MFE
+    formulas estimate C*r.conjugate(), not C itself. Computing r exactly here
+    lets us restore the physical non-scalar correlation before applying the
+    separate scalar phase.
+    """
+
+    vacuum = Statevector.from_label("0" * evolution_circuit.num_qubits)
+    evolved = vacuum.evolve(evolution_circuit)
+    return complex(np.vdot(vacuum.data, evolved.data))
+
+
+def apply_reference_branch_correction(raw_mfe_value, reference_branch, context):
+    """Convert raw MFE y=C*r^* into C.
+
+    If the reference branch amplitude is a pure phase, this reduces to
+    raw_mfe_value * reference_branch. The division form is more general and is
+    important for stochastic chunks where the Pauli/Trotter circuit may leak
+    some amplitude out of the vacuum branch, so |r| need not be exactly 1.
+    """
+
+    if abs(reference_branch) <= 1.0e-12:
+        raise ValueError(
+            f"Reference branch amplitude is too small for stable correction in "
+            f"{context}: r={reference_branch}."
+        )
+    return raw_mfe_value / np.conjugate(reference_branch)
+
+
+def output_npz_path(mode):
+    return OUTPUT_DIR / f"h4_{mode}_uqk_overlap_matrix.npz"
+
+
+def output_metadata_path(mode):
+    return OUTPUT_DIR / f"h4_{mode}_uqk_overlap_matrix_metadata.json"
+
+
+def complex_from_record(record):
+    return complex(float(record["real"]), float(record["imag"]))
+
+
+def validate_options(circuit_metadata):
+    if UQK_MODE not in VALID_UQK_MODES:
+        raise ValueError(
+            f"UQK_MODE must be one of {sorted(VALID_UQK_MODES)}, not {UQK_MODE!r}."
+        )
+    if KRYLOV_DIMENSION < 1:
+        raise ValueError("KRYLOV_DIMENSION must be at least 1.")
+    if MAX_CORRELATION_POWER < KRYLOV_DIMENSION - 1:
+        raise ValueError(
+            "MAX_CORRELATION_POWER must be at least KRYLOV_DIMENSION - 1 "
+            "to assemble S."
+        )
+    if SHOTS_PER_MFE_EXPERIMENT <= 0:
+        raise ValueError("SHOTS_PER_MFE_EXPERIMENT must be positive.")
+    if BACKEND_MODE != "local_noiseless_statevector":
+        raise ValueError(
+            "This first standard UQK script only implements "
+            "BACKEND_MODE='local_noiseless_statevector'."
+        )
+    if QDRIFT_SEGMENT_COUNT_ND <= 0:
+        raise ValueError("QDRIFT_SEGMENT_COUNT_ND must be positive.")
+    if STOCHASTIC_INSTANCES_PER_CORRELATION <= 0:
+        raise ValueError("STOCHASTIC_INSTANCES_PER_CORRELATION must be positive.")
+    if (
+        STOCHASTIC_WEIGHT_CONVENTION
+        != "group_pauli_l1_norm"
+    ):
+        raise ValueError(
+            "Only STOCHASTIC_WEIGHT_CONVENTION="
+            "'group_pauli_l1_norm' is implemented."
+        )
+
+    encoded_order = int(circuit_metadata["options"]["trotter_sequence_order"])
+    if encoded_order != 1:
+        raise ValueError(
+            "This first standard UQK implementation expects first-order full-dt "
+            f"group circuits. Found trotter_sequence_order={encoded_order}."
+        )
+
+
+def print_startup(circuit_metadata, molecule_metadata):
+    print_header("UQK Overlap Matrix Builder")
+    print(
+        "This script has two deliberately separate branches:\n"
+        "  standard:   deterministic UQK, using saved non-scalar Trotter blocks.\n"
+        "  stochastic: stochastic UQK, using qDRIFT-sampled grouped blocks.\n"
+        "Both branches estimate C_k = <HF|U^k|HF> with the MFE circuits and\n"
+        "assemble the Toeplitz overlap matrix S_mn = C_(n-m)."
+    )
+
+    print_header("Hard-Coded Options")
+    print_kv("UQK mode:", UQK_MODE)
+    print_kv("Valid UQK modes:", sorted(VALID_UQK_MODES))
+    print_kv("Input QPY:", INPUT_QPY)
+    print_kv("Input circuit metadata:", INPUT_CIRCUIT_METADATA_JSON)
+    print_kv("Input molecule metadata:", INPUT_MOLECULE_METADATA_JSON)
+    print_kv("Input Hermitian-pair JSON:", INPUT_HERMITIAN_PAIR_JSON)
+    print_kv("Input grouped Pauli JSON:", INPUT_GROUPED_PAULI_JSON)
+    print_kv("Krylov dimension M:", KRYLOV_DIMENSION)
+    print_kv("Max correlation power:", MAX_CORRELATION_POWER)
+    print_kv("dt from metadata:", circuit_metadata["options"]["dt"])
+    print_kv("Trotter order from metadata:", circuit_metadata["options"]["trotter_sequence_order"])
+    print_kv("Shots per MFE experiment:", SHOTS_PER_MFE_EXPERIMENT)
+    print_kv("Backend mode:", BACKEND_MODE)
+    print_kv("qDRIFT segment count N_d:", QDRIFT_SEGMENT_COUNT_ND)
+    print_kv("Stochastic instances per C_k:", STOCHASTIC_INSTANCES_PER_CORRELATION)
+    print_kv("Stochastic weight convention:", STOCHASTIC_WEIGHT_CONVENTION)
+    print_kv("Random seed:", RANDOM_SEED)
+    print_kv("Enforce C0 exact:", ENFORCE_C0_EXACT)
+    print_kv("Output NPZ:", output_npz_path(UQK_MODE))
+    print_kv("Output metadata JSON:", output_metadata_path(UQK_MODE))
+
+    print_header("Loaded Molecule And Reference")
+    print_kv("Molecule label:", molecule_metadata["molecule"]["label"])
+    print_kv("Basis:", molecule_metadata["molecule"]["basis"])
+    print_kv("Qubits:", molecule_metadata["active_space"]["num_qubits"])
+    print_kv("Electrons:", molecule_metadata["active_space"]["num_electrons"])
+    print_kv("HF occupation n_p:", molecule_metadata["hf_reference"]["occupation_little_endian"])
+    print_kv(
+        "Qiskit HF count key:",
+        molecule_metadata["hf_reference"]["qiskit_counts_bitstring_if_measured_q_to_c_same_index"],
+    )
+
+    print_header("MFE And Toeplitz Convention")
+    print(
+        "For each k, V_k is the composed circuit U^k. The MFE templates estimate\n"
+        "the HF branch relative to the vacuum reference branch using F1,\n"
+        "F2_plus, and F2_i return counts. If r_k=<vac|V_k|vac>, the raw MFE\n"
+        "estimate is y_k=C_k*r_k^*. The script stores C_k=y_k/r_k^* before\n"
+        "applying the separate scalar phase exp(-i E_scalar*k*dt).\n"
+        "C_0 is physically exactly 1. This script still measures the identity\n"
+        "case for diagnostics, then stores C_0 = 1 when ENFORCE_C0_EXACT=True.\n"
+        "Negative powers are not measured: S_mn uses C_-k = conj(C_k)."
+    )
+    print_header("Mode-Specific Meaning")
+    if UQK_MODE == "standard":
+        print(
+            "STANDARD UQK: every time step uses every non-scalar saved grouped "
+            "circuit in the first-order Trotter sequence. The separate scalar "
+            "phase is applied analytically to C_k."
+        )
+    else:
+        print(
+            "STOCHASTIC UQK: each C_k uses several independently sampled qDRIFT "
+            "instances. A sampled instance chooses non-scalar grouped indices "
+            "with p_mu=w_mu/lambda, rebuilds normalized grouped Pauli circuits "
+            "at theta_k=lambda*k*dt/N_d, runs MFE, and averages the resulting z."
+        )
+
+
+def print_user_option_guide():
+    print_header("User-Facing Knob Guide")
+    print(
+        "Core equations:\n"
+        "  C_k = <HF|U^k|HF>\n"
+        "  S_mn = C_(n-m), with C_-k = conj(C_k)\n"
+        "  stochastic total time T_k = k * dt\n"
+    )
+    print(
+        "UQK_MODE:\n"
+        "  standard   -> V_k is the saved non-scalar Trotter step repeated k times.\n"
+        "  stochastic -> V_k is estimated by averaging qDRIFT-sampled chunks.\n"
+    )
+    print(
+        "KRYLOV_DIMENSION M:\n"
+        "  Builds an M x M S matrix from |phi_n> = U^n|HF>, n=0..M-1.\n"
+        "  Use M=2..4 for first checks; larger M needs more C_k values and can\n"
+        "  make S ill-conditioned.\n"
+    )
+    print(
+        "MAX_CORRELATION_POWER:\n"
+        "  Must be at least M-1 for S. Setting it to M also prepares C_M for the\n"
+        "  projected unitary matrix U_mn = C_(n+1-m) in a later workflow.\n"
+    )
+    print(
+        "SHOTS_PER_MFE_EXPERIMENT:\n"
+        "  Shots for each F1/F2_plus/F2_i circuit. Stochastic mode multiplies this\n"
+        "  by STOCHASTIC_INSTANCES_PER_CORRELATION for each nonzero C_k.\n"
+    )
+    print(
+        "QDRIFT_SEGMENT_COUNT_ND and STOCHASTIC_INSTANCES_PER_CORRELATION:\n"
+        "  Larger N_d makes each sampled chunk deeper but closer to the qDRIFT\n"
+        "  channel. More instances reduce stochastic sampling noise by averaging\n"
+        "  independent chunks. Useful starter ranges are N_d=2..8 and instances=1..10;\n"
+        "  convergence studies may need much larger values.\n"
+    )
+    print(
+        "BACKEND_MODE:\n"
+        "  local_noiseless_statevector is the only implemented option here. It uses\n"
+        "  Aer shot sampling without credentials, noise models, or hardware jobs.\n"
+    )
+
+
+def print_qdrift_circuit_structure(sampling_model, dt):
+    print_header("qDRIFT Circuit Structure")
+    print(
+        "The grouped Hamiltonian is treated as\n"
+        "  H = E_scalar I + sum_mu K_mu\n"
+        "  K_mu = sum_rho alpha_{mu,rho} P_{mu,rho}\n"
+        "For stochastic mode this script defines\n"
+        "  h_mu = w_mu = sum_rho |alpha_{mu,rho}|\n"
+        "  G_mu = K_mu / h_mu\n"
+        "  lambda = sum_mu w_mu,       p_mu = w_mu / lambda\n"
+        "where the sum over mu excludes the zero-body scalar group."
+    )
+    print(
+        "For total time T_k = k*dt, each stochastic sample builds\n"
+        "  prod_{s=1}^{N_d} exp[-i theta_k G_{mu_s}],\n"
+        "  theta_k = lambda*T_k/N_d.\n"
+        "The scalar phase exp(-i E_scalar*T_k) is not part of the MFE circuit;\n"
+        "it is multiplied into C_k analytically after MFE estimation."
+    )
+    print(
+        "Standard mode still uses the saved fixed-dt QPY group circuits, but it\n"
+        "skips the separate scalar group for the same MFE reason and applies the\n"
+        "same analytic scalar phase to the final C_k."
+    )
+    first_entry = sampling_model["entries"][0]
+    example_theta = sampling_model["weight_sum_lambda"] * dt / QDRIFT_SEGMENT_COUNT_ND
+    print_kv("qDRIFT norm lambda:", f"{sampling_model['weight_sum_lambda']:.12f}")
+    print_kv("Scalar excluded from lambda:", f"{sampling_model['scalar_energy']:.12f}")
+    print_kv("Example k=1 total time T_1:", f"{dt:.12f}")
+    print_kv("Example group index:", first_entry["group_index"])
+    print_kv("Example h_mu=w_mu:", f"{first_entry['h_mu']:.12f}")
+    print_kv("Example p_mu:", f"{first_entry['probability']:.12f}")
+    print_kv("Example theta_k for k=1:", f"{example_theta:.12f}")
+
+
+def build_one_trotter_step(group_circuits, circuit_metadata):
+    num_qubits = int(circuit_metadata["active_space"]["num_qubits"])
+    step = QuantumCircuit(num_qubits, name="non_scalar_first_order_trotter_step")
+    sequence = circuit_metadata["trotter_step_sequence"]
+    group_metadata = {
+        int(group["group_index"]): group
+        for group in circuit_metadata["groups"]
+    }
+    included_group_indices = []
+    skipped_scalar_group_indices = []
+    for item in sequence:
+        if float(item["time_multiplier"]) != 1.0:
+            raise ValueError(
+                "This first UQK script expects full-dt group circuits with "
+                f"time_multiplier=1.0. Found {item['time_multiplier']}."
+            )
+        group_index = int(item["group_index"])
+        metadata = group_metadata[group_index]
+        if metadata["source_classification"] == "zero_body_scalar":
+            skipped_scalar_group_indices.append(group_index)
+            continue
+        qpy_index = int(metadata["qpy_circuit_index"])
+        step.compose(group_circuits[qpy_index], inplace=True)
+        included_group_indices.append(group_index)
+    return step, included_group_indices, skipped_scalar_group_indices
+
+
+def build_trotter_power(full_step, power):
+    circuit = QuantumCircuit(full_step.num_qubits, name=f"uqk_V_power_{power}")
+    for _ in range(power):
+        circuit.compose(full_step, inplace=True)
+    return circuit
+
+
+def pauli_label(pauli_word, num_qubits):
+    letters = ["I"] * num_qubits
+    for item in pauli_word:
+        letters[int(item["qubit"])] = item["pauli"]
+    return "".join(reversed(letters))
+
+
+def real_pauli_coefficient(term, group_index, term_index):
+    coefficient = complex_from_record(term["coefficient"])
+    if abs(coefficient.imag) > 1.0e-10:
+        raise ValueError(
+            f"Group {group_index} Pauli term {term_index} has imaginary "
+            f"coefficient {coefficient.imag}, but real-time evolution expects "
+            "real coefficients."
+        )
+    return float(coefficient.real)
+
+
+def sparse_pauli_op_from_group(pauli_group, num_qubits, coefficient_scale=1.0):
+    labels = []
+    coefficients = []
+    group_index = int(pauli_group["group_index"])
+    for term in pauli_group["pauli_terms"]:
+        term_index = int(term["term_index"])
+        labels.append(pauli_label(term["pauli_word"], num_qubits))
+        coefficients.append(
+            float(coefficient_scale)
+            * real_pauli_coefficient(term, group_index, term_index)
+        )
+    return SparsePauliOp(labels, coeffs=coefficients)
+
+
+def build_group_evolution_circuit(
+    pauli_group,
+    num_qubits,
+    evolution_time,
+    basis_gates,
+    coefficient_scale=1.0,
+):
+    """Build one grouped factor at an arbitrary time.
+
+    The saved QPY group circuits are already fixed at dt, which is perfect for
+    standard UQK. Stochastic qDRIFT needs exp[-i theta_k G_mu] with
+    G_mu=K_mu/h_mu, so this helper rebuilds the selected grouped factor from the
+    grouped Pauli archive while preserving the same group boundary.
+    """
+
+    group_index = int(pauli_group["group_index"])
+    operator = sparse_pauli_op_from_group(
+        pauli_group,
+        num_qubits,
+        coefficient_scale=coefficient_scale,
+    )
+    circuit = QuantumCircuit(num_qubits, name=f"qdrift_group_{group_index:04d}")
+    gate = PauliEvolutionGate(
+        operator,
+        time=float(evolution_time),
+        synthesis=LieTrotter(reps=1),
+    )
+    circuit.append(gate, range(num_qubits))
+    return transpile(
+        circuit,
+        basis_gates=basis_gates,
+        optimization_level=1,
+    )
+
+
+def group_pauli_l1_norm(pauli_group):
+    """Return h_mu=w_mu=sum_rho |alpha_mu,rho| for one grouped Pauli K_mu."""
+
+    return float(
+        sum(
+            abs(complex_from_record(term["coefficient"]))
+            for term in pauli_group["pauli_terms"]
+        )
+    )
+
+
+def scalar_energy_from_grouped_paulis(pauli_archive):
+    total = 0.0
+    for group in pauli_archive["groups"]:
+        if group["source_classification"] != "zero_body_scalar":
+            continue
+        for term in group["pauli_terms"]:
+            if term["is_identity"]:
+                total += real_pauli_coefficient(
+                    term,
+                    int(group["group_index"]),
+                    int(term["term_index"]),
+                )
+    return float(total)
+
+
+def build_qdrift_sampling_model(hp_archive, pauli_archive):
+    hp_by_index = {
+        int(group["group_index"]): group
+        for group in hp_archive["groups"]
+    }
+    pauli_by_index = {
+        int(group["group_index"]): group
+        for group in pauli_archive["groups"]
+    }
+
+    entries = []
+    for group_index, pauli_group in sorted(pauli_by_index.items()):
+        hp_group = hp_by_index.get(group_index, {})
+        source_classification = pauli_group.get(
+            "source_classification",
+            hp_group.get("classification", "unknown"),
+        )
+        if source_classification == "zero_body_scalar":
+            continue
+        h_mu = group_pauli_l1_norm(pauli_group)
+        weight = h_mu
+        if weight <= 0.0:
+            continue
+        entries.append(
+            {
+                "group_index": group_index,
+                "h_mu": float(h_mu),
+                "w_mu": float(weight),
+                "weight": float(weight),
+                "coefficient_scale_for_G_mu": float(1.0 / h_mu),
+                "source_classification": source_classification,
+                "num_pauli_terms": int(pauli_group["num_pauli_terms"]),
+                "num_identity_terms": int(pauli_group["num_identity_terms"]),
+                "num_non_identity_terms": int(pauli_group["num_non_identity_terms"]),
+            }
+        )
+
+    if not entries:
+        raise ValueError("No nontrivial positive-weight groups available for qDRIFT.")
+
+    weight_sum = float(sum(entry["weight"] for entry in entries))
+    for entry in entries:
+        entry["probability"] = float(entry["weight"] / weight_sum)
+
+    return {
+        "entries": entries,
+        "group_indices": np.array([entry["group_index"] for entry in entries], dtype=int),
+        "probabilities": np.array([entry["probability"] for entry in entries], dtype=float),
+        "weight_sum_lambda": weight_sum,
+        "pauli_by_index": pauli_by_index,
+        "scalar_energy": scalar_energy_from_grouped_paulis(pauli_archive),
+    }
+
+
+def build_stochastic_qdrift_instance(
+    sampling_model,
+    total_time,
+    rng,
+    num_qubits,
+    basis_gates,
+    power,
+    instance_index,
+):
+    circuit = QuantumCircuit(
+        num_qubits,
+        name=f"suqk_qdrift_k{power}_sample{instance_index}",
+    )
+    segment_angle = (
+        sampling_model["weight_sum_lambda"]
+        * total_time
+        / QDRIFT_SEGMENT_COUNT_ND
+    )
+
+    sampled_indices = rng.choice(
+        sampling_model["group_indices"],
+        size=QDRIFT_SEGMENT_COUNT_ND,
+        replace=True,
+        p=sampling_model["probabilities"],
+    )
+    entries_by_index = {
+        int(entry["group_index"]): entry
+        for entry in sampling_model["entries"]
+    }
+    history = []
+    for segment_index, sampled_index in enumerate(sampled_indices):
+        sampled_index = int(sampled_index)
+        entry = entries_by_index[sampled_index]
+        group_circuit = build_group_evolution_circuit(
+            sampling_model["pauli_by_index"][sampled_index],
+            num_qubits,
+            segment_angle,
+            basis_gates,
+            coefficient_scale=entry["coefficient_scale_for_G_mu"],
+        )
+        circuit.compose(group_circuit, inplace=True)
+        history.append(
+            {
+                "segment": int(segment_index),
+                "group_index": sampled_index,
+                "h_mu": float(entry["h_mu"]),
+                "w_mu": float(entry["w_mu"]),
+                "weight": float(entry["weight"]),
+                "probability": float(entry["probability"]),
+                "segment_angle_theta": float(segment_angle),
+                "coefficient_scale_for_G_mu": float(
+                    entry["coefficient_scale_for_G_mu"]
+                ),
+                "group_depth": int(group_circuit.depth()),
+                "group_operation_counts": operation_counts(group_circuit),
+            }
+        )
+
+    return circuit, history
+
+
+def build_backend():
+    if BACKEND_MODE == "local_noiseless_statevector":
+        return AerSimulator(method="statevector", seed_simulator=RANDOM_SEED)
+    raise ValueError(f"Unsupported BACKEND_MODE={BACKEND_MODE!r}.")
+
+
+def run_mfe_for_power(backend, power_circuit, occupation, hf_count_key, verbose):
+    templates = build_mfe_templates(power_circuit, occupation, verbose=verbose)
+    labels = [F1_LABEL, F2_PLUS_LABEL, F2_I_LABEL]
+    circuits = [templates[label] for label in labels]
+    result = backend.run(circuits, shots=SHOTS_PER_MFE_EXPERIMENT).result()
+    counts_by_label = {
+        label: {key: int(value) for key, value in result.get_counts(index).items()}
+        for index, label in enumerate(labels)
+    }
+    estimate = estimate_z_from_counts(counts_by_label, hf_count_key, verbose=verbose)
+    fidelities = {
+        "F1": estimate.f1,
+        "F2_plus": estimate.f2_plus,
+        "F2_i": estimate.f2_i,
+    }
+    depths = {label: int(circuit.depth()) for label, circuit in templates.items()}
+    ops = {label: operation_counts(circuit) for label, circuit in templates.items()}
+    return {
+        "counts": counts_by_label,
+        "fidelities": fidelities,
+        "estimate": {
+            "real": estimate.real,
+            "imag": estimate.imag,
+            "abs": abs(estimate.z),
+        },
+        "template_depths": depths,
+        "template_operation_counts": ops,
+    }
+
+
+def count_totals_by_label(instance_records):
+    totals = {}
+    for label in [F1_LABEL, F2_PLUS_LABEL, F2_I_LABEL]:
+        label_totals = {}
+        for record in instance_records:
+            for bitstring, count in record["counts"][label].items():
+                label_totals[bitstring] = label_totals.get(bitstring, 0) + int(count)
+        totals[label] = label_totals
+    return totals
+
+
+def average_fidelities(instance_records):
+    return {
+        key: float(np.mean([record["fidelities"][key] for record in instance_records]))
+        for key in ["F1", "F2_plus", "F2_i"]
+    }
+
+
+def average_estimate(instance_records):
+    values = np.array(
+        [
+            complex(record["estimate"]["real"], record["estimate"]["imag"])
+            for record in instance_records
+        ],
+        dtype=np.complex128,
+    )
+    return complex(np.mean(values))
+
+
+def standard_record_for_power(
+    backend,
+    full_step,
+    power,
+    occupation,
+    hf_count_key,
+):
+    power_circuit = build_trotter_power(full_step, power)
+    verbose = MFE_VERBOSE_FOR_FIRST_NONZERO_POWER and power == 1
+    print(
+        f"\nC_{power}: STANDARD V_{power}=U^{power}, "
+        f"depth {power_circuit.depth()}, size {power_circuit.size()}"
+    )
+    record = run_mfe_for_power(
+        backend,
+        power_circuit,
+        occupation,
+        hf_count_key,
+        verbose=verbose,
+    )
+    # Raw MFE gives y=<HF|V|HF>*r.conjugate() when the vacuum reference branch
+    # amplitude r=<vac|V|vac> is not 1. Restore the physical non-scalar
+    # correlation with the general relation C = y/r.conjugate(). If r is a pure
+    # phase this equals y*r, but stochastic qDRIFT chunks can have |r| != 1, so
+    # the division form is the one we want to see and audit in the code.
+    # The scalar h_o phase is handled later in main(), so this returned value is
+    # still the non-scalar C_k only.
+    raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
+    reference_branch = reference_branch_amplitude(power_circuit)
+    measured_value = apply_reference_branch_correction(
+        raw_mfe_value,
+        reference_branch,
+        f"standard power {power}",
+    )
+    record.update(
+        {
+            "mode": "standard",
+            "power": power,
+            "num_instances": 1,
+            "raw_mfe_relative_correlation": {
+                "real": float(raw_mfe_value.real),
+                "imag": float(raw_mfe_value.imag),
+            },
+            "reference_branch_amplitude": {
+                "real": float(reference_branch.real),
+                "imag": float(reference_branch.imag),
+                "abs": float(abs(reference_branch)),
+                "phase_radians": float(np.angle(reference_branch)),
+            },
+            "reference_branch_corrected_non_scalar_correlation": {
+                "real": float(measured_value.real),
+                "imag": float(measured_value.imag),
+            },
+            "power_circuit_depth": int(power_circuit.depth()),
+            "power_circuit_size": int(power_circuit.size()),
+            "power_circuit_operation_counts": operation_counts(power_circuit),
+            "sampled_group_histories": [],
+            "mean_fidelities": record["fidelities"],
+            "summed_counts": record["counts"],
+        }
+    )
+    return measured_value, record
+
+
+def stochastic_record_for_power(
+    backend,
+    sampling_model,
+    power,
+    occupation,
+    hf_count_key,
+    num_qubits,
+    basis_gates,
+    rng,
+    dt,
+):
+    total_time = power * dt
+    if power == 0:
+        identity = QuantumCircuit(num_qubits, name="suqk_identity_power_0")
+        print("\nC_0: STOCHASTIC mode still measures identity once for diagnostics")
+        record = run_mfe_for_power(
+            backend,
+            identity,
+            occupation,
+            hf_count_key,
+            verbose=False,
+        )
+        raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
+        reference_branch = reference_branch_amplitude(identity)
+        measured_value = apply_reference_branch_correction(
+            raw_mfe_value,
+            reference_branch,
+            "stochastic power 0 identity",
+        )
+        record.update(
+            {
+                "mode": "stochastic",
+                "power": power,
+                "num_instances": 1,
+                "total_time": float(total_time),
+                "qdrift_segment_count": 0,
+                "raw_mfe_relative_correlation": {
+                    "real": float(raw_mfe_value.real),
+                    "imag": float(raw_mfe_value.imag),
+                },
+                "reference_branch_amplitude": {
+                    "real": float(reference_branch.real),
+                    "imag": float(reference_branch.imag),
+                    "abs": float(abs(reference_branch)),
+                    "phase_radians": float(np.angle(reference_branch)),
+                },
+                "reference_branch_corrected_non_scalar_correlation": {
+                    "real": float(measured_value.real),
+                    "imag": float(measured_value.imag),
+                },
+                "power_circuit_depth": 0,
+                "power_circuit_size": 0,
+                "power_circuit_operation_counts": {},
+                "sampled_group_histories": [],
+                "instance_records": [],
+                "mean_fidelities": record["fidelities"],
+                "summed_counts": record["counts"],
+            }
+        )
+        return measured_value, record
+
+    print(
+        f"\nC_{power}: STOCHASTIC qDRIFT total_time={total_time:.8f}, "
+        f"N_d={QDRIFT_SEGMENT_COUNT_ND}, "
+        f"instances={STOCHASTIC_INSTANCES_PER_CORRELATION}"
+    )
+    instance_records = []
+    sampled_group_histories = []
+    for instance_index in range(STOCHASTIC_INSTANCES_PER_CORRELATION):
+        chunk, history = build_stochastic_qdrift_instance(
+            sampling_model,
+            total_time,
+            rng,
+            num_qubits,
+            basis_gates,
+            power,
+            instance_index,
+        )
+        verbose = (
+            MFE_VERBOSE_FOR_FIRST_NONZERO_POWER
+            and power == 1
+            and instance_index == 0
+        )
+        print(
+            f"  sample {instance_index}: groups "
+            f"{[item['group_index'] for item in history]}, "
+            f"theta {[round(item['segment_angle_theta'], 8) for item in history]}, "
+            f"depth {chunk.depth()}, size {chunk.size()}"
+        )
+        instance_record = run_mfe_for_power(
+            backend,
+            chunk,
+            occupation,
+            hf_count_key,
+            verbose=verbose,
+        )
+        # Each stochastic qDRIFT chunk is a different circuit, so each sample
+        # has its own reference branch r_omega=<vac|V_omega|vac>. The raw MFE
+        # estimate for that chunk is y_omega=C_omega*r_omega.conjugate().
+        # Correct each sampled instance before averaging. This matters more
+        # here than in standard UQK because a sampled qDRIFT chunk is not
+        # guaranteed to keep the vacuum branch as a unit-magnitude phase.
+        raw_mfe_value = complex(
+            instance_record["estimate"]["real"],
+            instance_record["estimate"]["imag"],
+        )
+        reference_branch = reference_branch_amplitude(chunk)
+        corrected_value = apply_reference_branch_correction(
+            raw_mfe_value,
+            reference_branch,
+            f"stochastic power {power} sample {instance_index}",
+        )
+        instance_record.update(
+            {
+                "instance_index": int(instance_index),
+                "chunk_depth": int(chunk.depth()),
+                "chunk_size": int(chunk.size()),
+                "chunk_operation_counts": operation_counts(chunk),
+                "sampled_group_history": history,
+                "raw_mfe_relative_correlation": {
+                    "real": float(raw_mfe_value.real),
+                    "imag": float(raw_mfe_value.imag),
+                },
+                "reference_branch_amplitude": {
+                    "real": float(reference_branch.real),
+                    "imag": float(reference_branch.imag),
+                    "abs": float(abs(reference_branch)),
+                    "phase_radians": float(np.angle(reference_branch)),
+                },
+                "reference_branch_corrected_non_scalar_correlation": {
+                    "real": float(corrected_value.real),
+                    "imag": float(corrected_value.imag),
+                    "abs": float(abs(corrected_value)),
+                },
+            }
+        )
+        instance_records.append(instance_record)
+        sampled_group_histories.append(history)
+
+    raw_mean_value = average_estimate(instance_records)
+    corrected_values = np.array(
+        [
+            complex(
+                record["reference_branch_corrected_non_scalar_correlation"]["real"],
+                record["reference_branch_corrected_non_scalar_correlation"]["imag"],
+            )
+            for record in instance_records
+        ],
+        dtype=np.complex128,
+    )
+    measured_value = complex(np.mean(corrected_values))
+    reference_values = np.array(
+        [
+            complex(
+                record["reference_branch_amplitude"]["real"],
+                record["reference_branch_amplitude"]["imag"],
+            )
+            for record in instance_records
+        ],
+        dtype=np.complex128,
+    )
+    max_depth = max(record["chunk_depth"] for record in instance_records)
+    mean_depth = float(np.mean([record["chunk_depth"] for record in instance_records]))
+    record = {
+        "mode": "stochastic",
+        "power": power,
+        "num_instances": STOCHASTIC_INSTANCES_PER_CORRELATION,
+        "total_time": float(total_time),
+        "qdrift_segment_count": QDRIFT_SEGMENT_COUNT_ND,
+        "power_circuit_depth": int(max_depth),
+        "mean_power_circuit_depth": mean_depth,
+        "power_circuit_size": int(max(record["chunk_size"] for record in instance_records)),
+        "power_circuit_operation_counts": {
+            "note": "See per-instance chunk_operation_counts for stochastic mode."
+        },
+        "counts": count_totals_by_label(instance_records),
+        "fidelities": average_fidelities(instance_records),
+        "estimate": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "raw_mfe_relative_correlation_mean": {
+            "real": float(raw_mean_value.real),
+            "imag": float(raw_mean_value.imag),
+            "abs": float(abs(raw_mean_value)),
+        },
+        "reference_branch_corrected_non_scalar_correlation": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "reference_branch_amplitude_mean": {
+            "real": float(np.mean(reference_values).real),
+            "imag": float(np.mean(reference_values).imag),
+            "abs_mean": float(np.mean(np.abs(reference_values))),
+            "phase_radians_mean": float(np.mean(np.angle(reference_values))),
+        },
+        "template_depths": {
+            "note": "See per-instance template_depths for stochastic mode."
+        },
+        "template_operation_counts": {
+            "note": "See per-instance template_operation_counts for stochastic mode."
+        },
+        "sampled_group_histories": sampled_group_histories,
+        "instance_records": instance_records,
+        "mean_fidelities": average_fidelities(instance_records),
+        "summed_counts": count_totals_by_label(instance_records),
+    }
+    return measured_value, record
+
+
+def assemble_overlap_matrix(correlations):
+    matrix = np.empty((KRYLOV_DIMENSION, KRYLOV_DIMENSION), dtype=np.complex128)
+    for m in range(KRYLOV_DIMENSION):
+        for n in range(KRYLOV_DIMENSION):
+            diff = n - m
+            if diff >= 0:
+                matrix[m, n] = correlations[diff]
+            else:
+                matrix[m, n] = np.conjugate(correlations[-diff])
+    return matrix
+
+
+def complex_array_to_records(values):
+    return [
+        {"index": int(index), "real": float(value.real), "imag": float(value.imag)}
+        for index, value in enumerate(values)
+    ]
+
+
+def complex_matrix_to_nested_records(matrix):
+    return [
+        [
+            {"real": float(matrix[row, col].real), "imag": float(matrix[row, col].imag)}
+            for col in range(matrix.shape[1])
+        ]
+        for row in range(matrix.shape[0])
+    ]
+
+
+def print_correlation_table(measured, enforced):
+    if not PRINT_CORRELATION_TABLE:
+        return
+    print_header("Correlation Sequence")
+    print(f"{'k':>3} {'measured C_k':>28} {'stored C_k':>28}")
+    print("-" * 78)
+    for k, measured_value in enumerate(measured):
+        stored_value = enforced[k]
+        print(
+            f"{k:>3} "
+            f"{measured_value.real:+.8f}{measured_value.imag:+.8f}j "
+            f"{stored_value.real:+.8f}{stored_value.imag:+.8f}j"
+        )
+
+
+def main():
+    molecule_metadata = load_json(INPUT_MOLECULE_METADATA_JSON)
+    circuit_metadata = load_json(INPUT_CIRCUIT_METADATA_JSON)
+    hp_archive = load_json(INPUT_HERMITIAN_PAIR_JSON)
+    pauli_archive = load_json(INPUT_GROUPED_PAULI_JSON)
+    validate_options(circuit_metadata)
+    print_startup(circuit_metadata, molecule_metadata)
+    print_user_option_guide()
+
+    occupation, hf_count_key = validate_hf_metadata(molecule_metadata)
+    circuit_hf_key = circuit_metadata["hf_reference"][
+        "qiskit_counts_bitstring_if_measured_q_to_c_same_index"
+    ]
+    if hf_count_key != circuit_hf_key:
+        raise ValueError(
+            f"HF count key mismatch: molecule metadata has {hf_count_key}, "
+            f"circuit metadata has {circuit_hf_key}."
+        )
+
+    group_circuits = load_qpy_circuits(INPUT_QPY)
+    full_step, full_step_group_indices, skipped_scalar_group_indices = (
+        build_one_trotter_step(group_circuits, circuit_metadata)
+    )
+    basis_gates = circuit_metadata["options"]["generic_basis_gates"]
+    num_qubits = int(circuit_metadata["active_space"]["num_qubits"])
+    dt = float(circuit_metadata["options"]["dt"])
+    sampling_model = build_qdrift_sampling_model(hp_archive, pauli_archive)
+
+    print_header("Full Trotter Step Summary")
+    print_kv("Grouped circuits loaded:", len(group_circuits))
+    print_kv("Non-scalar groups included:", len(full_step_group_indices))
+    print_kv("Scalar groups skipped:", skipped_scalar_group_indices)
+    print_kv("Non-scalar full-step depth:", full_step.depth())
+    print_kv("Non-scalar full-step size:", full_step.size())
+    print_kv("Non-scalar full-step op counts:", operation_counts(full_step))
+
+    print_header("qDRIFT Sampling Model")
+    print_kv("Sampled non-scalar groups:", len(sampling_model["entries"]))
+    print_kv(
+        "qDRIFT lambda=sum non-scalar w_mu:",
+        f"{sampling_model['weight_sum_lambda']:.12f}",
+    )
+    print_kv(
+        "Scalar energy excluded from lambda:",
+        f"{sampling_model['scalar_energy']:.12f}",
+    )
+    print_kv("Scalar phase application:", "analytic after MFE")
+    print_kv("Weight convention:", STOCHASTIC_WEIGHT_CONVENTION)
+    print_kv(
+        "First five (mu,h_mu,p_mu):",
+        [
+            (
+                entry["group_index"],
+                round(entry["h_mu"], 8),
+                round(entry["probability"], 8),
+            )
+            for entry in sampling_model["entries"][:5]
+        ],
+    )
+    print_qdrift_circuit_structure(sampling_model, dt)
+
+    backend = build_backend()
+    rng = np.random.default_rng(RANDOM_SEED)
+    measured_correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
+    stored_correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
+    per_power_metadata = []
+
+    print_header("Estimating C_k With MFE")
+    for power in range(MAX_CORRELATION_POWER + 1):
+        if UQK_MODE == "standard":
+            non_scalar_measured_value, record = standard_record_for_power(
+                backend,
+                full_step,
+                power,
+                occupation,
+                hf_count_key,
+            )
+        elif UQK_MODE == "stochastic":
+            non_scalar_measured_value, record = stochastic_record_for_power(
+                backend,
+                sampling_model,
+                power,
+                occupation,
+                hf_count_key,
+                num_qubits,
+                basis_gates,
+                rng,
+                dt,
+            )
+        else:
+            raise ValueError(f"Unsupported UQK_MODE={UQK_MODE!r}.")
+
+        total_time = power * dt
+        scalar_phase = np.exp(-1j * sampling_model["scalar_energy"] * total_time)
+        measured_value = scalar_phase * non_scalar_measured_value
+        stored_value = measured_value
+        if power == 0 and ENFORCE_C0_EXACT:
+            stored_value = complex(1.0, 0.0)
+
+        measured_correlations[power] = measured_value
+        stored_correlations[power] = stored_value
+        record.update(
+            {
+                "total_time": float(total_time),
+                "scalar_energy": float(sampling_model["scalar_energy"]),
+                "reference_branch_correction_applied": True,
+                "reference_branch_correction_formula": (
+                    "raw MFE y_k = C_k_non_scalar * r_k^*; "
+                    "reference-corrected C_k_non_scalar = y_k / r_k^*"
+                ),
+                "scalar_phase_applied_analytically": {
+                    "real": float(scalar_phase.real),
+                    "imag": float(scalar_phase.imag),
+                },
+                "non_scalar_measured_correlation": {
+                    "real": float(non_scalar_measured_value.real),
+                    "imag": float(non_scalar_measured_value.imag),
+                },
+                "measured_correlation": {
+                    "real": float(measured_value.real),
+                    "imag": float(measured_value.imag),
+                },
+                "stored_correlation": {
+                    "real": float(stored_value.real),
+                    "imag": float(stored_value.imag),
+                },
+                "c0_enforced": bool(power == 0 and ENFORCE_C0_EXACT),
+            }
+        )
+        per_power_metadata.append(record)
+        if "raw_mfe_relative_correlation" in record:
+            raw_for_print = complex(
+                record["raw_mfe_relative_correlation"]["real"],
+                record["raw_mfe_relative_correlation"]["imag"],
+            )
+            r_for_print = complex(
+                record["reference_branch_amplitude"]["real"],
+                record["reference_branch_amplitude"]["imag"],
+            )
+        else:
+            raw_for_print = complex(
+                record["raw_mfe_relative_correlation_mean"]["real"],
+                record["raw_mfe_relative_correlation_mean"]["imag"],
+            )
+            r_for_print = complex(
+                record["reference_branch_amplitude_mean"]["real"],
+                record["reference_branch_amplitude_mean"]["imag"],
+            )
+        print(
+            f"C_{power} raw MFE y = {raw_for_print.real:+.8f}"
+            f"{raw_for_print.imag:+.8f}j; "
+            f"reference r = {r_for_print.real:+.8f}"
+            f"{r_for_print.imag:+.8f}j; "
+            f"corrected non-scalar = {non_scalar_measured_value.real:+.8f}"
+            f"{non_scalar_measured_value.imag:+.8f}j; "
+            f"scalar phase = {scalar_phase.real:+.8f}"
+            f"{scalar_phase.imag:+.8f}j; "
+            f"measured = {measured_value.real:+.8f}"
+            f"{measured_value.imag:+.8f}j; stored = {stored_value.real:+.8f}"
+            f"{stored_value.imag:+.8f}j"
+        )
+
+    overlap_matrix = assemble_overlap_matrix(stored_correlations)
+    hermiticity_error = float(np.linalg.norm(overlap_matrix - overlap_matrix.conj().T))
+    condition_number = float(np.linalg.cond(overlap_matrix))
+
+    print_correlation_table(measured_correlations, stored_correlations)
+
+    print_header("Overlap Matrix S")
+    print(overlap_matrix)
+    print_kv("Hermiticity error ||S-S^dag||:", f"{hermiticity_error:.12e}")
+    print_kv("Condition number:", f"{condition_number:.12e}")
+
+    output_npz = output_npz_path(UQK_MODE)
+    output_metadata = output_metadata_path(UQK_MODE)
+    output_npz.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(
+        output_npz,
+        S=overlap_matrix,
+        correlations=stored_correlations,
+        measured_correlations=measured_correlations,
+        correlation_powers=np.arange(MAX_CORRELATION_POWER + 1, dtype=int),
+        krylov_dimension=np.array(KRYLOV_DIMENSION, dtype=int),
+        dt=np.array(float(circuit_metadata["options"]["dt"]), dtype=float),
+    )
+
+    metadata = {
+        "schema_version": 1,
+        "generated_at_utc": now_utc(),
+        "script": str(Path(__file__).relative_to(REPO_ROOT)),
+        "inputs": {
+            "qpy": str(INPUT_QPY),
+            "circuit_metadata_json": str(INPUT_CIRCUIT_METADATA_JSON),
+            "molecule_metadata_json": str(INPUT_MOLECULE_METADATA_JSON),
+            "hermitian_pair_json": str(INPUT_HERMITIAN_PAIR_JSON),
+            "grouped_pauli_json": str(INPUT_GROUPED_PAULI_JSON),
+        },
+        "outputs": {
+            "npz": str(output_npz),
+            "metadata_json": str(output_metadata),
+        },
+        "options": {
+            "uqk_mode": UQK_MODE,
+            "valid_uqk_modes": sorted(VALID_UQK_MODES),
+            "krylov_dimension": KRYLOV_DIMENSION,
+            "max_correlation_power": MAX_CORRELATION_POWER,
+            "dt": dt,
+            "trotter_order": int(circuit_metadata["options"]["trotter_sequence_order"]),
+            "shots_per_mfe_experiment": SHOTS_PER_MFE_EXPERIMENT,
+            "backend_mode": BACKEND_MODE,
+            "qdrift_segment_count_Nd": QDRIFT_SEGMENT_COUNT_ND,
+            "stochastic_instances_per_correlation": STOCHASTIC_INSTANCES_PER_CORRELATION,
+            "stochastic_weight_convention": STOCHASTIC_WEIGHT_CONVENTION,
+            "random_seed": RANDOM_SEED,
+            "enforce_c0_exact": ENFORCE_C0_EXACT,
+            "mfe_verbose_for_first_nonzero_power": MFE_VERBOSE_FOR_FIRST_NONZERO_POWER,
+        },
+        "option_documentation": {
+            "uqk_mode": {
+                "standard": "Use deterministic non-scalar Trotter blocks plus the analytic scalar phase.",
+                "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt.",
+            },
+            "krylov_dimension": "Matrix dimension M; S has shape M x M.",
+            "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
+            "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i. In stochastic mode this is per sampled instance.",
+            "backend_mode": {
+                "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware."
+            },
+            "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
+            "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
+            "stochastic_weight_convention": {
+                "group_pauli_l1_norm": (
+                    "For non-scalar K_mu=sum_rho alpha_mu,rho P_mu,rho, "
+                    "use h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, "
+                    "lambda=sum_mu w_mu, and p_mu=w_mu/lambda."
+                )
+            },
+            "rough_numeric_ranges": {
+                "krylov_dimension": "2-4 for debugging, 5-10 for early studies, larger values need care with conditioning.",
+                "shots_per_mfe_experiment": "100-1000 smoke tests, 2000-10000 smoother simulator studies.",
+                "qdrift_segment_count_Nd": "2-8 debugging, 10-100 convergence studies.",
+                "stochastic_instances_per_correlation": "1-5 plumbing checks, 10-100 convergence studies.",
+            },
+        },
+        "molecule": molecule_metadata["molecule"],
+        "active_space": molecule_metadata["active_space"],
+        "hf_reference": molecule_metadata["hf_reference"],
+        "occupied_qubits": occupied_qubits_from_occupation(occupation),
+        "source_circuit_archive": {
+            "num_group_circuits": len(group_circuits),
+            "source_qiskit_version": circuit_metadata.get("qiskit_version"),
+            "source_depth_statistics": circuit_metadata.get("depth_statistics"),
+            "source_target": circuit_metadata.get("target"),
+        },
+        "stochastic_sampling": {
+            "mode": UQK_MODE == "stochastic",
+            "sampled_non_scalar_groups": len(sampling_model["entries"]),
+            "weight_sum_lambda": sampling_model["weight_sum_lambda"],
+            "lambda_excludes_zero_body_scalar": True,
+            "scalar_energy_excluded_from_lambda": sampling_model["scalar_energy"],
+            "scalar_energy_applied_analytically_to_correlations": (
+                sampling_model["scalar_energy"]
+            ),
+            "weight_convention": STOCHASTIC_WEIGHT_CONVENTION,
+            "entries": sampling_model["entries"],
+            "qdrift_formula": (
+                "Write H=E_scalar I + sum_mu K_mu. For non-scalar groups, "
+                "define h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, "
+                "lambda=sum_mu w_mu, and p_mu=w_mu/lambda. A sampled chunk "
+                "for T_k=k*dt uses prod_s exp[-i (lambda*T_k/N_d) G_mu_s]. "
+                "The zero-body scalar phase exp(-i E_scalar T_k) is applied "
+                "analytically after MFE."
+            ),
+            "implemented_sampled_circuit": (
+                "For total time T_k=k*dt, each sampled instance is "
+                "prod_s exp[-i theta_k G_mu_s], theta_k=lambda*T_k/N_d. "
+                "Each G_mu is rebuilt from grouped Pauli terms using "
+                "PauliEvolutionGate(SparsePauliOp(K_mu/h_mu), time=theta_k)."
+            ),
+            "current_archive_convention_note": (
+                "The grouped Pauli archive stores K_mu directly rather than a "
+                "separate h_mu and normalized G_mu. This script defines an "
+                "effective positive h_mu from the Pauli L1 norm and leaves all "
+                "coefficient signs in G_mu."
+            ),
+        },
+        "full_trotter_step": {
+            "scalar_groups_skipped_for_mfe": skipped_scalar_group_indices,
+            "non_scalar_group_indices": full_step_group_indices,
+            "scalar_phase_applied_analytically_to_correlations": (
+                sampling_model["scalar_energy"]
+            ),
+            "depth": int(full_step.depth()),
+            "size": int(full_step.size()),
+            "operation_counts": operation_counts(full_step),
+        },
+        "correlations": complex_array_to_records(stored_correlations),
+        "measured_correlations": complex_array_to_records(measured_correlations),
+        "overlap_matrix": complex_matrix_to_nested_records(overlap_matrix),
+        "diagnostics": {
+            "hermiticity_error_frobenius": hermiticity_error,
+            "condition_number": condition_number,
+        },
+        "mfe_by_power": per_power_metadata,
+        "notes": [
+            (
+                "This is the deterministic UQK branch: every time step uses the saved non-scalar Trotter block and applies the scalar phase analytically."
+                if UQK_MODE == "standard"
+                else "This is the stochastic UQK branch: each nonzero C_k averages independently sampled qDRIFT grouped chunks."
+            ),
+            "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+            "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
+            "No IBM credentials or QPU backend are used in this script.",
+        ],
+    }
+    with output_metadata.open("w", encoding="utf-8") as handle:
+        json.dump(metadata, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+
+    print_header("Saved Outputs")
+    print_kv("NPZ:", output_npz)
+    print_kv("Metadata JSON:", output_metadata)
+
+
+if __name__ == "__main__":
+    main()

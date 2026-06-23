@@ -1,0 +1,33 @@
+.DS_Store
+.vscode/
+.env
+.qiskit/
+qiskit-ibm.json
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Psi4/qforte scratch-style text output.
+*.out
+*.log
+timer.dat
+
+# Generated workflow artifacts. Keep the directory skeleton visible.
+data/molecules/*
+!data/molecules/.gitkeep
+
+data/hamiltonians/*
+!data/hamiltonians/.gitkeep
+
+circuits/transpiled/*
+!circuits/transpiled/.gitkeep
+
+results/krylov_matrices/*
+!results/krylov_matrices/.gitkeep
+
+results/summaries/*
+!results/summaries/.gitkeep
+
+results/hardware_jobs/*
+!results/hardware_jobs/.gitkeep

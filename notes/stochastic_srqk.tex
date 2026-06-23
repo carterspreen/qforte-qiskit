@@ -1,0 +1,720 @@
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+
+% Core packages
+\usepackage{amsmath,amssymb}
+\usepackage{tikz-cd}
+\usepackage{multicol}
+
+% Notation helpers
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle#1\right|}
+\newcommand{\braket}[2]{\left\langle#1\middle|#2\right\rangle}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+% Paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1\baselineskip}
+
+\title{Notes on Stochastic Unitary Quantum Krylov Workflows for Molecular Hamiltonians}
+\author{Prism Research Notes}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+These notes are intended to serve two related purposes.  First, they provide a pedagogical entry point for new research students learning the physics behind stochastic unitary quantum Krylov (SUQK) calculations for molecular electronic structure, especially when the quantum measurements are combined with the Cortes--Gray multifidelity estimation protocol.  Second, they establish notation and data-flow expectations for an eventual \texttt{qforte-qiskit} interface: molecular Hamiltonians and circuit-generation metadata are prepared by \texttt{qforte}/OpenFermion, stored in a Qiskit-readable representation, and then consumed by Qiskit tools for state-vector simulation, transpilation, hardware execution, and post-processing of quantities of interest.
+
+The first part of the story is independent of any particular software stack.  It begins with the electronic Hamiltonian, maps that Hamiltonian to qubits, and then reviews why Krylov ideas are useful.  Later sections can build on this foundation to describe stochastic unitary Krylov bases, multifidelity estimators, file formats, and the API boundary between \texttt{qforte} and Qiskit.
+
+Throughout these notes, we use the following conventions.
+\begin{center}
+\begin{tabular}{|l|p{0.66\textwidth}|}
+\hline
+Symbol & Meaning \\
+\hline
+$N_e$ & Number of electrons. \\
+$n_{\mathrm{AO}}$ & Number of atomic orbital basis functions. \\
+$n_{\mathrm{orb}}$ & Number of spatial molecular orbitals; this is often the software variable \texttt{norb}. \\
+$n_{\mathrm{so}}=2n_{\mathrm{orb}}$ & Number of spin orbitals for a spin-orbital formulation. \\
+$n_{\mathrm{qubit}}=n_{\mathrm{so}}$ & Number of qubits under the direct Jordan--Wigner mapping; this is often \texttt{nqubits}. \\
+$D$ & Hilbert-space dimension.  In the full qubit space, $D=2^{n_{\mathrm{qubit}}}$; in the fixed-particle-number sector, $D=\binom{n_{\mathrm{so}}}{N_e}$. \\
+\hline
+\end{tabular}
+\end{center}
+
+The notation below uses spin-orbital indices $p,q,r,s\in\{0,\ldots,n_{\mathrm{so}}-1\}$ when discussing fermions and qubits.  Spatial atomic-orbital indices are denoted by Greek letters such as $\mu,\nu,\lambda,\sigma$.
+
+\section{Electronic Structure Hamiltonian}
+
+\subsection{Real-space molecular Hamiltonian}
+
+In the Born--Oppenheimer approximation, the nuclei are treated as fixed classical point charges and the electronic degrees of freedom are quantum mechanical.  For nuclear charges $Z_A$ at positions $\mathbf{R}_A$, and electron coordinates $\mathbf{r}_i$, the electronic Hamiltonian in atomic units is
+\begin{equation}
+    \hat{H}_{\mathrm{el}}
+    = \sum_{i=1}^{N_e}
+    \left(
+        -\frac{1}{2}\nabla_i^2
+        - \sum_A \frac{Z_A}{|\mathbf{r}_i-\mathbf{R}_A|}
+    \right)
+    + \sum_{1\leq i<j\leq N_e}\frac{1}{|\mathbf{r}_i-\mathbf{r}_j|}.
+    \label{eq:real_space_hamiltonian}
+\end{equation}
+The nuclear repulsion energy
+\begin{equation}
+    E_{\mathrm{nn}}=\sum_{A<B}\frac{Z_AZ_B}{|\mathbf{R}_A-\mathbf{R}_B|}
+\end{equation}
+is a constant for a fixed molecular geometry.  In electronic-structure packages this constant is usually stored separately and added to the electronic eigenvalue at the end:
+\begin{equation}
+    E_{\mathrm{total}} = E_{\mathrm{el}} + E_{\mathrm{nn}}.
+\end{equation}
+
+Equation~\eqref{eq:real_space_hamiltonian} acts on antisymmetric many-electron wave functions.  The antisymmetry requirement is the first source of complexity: exchanging any two electrons must change the sign of the wave function.  Second quantization packages this antisymmetry into algebraic creation and annihilation operators.
+
+\subsection{Atomic orbital basis and AO integrals}
+
+Computations begin by expanding one-electron functions in a finite atomic orbital (AO) basis
+\begin{equation}
+    \{\chi_\mu(\mathbf{r})\}_{\mu=1}^{n_{\mathrm{AO}}}.
+\end{equation}
+The AO basis is usually nonorthogonal, with overlap matrix
+\begin{equation}
+    S_{\mu\nu}=\int \chi_\mu^*(\mathbf{r})\chi_\nu(\mathbf{r})\dd\mathbf{r},
+    \qquad S\in\mathbb{C}^{n_{\mathrm{AO}}\times n_{\mathrm{AO}}}.
+\end{equation}
+The one-electron AO integrals are
+\begin{equation}
+    h^{\mathrm{AO}}_{\mu\nu}
+    = \int \chi_\mu^*(\mathbf{r})
+    \left(
+        -\frac{1}{2}\nabla^2
+        - \sum_A \frac{Z_A}{|\mathbf{r}-\mathbf{R}_A|}
+    \right)
+    \chi_\nu(\mathbf{r})\dd\mathbf{r},
+    \qquad h^{\mathrm{AO}}\in\mathbb{C}^{n_{\mathrm{AO}}\times n_{\mathrm{AO}}}.
+\end{equation}
+The two-electron Coulomb integrals are
+\begin{equation}
+    (\mu\nu|\lambda\sigma)
+    = \iint
+    \frac{
+        \chi_\mu^*(\mathbf{r}_1)\chi_\nu(\mathbf{r}_1)
+        \chi_\lambda^*(\mathbf{r}_2)\chi_\sigma(\mathbf{r}_2)
+    }
+    {|\mathbf{r}_1-\mathbf{r}_2|}
+    \dd\mathbf{r}_1\dd\mathbf{r}_2,
+    \qquad (\mu\nu|\lambda\sigma)\in\mathbb{C}^{n_{\mathrm{AO}}^4}.
+\end{equation}
+In code, the two-electron integral tensor is often stored as a rank-four array with shape
+\begin{equation}
+    (n_{\mathrm{AO}}, n_{\mathrm{AO}}, n_{\mathrm{AO}}, n_{\mathrm{AO}}),
+\end{equation}
+possibly after exploiting permutation symmetry or using a compressed representation.
+
+\subsection{Molecular orbital basis}
+
+Molecular orbitals (MOs) are linear combinations of AOs,
+\begin{equation}
+    \phi_i(\mathbf{r}) = \sum_{\mu=1}^{n_{\mathrm{AO}}}\chi_\mu(\mathbf{r}) C_{\mu i},
+    \qquad C\in\mathbb{C}^{n_{\mathrm{AO}}\times n_{\mathrm{orb}}}.
+\end{equation}
+After choosing spatial orbitals and spin functions, one obtains $n_{\mathrm{so}}=2n_{\mathrm{orb}}$ spin orbitals.  In a spin-orbital basis, the electronic Hamiltonian has the standard second-quantized form
+\begin{equation}
+    \hat{H}_{\mathrm{el}}
+    = \sum_{pq} h_{pq} a_p^\dagger a_q
+    + \frac{1}{2}\sum_{pqrs} g_{pqrs} a_p^\dagger a_q^\dagger a_s a_r,
+    \label{eq:second_quantized_hamiltonian}
+\end{equation}
+where $a_p^\dagger$ creates an electron in spin orbital $p$, $a_p$ annihilates an electron in spin orbital $p$, and the operators satisfy the fermionic anticommutation relations
+\begin{equation}
+    \{a_p,a_q^\dagger\}=\delta_{pq},\qquad
+    \{a_p,a_q\}=\{a_p^\dagger,a_q^\dagger\}=0.
+\end{equation}
+The one-body and two-body tensors have array shapes
+\begin{equation}
+    h\in\mathbb{C}^{n_{\mathrm{so}}\times n_{\mathrm{so}}},
+    \qquad
+    g\in\mathbb{C}^{n_{\mathrm{so}}\times n_{\mathrm{so}}\times n_{\mathrm{so}}\times n_{\mathrm{so}}}
+\end{equation}
+before symmetry reduction.  These are the tensors that OpenFermion-style data structures typically regard as the molecular fermionic Hamiltonian, together with the scalar nuclear repulsion energy.
+
+\subsection{Hartree--Fock determinant as a reference state}
+
+The Hartree--Fock (HF) method chooses a single Slater determinant that minimizes the energy over all single-determinant wave functions.  If the occupied spin orbitals are indexed by $i=0,\ldots,N_e-1$ in the chosen canonical ordering, the HF determinant can be written as
+\begin{equation}
+    \ket{\Phi_{\mathrm{HF}}}
+    = a_0^\dagger a_1^\dagger\cdots a_{N_e-1}^\dagger\ket{\mathrm{vac}},
+\end{equation}
+up to the actual orbital-ordering convention used by the software.  The HF determinant is important because it provides a compact zeroth-order picture of the molecule and is frequently used as the initial state for both classical and quantum algorithms.  In Krylov-style methods, the starting vector often determines which part of the spectrum is accessible; therefore a reference state with strong overlap with the ground state is valuable.
+
+For implementation purposes, the HF data needed downstream usually includes
+\begin{equation}
+    N_e,\quad n_{\mathrm{orb}},\quad n_{\mathrm{so}},\quad n_{\mathrm{qubit}},\quad
+    E_{\mathrm{nn}},\quad h_{pq},\quad g_{pqrs},\quad
+    \text{and the occupied-orbital list.}
+\end{equation}
+These quantities define the fermionic problem before any qubit mapping or circuit construction is chosen.
+
+\section{Pauli Hamiltonian}
+
+\subsection{Qubit representation}
+
+A quantum computer natively manipulates qubits, not fermionic creation and annihilation operators.  We therefore map the fermionic Hamiltonian in Eq.~\eqref{eq:second_quantized_hamiltonian} to a qubit Hamiltonian, also called a Pauli Hamiltonian,
+\begin{equation}
+    \hat{H}_{\mathrm{q}}
+    = \sum_{\ell=0}^{L-1} c_\ell P_\ell,
+    \qquad
+    P_\ell\in\{I,X,Y,Z\}^{\otimes n_{\mathrm{qubit}}},
+    \qquad c_\ell\in\mathbb{R}
+    \label{eq:pauli_hamiltonian}
+\end{equation}
+for real molecular Hamiltonians.  The number of Pauli strings $L$ depends on the basis, molecular symmetry, thresholding, and term collection, but the uncompressed two-electron tensor contains $O(n_{\mathrm{so}}^4)$ entries before mapping.
+
+For a state-vector backend, a general qubit state is a complex vector
+\begin{equation}
+    \ket{\psi}=\sum_{z=0}^{2^{n_{\mathrm{qubit}}}-1}\psi_z\ket{z},
+    \qquad
+    \psi\in\mathbb{C}^{2^{n_{\mathrm{qubit}}}}.
+\end{equation}
+For hardware execution, the same abstract state is represented operationally by a circuit, a measurement basis, and samples from repeated circuit shots.
+
+\subsection{Jordan--Wigner transformation}
+
+The Jordan--Wigner (JW) transformation is the most direct fermion-to-qubit map.  Each spin orbital is assigned to one qubit.  With the convention that spin orbital $p$ corresponds to qubit $p$, the JW map is
+\begin{align}
+    a_p^\dagger
+    &= \left(\prod_{m=0}^{p-1} Z_m\right)\frac{X_p-\ii Y_p}{2}, \\
+    a_p
+    &= \left(\prod_{m=0}^{p-1} Z_m\right)\frac{X_p+\ii Y_p}{2}.
+    \label{eq:jw_mapping}
+\end{align}
+The string of $Z$ operators records the fermionic parity of all lower-indexed spin orbitals.  This parity string is what makes the qubit operators reproduce the anticommutation relations of the original fermions.
+
+The number operator maps especially simply:
+\begin{equation}
+    \hat{n}_p=a_p^\dagger a_p = \frac{I-Z_p}{2}.
+\end{equation}
+Thus the computational basis state \(\ket{0}\) on qubit $p$ denotes an unoccupied spin orbital, while \(\ket{1}\) denotes an occupied spin orbital.
+
+\subsection{Determinants and bitstrings}
+
+Under JW, a Slater determinant is represented by an occupation-number bitstring
+\begin{equation}
+    \ket{\mathbf{n}}=\ket{n_{n_{\mathrm{qubit}}-1}\cdots n_1 n_0},
+    \qquad n_p\in\{0,1\}.
+\end{equation}
+The bit $n_p$ records whether spin orbital $p$ is occupied.  For example, if $N_e=4$ and the first four spin orbitals are occupied, the corresponding occupation vector is
+\begin{equation}
+    (n_0,n_1,n_2,n_3,n_4,\ldots)=(1,1,1,1,0,\ldots).
+\end{equation}
+The printed bitstring may appear in reverse order depending on whether a library treats qubit $0$ as the least significant or most significant bit.  This is an API-critical convention: \texttt{qforte-qiskit} should record the orbital-to-qubit ordering, endianness convention, particle number, and reference determinant explicitly so that circuits and measured bitstrings can be interpreted without ambiguity.
+
+Substituting Eq.~\eqref{eq:jw_mapping} into Eq.~\eqref{eq:second_quantized_hamiltonian} and collecting like Pauli strings produces Eq.~\eqref{eq:pauli_hamiltonian}.  At this stage, the molecular problem has become a qubit eigenvalue problem.  The input arrays are no longer the dense tensors $h_{pq}$ and $g_{pqrs}$ but rather a list of coefficients and Pauli words,
+\begin{equation}
+    \{(c_\ell,P_\ell)\}_{\ell=0}^{L-1}.
+\end{equation}
+
+\section{The Time-independent Schr\"odinger Equation}
+
+The central electronic-structure problem is the time-independent Schr\"odinger equation
+\begin{equation}
+    \hat{H}_{\mathrm{el}}\ket{\Psi_k}=E_k\ket{\Psi_k}.
+\end{equation}
+After the fermion-to-qubit mapping, the same problem is written as
+\begin{equation}
+    \hat{H}_{\mathrm{q}}\ket{\psi_k}=E_k\ket{\psi_k},
+    \qquad
+    \hat{H}_{\mathrm{q}}=\sum_{\ell=0}^{L-1}c_\ell P_\ell.
+\end{equation}
+The eigenvalues are unchanged by an exact mapping; only the representation of the Hilbert space and operators has changed.
+
+The usual target is the ground-state energy
+\begin{equation}
+    E_0 = \min_{\ket{\psi}\neq 0}
+    \frac{\bra{\psi}\hat{H}_{\mathrm{q}}\ket{\psi}}{\braket{\psi}{\psi}},
+\end{equation}
+and the corresponding ground-state eigenvector $\ket{\psi_0}$.  The variational expression above is useful because it connects exact diagonalization, classical approximate methods, and quantum algorithms: each method can be viewed as choosing a restricted family of trial states and minimizing or estimating the energy in that family.
+
+The difficulty is dimensionality.  In the full qubit Hilbert space, the state vector has $2^{n_{\mathrm{qubit}}}$ complex amplitudes.  Even after restricting to the $N_e$-electron sector, the dimension is
+\begin{equation}
+    D_{N_e}=\binom{n_{\mathrm{so}}}{N_e},
+\end{equation}
+which grows combinatorially.  Forming and diagonalizing the full matrix representation of $\hat{H}$ is therefore possible only for small active spaces.  The practical goal is to compute accurate low-energy information without explicitly constructing or storing every element of the exponentially large Hamiltonian matrix.
+
+\section{Classical Power Method}
+
+The classical power method illustrates a simple but important idea: repeated application of an operator can amplify one eigenvector component relative to the others.  Suppose a diagonalizable operator $G$ has eigenpairs $(\gamma_k,\ket{v_k})$ ordered so that
+\begin{equation}
+    |\gamma_0|>|\gamma_1|\geq |\gamma_2|\geq\cdots.
+\end{equation}
+If the initial vector has nonzero overlap with $\ket{v_0}$,
+\begin{equation}
+    \ket{x_0}=\sum_k \alpha_k\ket{v_k},
+    \qquad \alpha_0\neq 0,
+\end{equation}
+then repeated normalized applications
+\begin{equation}
+    \ket{x_{m+1}}=\frac{G\ket{x_m}}{\norm{G\ket{x_m}}}
+\end{equation}
+drive the vector toward $\ket{v_0}$.  The eigenvalue can then be estimated with the Rayleigh quotient
+\begin{equation}
+    \gamma(x_m)=\frac{\bra{x_m}G\ket{x_m}}{\braket{x_m}{x_m}}.
+\end{equation}
+
+The ordinary power method finds the eigenvector associated with the largest-magnitude eigenvalue of $G$, while electronic structure usually seeks the lowest eigenvalue of $\hat{H}$.  One simple way to adapt the idea is to apply the method to a shifted operator
+\begin{equation}
+    G = \alpha I - \hat{H},
+\end{equation}
+where $\alpha$ is chosen so that the ground state of $\hat{H}$ corresponds to the dominant eigenvalue of $G$.  Another closely related filter is imaginary-time evolution,
+\begin{equation}
+    G = e^{-\tau \hat{H}},\qquad \tau>0,
+\end{equation}
+which suppresses excited states faster than the ground state because $e^{-\tau E_k}$ is larger for smaller $E_k$.
+
+The pedagogical value of the power method is not that it is always the best solver, but that it separates two ideas.  First, spectral filtering can improve the ground-state component of a trial vector.  Second, the algorithm does not require explicit storage of the full Hamiltonian matrix if one has a subroutine that applies $\hat{H}$, $\alpha I-\hat{H}$, or another filter to an arbitrary vector.  Krylov methods refine this observation by retaining information from several filtered vectors at once.
+
+\section{Classical Krylov Methods}
+
+Given an initial vector $\ket{b}$, the $m$-dimensional Krylov subspace generated by $\hat{H}$ is
+\begin{equation}
+    \mathcal{K}_m(\hat{H},\ket{b})
+    = \operatorname{span}\{\ket{b},\hat{H}\ket{b},\hat{H}^2\ket{b},\ldots,\hat{H}^{m-1}\ket{b}\}.
+    \label{eq:krylov_subspace}
+\end{equation}
+Power iteration uses only the latest vector.  Krylov methods keep the whole subspace generated along the way and solve a projected eigenvalue problem inside that subspace.
+
+In an orthonormal Krylov basis $Q_m=[\ket{q_0},\ldots,\ket{q_{m-1}}]$, the projected Hamiltonian is
+\begin{equation}
+    T_m = Q_m^\dagger \hat{H} Q_m,
+    \qquad T_m\in\mathbb{C}^{m\times m}.
+\end{equation}
+One then solves the much smaller eigenvalue problem
+\begin{equation}
+    T_m y_j = \theta_j y_j,
+\end{equation}
+where $\theta_j$ are Ritz values that approximate eigenvalues of the full Hamiltonian.  The corresponding approximate eigenvectors in the original Hilbert space are
+\begin{equation}
+    \ket{\tilde{\psi}_j}=Q_m y_j.
+\end{equation}
+
+The Lanczos algorithm is the standard Krylov method for Hermitian matrices, such as molecular Hamiltonians.  It builds the basis vectors using only Hamiltonian-vector products and orthogonalization.  At no point is it necessary to assemble the full $D\times D$ Hamiltonian matrix, provided there is a reliable routine for computing
+\begin{equation}
+    \ket{w}=\hat{H}\ket{v}
+\end{equation}
+for an arbitrary vector $\ket{v}$.  In a classical full-configuration-interaction implementation, this action can be computed from the one- and two-electron integrals.  In a qubit representation, it can be computed by applying each Pauli term in Eq.~\eqref{eq:pauli_hamiltonian} to the state vector and accumulating the result.
+
+For quantum Krylov algorithms, the same projection principle survives, but the basis vectors are prepared and compared differently.  Instead of explicitly storing all amplitudes of $\hat{H}^j\ket{b}$, a quantum workflow may prepare states such as
+\begin{equation}
+    \ket{\phi_j}=U_j\ket{\Phi_{\mathrm{ref}}},
+\end{equation}
+where $U_j$ are unitary time-evolution or stochastic unitary operators and $\ket{\Phi_{\mathrm{ref}}}$ is commonly the HF determinant.  The projected problem then uses overlap and Hamiltonian matrices
+\begin{equation}
+    S_{ij}=\braket{\phi_i}{\phi_j},
+    \qquad
+    H_{ij}=\bra{\phi_i}\hat{H}_{\mathrm{q}}\ket{\phi_j},
+\end{equation}
+and solves the generalized eigenvalue problem
+\begin{equation}
+    Hc = ESc.
+\end{equation}
+This is the point where circuit generation, measurement strategy, transpilation, hardware noise, and multifidelity estimation enter the workflow.  The present sections establish the physics and notation needed before discussing those implementation layers.
+
+\section{Quantum Krylov Method}
+
+Classical Krylov methods generate basis vectors by repeatedly applying powers of the Hamiltonian to an initial vector.  Quantum Krylov methods replace these nonunitary powers by real-time-evolved states that can be prepared, at least approximately, by quantum circuits.  Starting from a reference state $\ket{\Phi_{\mathrm{ref}}}$, often the HF determinant, define
+\begin{equation}
+    \ket{\phi_n}=e^{-\ii t_n\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}},
+    \qquad t_n=n\Delta t,
+    \qquad n=0,1,\ldots,M-1.
+\end{equation}
+The quantum Krylov subspace is then
+\begin{equation}
+    \mathcal{K}^{\mathrm{Q}}_M
+    = \operatorname{span}\{\ket{\phi_0},\ket{\phi_1},\ldots,\ket{\phi_{M-1}}\}
+    = \operatorname{span}\{e^{-\ii t_n\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}}\}_{n=0}^{M-1}.
+\end{equation}
+The crucial change is operational: time evolution is unitary, so it can be compiled into a circuit through Trotterization, qubitization-inspired approximations, variational real-time evolution, or other circuit synthesis strategies.  The basis vectors need not be stored as full state vectors when the required matrix elements can be estimated from quantum measurements.
+
+As in the classical projected method, one forms subspace overlap and Hamiltonian matrices
+\begin{align}
+    S_{mn}
+    &= \braket{\phi_m}{\phi_n}
+    = \bra{\Phi_{\mathrm{ref}}}
+    e^{+\ii t_m\hat{H}_{\mathrm{q}}}
+    e^{-\ii t_n\hat{H}_{\mathrm{q}}}
+    \ket{\Phi_{\mathrm{ref}}}, \\
+    H_{mn}
+    &= \bra{\phi_m}\hat{H}_{\mathrm{q}}\ket{\phi_n}
+    = \bra{\Phi_{\mathrm{ref}}}
+    e^{+\ii t_m\hat{H}_{\mathrm{q}}}
+    \hat{H}_{\mathrm{q}}
+    e^{-\ii t_n\hat{H}_{\mathrm{q}}}
+    \ket{\Phi_{\mathrm{ref}}}.
+    \label{eq:qk_h_s_general}
+\end{align}
+Because $\hat{H}_{\mathrm{q}}$ commutes with its own time-evolution operator, the equally spaced real-time basis gives the simpler correlation-function forms
+\begin{align}
+    S_{mn}
+    &= \bra{\Phi_{\mathrm{ref}}}e^{-\ii (t_n-t_m)\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}}, \\
+    H_{mn}
+    &= \bra{\Phi_{\mathrm{ref}}}\hat{H}_{\mathrm{q}}
+    e^{-\ii (t_n-t_m)\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}}.
+    \label{eq:qk_h_s_stationary}
+\end{align}
+The approximate energies are obtained from the generalized eigenvalue problem
+\begin{equation}
+    Hc = ESc,
+    \label{eq:qk_gep}
+\end{equation}
+where $H,S\in\mathbb{C}^{M\times M}$.  If the basis is linearly dependent or nearly linearly dependent, one usually regularizes the problem by discarding very small eigenvalues of $S$ before solving Eq.~\eqref{eq:qk_gep}.
+
+Quantum Krylov methods can converge rapidly when the reference state has appreciable overlap with the desired low-energy eigenstates.  To see the mechanism, expand the reference state in exact eigenstates,
+\begin{equation}
+    \ket{\Phi_{\mathrm{ref}}}=\sum_k a_k\ket{\psi_k},
+    \qquad
+    \hat{H}_{\mathrm{q}}\ket{\psi_k}=E_k\ket{\psi_k}.
+\end{equation}
+Then
+\begin{equation}
+    \ket{\phi_n}=\sum_k a_k e^{-\ii E_k t_n}\ket{\psi_k}.
+\end{equation}
+The Krylov basis therefore samples different phase patterns across the eigencomponents.  Once the sampled phases distinguish the important eigencomponents, the projected generalized eigenvalue problem can recover accurate Ritz estimates in a subspace whose dimension $M$ is much smaller than the full Hilbert-space dimension.
+
+The relationship to the classical Krylov subspace is clearest in the small time-step limit.  Expanding the time-evolution operator gives
+\begin{equation}
+    e^{-\ii n\Delta t\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}}
+    = \sum_{j=0}^{\infty}\frac{(-\ii n\Delta t)^j}{j!}
+    \hat{H}_{\mathrm{q}}^j\ket{\Phi_{\mathrm{ref}}}.
+\end{equation}
+Keeping terms through order $M-1$, the first $M$ time-evolved vectors are related to the first $M$ classical Krylov vectors by a Vandermonde-like coefficient matrix with entries proportional to $n^j$.  For distinct time labels and sufficiently small $\Delta t$, this coefficient matrix is nonsingular to the relevant order.  Thus
+\begin{equation}
+    \operatorname{span}\{e^{-\ii n\Delta t\hat{H}_{\mathrm{q}}}\ket{\Phi_{\mathrm{ref}}}\}_{n=0}^{M-1}
+    \approx
+    \operatorname{span}\{\ket{\Phi_{\mathrm{ref}}},\hat{H}_{\mathrm{q}}\ket{\Phi_{\mathrm{ref}}},\ldots,
+    \hat{H}_{\mathrm{q}}^{M-1}\ket{\Phi_{\mathrm{ref}}}\},
+\end{equation}
+with equality in the formal limit when the truncated expansion exactly captures the relevant subspace.  This is why quantum Krylov can be understood as a unitary, circuit-friendly route to essentially the same approximation space that motivates classical Krylov methods.
+
+\section{Unitary Quantum Krylov Method}
+
+Traditional quantum Krylov, as described above, uses time-evolved basis states but still diagonalizes the Hamiltonian projected into that basis.  The unitary quantum Krylov (UQK) viewpoint instead diagonalizes the time-evolution operator itself.  Define the one-step propagator
+\begin{equation}
+    \hat{U}(\Delta t)=e^{-\ii\Delta t\hat{H}_{\mathrm{q}}},
+\end{equation}
+and generate basis states by repeated applications of this unitary,
+\begin{equation}
+    \ket{\phi_n}=\hat{U}^n\ket{\Phi_{\mathrm{ref}}},
+    \qquad n=0,1,\ldots,M-1.
+\end{equation}
+The subspace overlap matrix is
+\begin{equation}
+    S_{mn}=\braket{\phi_m}{\phi_n}
+    = \bra{\Phi_{\mathrm{ref}}}(\hat{U}^{\dagger})^m\hat{U}^n\ket{\Phi_{\mathrm{ref}}}.
+\end{equation}
+The projected unitary matrix is
+\begin{equation}
+    U_{mn}=\bra{\phi_m}\hat{U}\ket{\phi_n}
+    = \bra{\Phi_{\mathrm{ref}}}(\hat{U}^{\dagger})^m\hat{U}^{n+1}\ket{\Phi_{\mathrm{ref}}}.
+\end{equation}
+Using unitarity, $(\hat{U}^{\dagger})^m=\hat{U}^{-m}$, these become
+\begin{align}
+    S_{mn}
+    &= \bra{\Phi_{\mathrm{ref}}}\hat{U}^{n-m}\ket{\Phi_{\mathrm{ref}}}, \\
+    U_{mn}
+    &= \bra{\Phi_{\mathrm{ref}}}\hat{U}^{n+1-m}\ket{\Phi_{\mathrm{ref}}}.
+    \label{eq:uqk_toeplitz_elements}
+\end{align}
+Thus the construction of $U$ and $S$ is essentially the same measurement problem: each matrix element is an expectation value of an integer number of time-evolution steps.  The only difference is that the $U$ matrix is staggered by one additional time evolution relative to $S$.
+
+For equally spaced Krylov times, Eq.~\eqref{eq:uqk_toeplitz_elements} has a Toeplitz structure: each matrix element depends only on the difference $n-m$ for $S$, and on the shifted difference $n+1-m$ for $U$.  If we define the autocorrelation sequence
+\begin{equation}
+    C_k=\bra{\Phi_{\mathrm{ref}}}\hat{U}^k\ket{\Phi_{\mathrm{ref}}},
+    \qquad k\in\mathbb{Z},
+\end{equation}
+then
+\begin{equation}
+    S_{mn}=C_{n-m},
+    \qquad
+    U_{mn}=C_{n+1-m}.
+\end{equation}
+For exact unitary dynamics, $C_{-k}=C_k^*$.  This Toeplitz redundancy is valuable experimentally because one can estimate a collection of correlation values $C_k$ and then assemble many matrix elements from the same data.
+
+The UQK generalized eigenvalue problem is
+\begin{equation}
+    Uc = \lambda Sc,
+    \label{eq:uqk_gep}
+\end{equation}
+where $\lambda$ approximates an eigenvalue of the time-evolution operator rather than an eigenvalue of the Hamiltonian.  If $\ket{\psi_k}$ is an exact Hamiltonian eigenstate, then
+\begin{equation}
+    \hat{U}(\Delta t)\ket{\psi_k}
+    = e^{-\ii E_k\Delta t}\ket{\psi_k}.
+\end{equation}
+Thus the exact unitary eigenvalue lies on the complex unit circle,
+\begin{equation}
+    \lambda_k=e^{-\ii E_k\Delta t}.
+\end{equation}
+Given a projected eigenvalue $\lambda_k^{\mathrm{(proj)}}$, the corresponding energy estimate is extracted from its phase,
+\begin{equation}
+    E_k^{\mathrm{(proj)}}
+    = -\frac{1}{\Delta t}\operatorname{Arg}\left(\lambda_k^{\mathrm{(proj)}}\right)
+    \quad \operatorname{mod}\frac{2\pi}{\Delta t}.
+    \label{eq:uqk_energy_from_phase}
+\end{equation}
+The modulo ambiguity reflects phase wrapping: energies separated by $2\pi/\Delta t$ produce the same unitary eigenphase.  In practice, $\Delta t$ should be chosen so the target spectral window is not aliased, or additional information should be used to unwrap the phase.
+
+Because realistic projected matrices are estimated from noisy quantum data, the eigenvalues from Eq.~\eqref{eq:uqk_gep} may not lie exactly on the unit circle.  A common interpretation is to use the phase for the energy and treat deviations of $|\lambda|$ from one as a diagnostic of noise, finite-sampling error, imperfect time evolution, or subspace truncation.  Conceptually, however, UQK is attractive because it avoids inserting an explicit Hamiltonian measurement between two basis states: the relevant matrix elements are all time-correlation amplitudes of the same propagated reference state.
+
+\section{Trotterized Time Evolution}
+
+Exact real-time evolution under the qubit Hamiltonian,
+\begin{equation}
+    \hat{U}(t)=e^{-\ii t\hat{H}_{\mathrm{q}}},
+\end{equation}
+is generally not available as a native circuit.  The Hamiltonian is a sum of many noncommuting pieces, so a quantum computer must approximate the exponential by a sequence of implementable factors.  This is especially important in quantum Krylov and unitary quantum Krylov because the basis states require multiple time steps, such as $\hat{U}^n\ket{\Phi_{\mathrm{ref}}}$, and the circuit depth can grow quickly with $n$.
+
+For the QForte-oriented notation used in the rest of these notes, we group Pauli subterms according to their parent Hermitian-paired excitation structure rather than treating every Pauli string as an independent Trotter factor.  We write one grouped Trotter product term as
+\begin{equation}
+    \hat{U}_\mu(t)
+    = \exp\left[-\ii t h_\mu\left(\hat{g}_\mu-\hat{g}_\mu^\dagger\right)\right],
+    \label{eq:grouped_trotter_term}
+\end{equation}
+where $\hat{g}_\mu$ is a monomial excitation operator appearing in the Hamiltonian construction and $\hat{g}_\mu^\dagger$ is its Hermitian conjugate.  Any implementation-specific factor of $\ii$ needed to make the paired contribution a Hermitian Hamiltonian generator is understood to be part of the coefficient convention for $h_\mu$.  The important bookkeeping point is that the Pauli subterms generated by $\hat{g}_\mu-\hat{g}_\mu^\dagger$ remain grouped inside the same $\mu$ block.  This preserves the self-commuting paired structure used by QForte's circuit machinery.
+
+Let the grouped Hamiltonian decomposition be denoted schematically by
+\begin{equation}
+    \hat{H}_{\mathrm{q}}
+    = \sum_{\mu=1}^{N_\Gamma} h_\mu
+    \left(\hat{g}_\mu-\hat{g}_\mu^\dagger\right),
+\end{equation}
+where $N_\Gamma$ is the number of grouped monomial excitation pairs.  A first-order Trotter step of duration $\Delta t$ is
+\begin{equation}
+    \hat{U}^{(1)}(\Delta t)
+    = \prod_{\mu=1}^{N_\Gamma}\hat{U}_\mu(\Delta t),
+    \label{eq:first_order_trotter_step}
+\end{equation}
+with the product order fixed by the chosen software convention.  Evolution for total time $t=N_t\Delta t$ is then approximated as
+\begin{equation}
+    \hat{U}(t)
+    = e^{-\ii t\hat{H}_{\mathrm{q}}}
+    \approx \left[\hat{U}^{(1)}(\Delta t)\right]^{N_t}.
+\end{equation}
+A symmetric second-order, or Strang, Trotter step is
+\begin{equation}
+    \hat{U}^{(2)}(\Delta t)
+    = \left(\prod_{\mu=1}^{N_\Gamma}\hat{U}_\mu(\Delta t/2)\right)
+      \left(\prod_{\mu=N_\Gamma}^{1}\hat{U}_\mu(\Delta t/2)\right),
+    \label{eq:second_order_trotter_step}
+\end{equation}
+and
+\begin{equation}
+    \hat{U}(t)\approx \left[\hat{U}^{(2)}(\Delta t)\right]^{N_t}.
+\end{equation}
+The second-order formula cancels the leading ordering error by running the grouped factors forward and then backward within each time slice.
+
+Although Eq.~\eqref{eq:grouped_trotter_term} is kept as the algorithmic unit, its circuit implementation ultimately acts on qubits.  Within a fixed grouped excitation pair, the Jordan--Wigner or related mapping produces a small set of mutually commuting Pauli strings,
+\begin{equation}
+    h_\mu(\hat{g}_\mu-\hat{g}_\mu^\dagger)
+    = \sum_{\rho\in\mathcal{P}_\mu}\alpha_{\mu\rho}P_{\mu\rho},
+    \qquad [P_{\mu\rho},P_{\mu\rho'}]=0.
+\end{equation}
+Therefore the grouped factor can be implemented as
+\begin{equation}
+    \hat{U}_\mu(t)
+    = \prod_{\rho\in\mathcal{P}_\mu}
+    e^{-\ii t\alpha_{\mu\rho}P_{\mu\rho}},
+\end{equation}
+without splitting the $\mu$ block into independent Hamiltonian terms at the Trotter scheduler level.
+
+For a single Pauli string $P=\sigma_{q_1}\sigma_{q_2}\cdots\sigma_{q_w}$ in that grouped block, the standard CNOT-ladder implementation of $e^{-\ii\theta P}$ is
+\begin{equation}
+    e^{-\ii\theta P}
+    = B^\dagger
+    \left[
+    \left(\prod_{j=w-1}^{1}\mathrm{CNOT}_{q_j,q_w}\right)
+    R_z^{(q_w)}(2\theta)
+    \left(\prod_{j=1}^{w-1}\mathrm{CNOT}_{q_j,q_w}\right)
+    \right]B,
+    \label{eq:cnot_ladder}
+\end{equation}
+where $B$ is the tensor product of one-qubit basis rotations that maps each non-identity Pauli in $P$ to $Z$.  For example, $X$ terms use a Hadamard basis change, while $Y$ terms use a phase rotation together with a Hadamard.  Operationally, the circuit rotates into the $Z$ basis, accumulates the parity of qubits $q_1,\ldots,q_{w-1}$ onto qubit $q_w$ with a CNOT ladder, applies $R_z(2\theta)$, uncomputes the ladder, and rotates back.
+
+\section{Measuring Matrix Elements}
+
+The matrix elements needed for QK and UQK are transition amplitudes of the form
+\begin{equation}
+    A_{mn}(V)=\bra{\phi_m}V\ket{\phi_n},
+\end{equation}
+where $V$ may be the identity for an overlap, $\hat{H}_{\mathrm{q}}$ for a Hamiltonian matrix element, a Pauli term inside $\hat{H}_{\mathrm{q}}$, or a time-evolution step for UQK.  If $\ket{\phi_m}=A_m\ket{0}^{\otimes n_{\mathrm{qubit}}}$ and $\ket{\phi_n}=A_n\ket{0}^{\otimes n_{\mathrm{qubit}}}$, then
+\begin{equation}
+    A_{mn}(V)
+    = \bra{0}^{\otimes n_{\mathrm{qubit}}}A_m^\dagger V A_n\ket{0}^{\otimes n_{\mathrm{qubit}}}.
+\end{equation}
+
+The canonical Hadamard test measures this complex amplitude using one ancilla qubit.  Prepare the ancilla in $\ket{+}$ and the main register in $\ket{0}^{\otimes n_{\mathrm{qubit}}}$, apply the controlled operation $A_m^\dagger V A_n$ conditioned on the ancilla, and then measure the ancilla in the $X$ basis.  The expectation value is
+\begin{equation}
+    \langle X_{\mathrm{anc}}\rangle
+    = \operatorname{Re}\left[
+    \bra{0}^{\otimes n_{\mathrm{qubit}}}A_m^\dagger V A_n\ket{0}^{\otimes n_{\mathrm{qubit}}}
+    \right].
+\end{equation}
+Measuring the ancilla in the $Y$ basis, equivalently inserting a phase gate before the final Hadamard, gives
+\begin{equation}
+    \langle Y_{\mathrm{anc}}\rangle
+    = \operatorname{Im}\left[
+    \bra{0}^{\otimes n_{\mathrm{qubit}}}A_m^\dagger V A_n\ket{0}^{\otimes n_{\mathrm{qubit}}}
+    \right],
+\end{equation}
+up to the sign convention used for the final phase rotation.  The Hadamard test is conceptually direct, but it requires controlled versions of the entire transition circuit, which can be expensive after transpilation.
+
+\section{Multifidelity Estimation Protocol}
+
+For the UQK workflows considered here, the multifidelity estimation (MFE) problem is simpler than the most general Cortes--Gray presentation.  We only need diagonal return amplitudes of the form
+\begin{equation}
+    z=\bra{\phi_0}V\ket{\phi_0},
+    \qquad \ket{\phi_0}=\ket{\Phi_{\mathrm{HF}}},
+    \label{eq:mfe_target_diagonal}
+\end{equation}
+where $V$ is a Trotterized time-evolution operator, a power of such an operator, or a stochastically compiled chunk of one.  The reference state is chosen to be the vacuum determinant
+\begin{equation}
+    \ket{R}=\ket{\mathrm{vac}}=\ket{0}^{\otimes n_{\mathrm{qubit}}}.
+\end{equation}
+For excitation-pair Trotter factors of the form in Eq.~\eqref{eq:grouped_trotter_term}, the vacuum is invariant:
+\begin{equation}
+    \hat{g}_\mu\ket{R}=\hat{g}_\mu^\dagger\ket{R}=0,
+    \qquad
+    \hat{U}_\mu(t)\ket{R}=\ket{R}.
+\end{equation}
+Consequently, for any product $V$ built from these factors,
+\begin{equation}
+    z_R=\bra{R}V\ket{R}=1,
+    \qquad
+    \bra{\phi_0}V\ket{R}=\bra{R}V\ket{\phi_0}=0,
+    \label{eq:mfe_vacuum_reference}
+\end{equation}
+where the cross terms vanish because $V$ preserves particle number while $\ket{R}$ and $\ket{\phi_0}$ lie in different particle-number sectors.
+
+The first MFE fidelity is the ordinary HF return probability.  Prepare $\ket{\phi_0}$, apply $V$, and measure the main register in the computational basis.  Let $N_o^{(1)}$ be the number of shots that return the HF bitstring and let $N_{\mathrm{tot}}^{(1)}$ be the total number of shots in this experiment.  Then
+\begin{equation}
+    F_1=|z|^2
+    = \Pr(\mathrm{sample}\;\phi_0\;\mathrm{after}\;V\ket{\phi_0}),
+    \qquad
+    \widehat{F}_1=\frac{N_o^{(1)}}{N_{\mathrm{tot}}^{(1)}}.
+    \label{eq:mfe_f1_counts}
+\end{equation}
+Thus the magnitude estimate is
+\begin{equation}
+    \widehat{r}=\sqrt{\widehat{F}_1},
+    \qquad z=re^{\ii\theta}.
+\end{equation}
+
+To recover the real part, define a preparation circuit $B_+$ that maps the HF determinant to the equal HF--vacuum superposition
+\begin{equation}
+    B_+\ket{\phi_0}=\ket{\chi_+},
+    \qquad
+    \ket{\chi_+}=\frac{\ket{\phi_0}+\ket{R}}{\sqrt{2}}.
+\end{equation}
+The corresponding return fidelity is measured by preparing $\ket{\chi_+}$, applying $V$, applying $B_+^\dagger$, and sampling the main register.  If $N_o^{(+)}$ is the number of shots that return the HF bitstring after this full prepare--evolve--unprepare circuit, and $N_{\mathrm{tot}}^{(+)}$ is the total number of shots, then
+\begin{align}
+    F_2^{(+)}
+    &= \left|\bra{\chi_+}V\ket{\chi_+}\right|^2
+     = \frac{1}{4}|z+1|^2
+     = \frac{1}{4}\left(F_1+1+2\operatorname{Re}z\right), \\
+    \widehat{F}_2^{(+)}
+    &= \frac{N_o^{(+)}}{N_{\mathrm{tot}}^{(+)}}.
+    \label{eq:mfe_f2_plus_counts}
+\end{align}
+Solving for the real part gives the explicit estimator
+\begin{equation}
+    \widehat{\operatorname{Re}z}
+    = 2\widehat{F}_2^{(+)}-\frac{\widehat{F}_1+1}{2}.
+    \label{eq:mfe_real_counts}
+\end{equation}
+Together with $\widehat{r}=\sqrt{\widehat{F}_1}$, this determines
+\begin{equation}
+    \cos\widehat{\theta}
+    = \frac{\widehat{\operatorname{Re}z}}{\widehat{r}}.
+\end{equation}
+Therefore the real superposition alone is sufficient only if a separate branch choice fixes the sign of $\sin\theta$, for example by continuity from nearby time points, by a known short-time limit, or by other prior spectral information.  Without such information, the two phases $\theta$ and $-\theta$ give the same value of $F_1$ and $F_2^{(+)}$.
+
+When no branch information is available, a second phase-shifted interference experiment supplies the missing sine quadrature.  This is not an equivalent replacement for the real experiment; it is the complementary measurement needed to determine the complex phase without a sign ambiguity.  Define
+\begin{equation}
+    B_{\ii}\ket{\phi_0}=\ket{\chi_{\ii}},
+    \qquad
+    \ket{\chi_{\ii}}=\frac{\ket{\phi_0}+\ii\ket{R}}{\sqrt{2}}.
+\end{equation}
+Prepare $\ket{\chi_{\ii}}$, apply $V$, apply $B_+^\dagger$, and again sample the main register.  With $N_o^{(\ii)}$ HF-return shots out of $N_{\mathrm{tot}}^{(\ii)}$ total shots,
+\begin{align}
+    F_2^{(\ii)}
+    &= \left|\bra{\chi_+}V\ket{\chi_{\ii}}\right|^2
+     = \frac{1}{4}|z+\ii|^2
+     = \frac{1}{4}\left(F_1+1+2\operatorname{Im}z\right), \\
+    \widehat{F}_2^{(\ii)}
+    &= \frac{N_o^{(\ii)}}{N_{\mathrm{tot}}^{(\ii)}}.
+    \label{eq:mfe_f2_i_counts}
+\end{align}
+The imaginary-part estimator is therefore
+\begin{equation}
+    \widehat{\operatorname{Im}z}
+    = 2\widehat{F}_2^{(\ii)}-\frac{\widehat{F}_1+1}{2}.
+    \label{eq:mfe_imag_counts}
+\end{equation}
+If the opposite phase convention $\ket{\phi_0}-\ii\ket{R}$ is used, the sign of the final imaginary estimator changes accordingly.
+
+Combining the three main-register sampling experiments gives
+\begin{equation}
+    \widehat{z}
+    = \left(2\frac{N_o^{(+)}}{N_{\mathrm{tot}}^{(+)}}-\frac{1}{2}\frac{N_o^{(1)}}{N_{\mathrm{tot}}^{(1)}}-\frac{1}{2}\right)
+    + \ii\left(2\frac{N_o^{(\ii)}}{N_{\mathrm{tot}}^{(\ii)}}-\frac{1}{2}\frac{N_o^{(1)}}{N_{\mathrm{tot}}^{(1)}}-\frac{1}{2}\right).
+    \label{eq:mfe_z_counts}
+\end{equation}
+Equivalently,
+\begin{equation}
+    \widehat{\theta}=\operatorname{atan2}\left(\widehat{\operatorname{Im}z},\widehat{\operatorname{Re}z}\right),
+    \qquad
+    \widehat{z}=\widehat{r}e^{\ii\widehat{\theta}},
+\end{equation}
+with small inconsistencies between $|\widehat{z}|^2$ and $\widehat{F}_1$ interpreted as finite-shot noise or hardware noise.  The essential experimental feature is that every quantity above is obtained from a fraction $N_o/N_{\mathrm{tot}}$ of HF-return counts on the main register; no ancilla qubit and no controlled-$V$ operation are required.
+
+\section{Measuring Matrix Elements with Stochastic Compilation}
+
+The previous sections assumed that each time-evolution circuit uses a full Trotter product.  For large active spaces, many grouped excitation pairs, or many Krylov time steps, the full product
+\begin{equation}
+    \hat{U}^{(1)}(\Delta t)=\prod_{\mu=1}^{N_\Gamma}\hat{U}_\mu(\Delta t)
+\end{equation}
+may be too deep.  Stochastic compilation replaces this deterministic product by a randomly sampled shorter circuit whose average action approximates the desired time evolution.
+
+The qDRIFT idea is to sample Hamiltonian terms according to their weights rather than applying every term in every step.  In the grouped notation used here, define weights $w_\mu$ for the grouped generators and
+\begin{equation}
+    \lambda=\sum_{\mu=1}^{N_\Gamma}w_\mu,
+    \qquad p_\mu=\frac{w_\mu}{\lambda}.
+\end{equation}
+For the common normalized choice $w_\mu=|h_\mu|$, one qDRIFT segment samples an index $\mu_s$ with probability $p_{\mu_s}$ and applies the grouped excitation-pair exponential
+\begin{equation}
+    \exp\left[-\ii\frac{\lambda t}{N_{\mathrm{d}}}\operatorname{sgn}(h_{\mu_s})
+    \left(\hat{g}_{\mu_s}-\hat{g}_{\mu_s}^\dagger\right)\right]
+    = \hat{U}_{\mu_s}\left(\frac{\lambda t}{N_{\mathrm{d}}|h_{\mu_s}|}\right),
+\end{equation}
+where $N_{\mathrm{d}}$ is the number of stochastic segments.  A sampled qDRIFT circuit, or stochastic chunk, is therefore
+\begin{equation}
+    \widetilde{U}_\omega(t)
+    = \prod_{s=1}^{N_{\mathrm{d}}}
+    \hat{U}_{\mu_s}\left(\frac{\lambda t}{N_{\mathrm{d}}|h_{\mu_s}|}\right),
+    \qquad \mu_s\sim p_\mu.
+\end{equation}
+The Pauli strings inside each sampled $\hat{U}_{\mu_s}$ remain grouped by the same Hermitian-paired structure as in Eq.~\eqref{eq:grouped_trotter_term}; the stochastic choice is over grouped excitation-pair factors, not over isolated Pauli subterms.
+
+The ensemble-averaged stochastic channel approaches the true time-evolution channel as the number of segments and samples increases.  For matrix-element estimation, this means that the sampled MFE fidelities for stochastic chunks drift, in the statistical sense, toward the fidelities associated with the ideal full time-evolution operator.  Each individual measurement uses one random circuit instance, but the running average over many independently sampled instances estimates the desired deterministic overlap or UQK correlation value.
+
+It is helpful to contrast the standard and stochastic workflows explicitly.
+\begin{itemize}
+    \item \textbf{Standard UQK:} apply the entire grouped Trotter operator to the Hartree--Fock state, sample the main register, update the number of times the HF return state versus another state is observed, and repeat for $M$ measurements until the matrix element reaches the desired precision.
+    \item \textbf{Stochastic UQK:} draw a sampled subset, or stochastic chunk, of the grouped Trotter operator that is unique for that measurement; apply it to the Hartree--Fock state; sample the main register; update the number of times the HF return state versus another state is observed; and repeat for $M$ measurements until the matrix element reaches the desired precision.
+\end{itemize}
+The point of the stochastic version is to trade deterministic circuit depth for additional sampling.  This is most useful when the full Trotter product is too deep, especially in UQK where matrix elements may require several time steps and where each additional step would otherwise repeat the entire grouped product.
+
+\end{document}

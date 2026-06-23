@@ -1,0 +1,542 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 4,
+    "num_qubits": 8,
+    "num_spatial_orbitals": 4,
+    "num_spin_orbitals": 8
+  },
+  "correlations": [
+    {
+      "imag": 0.0,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.41125,
+      "index": 1,
+      "real": 0.88925
+    },
+    {
+      "imag": 0.789,
+      "index": 2,
+      "real": 0.6
+    },
+    {
+      "imag": 0.9615,
+      "index": 3,
+      "real": 0.19650000000000012
+    }
+  ],
+  "diagnostics": {
+    "condition_number": 195.53626665065215,
+    "hermiticity_error_frobenius": 0.0
+  },
+  "full_trotter_step": {
+    "depth": 5908,
+    "operation_counts": {
+      "cx": 4048,
+      "rz": 2976,
+      "sx": 1368
+    },
+    "size": 8392
+  },
+  "generated_at_utc": "2026-06-23T17:10:13.950333Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are usually printed as c[n-1]...c[0] when qubit q[i] is measured into classical bit c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "11110000",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "00001111"
+  },
+  "inputs": {
+    "circuit_metadata_json": "/Users/nstair/Src/qforte-qiskit/circuits/transpiled/h4_linear_sto3g_grouped_evolution_metadata.json",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/data/molecules/h4_linear_sto3g_metadata.json",
+    "qpy": "/Users/nstair/Src/qforte-qiskit/circuits/transpiled/h4_linear_sto3g_grouped_evolution.qpy"
+  },
+  "measured_correlations": [
+    {
+      "imag": -0.009000000000000008,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.41125,
+      "index": 1,
+      "real": 0.88925
+    },
+    {
+      "imag": 0.789,
+      "index": 2,
+      "real": 0.6
+    },
+    {
+      "imag": 0.9615,
+      "index": 3,
+      "real": 0.19650000000000012
+    }
+  ],
+  "mfe_by_power": [
+    {
+      "c0_enforced": true,
+      "counts": {
+        "F1": {
+          "00001111": 2000
+        },
+        "F2_i": {
+          "00001110": 1009,
+          "00001111": 991
+        },
+        "F2_plus": {
+          "00001111": 2000
+        }
+      },
+      "estimate": {
+        "abs": 1.0000404991799081,
+        "imag": -0.009000000000000008,
+        "real": 1.0
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.4955,
+        "F2_plus": 1.0
+      },
+      "measured_correlation": {
+        "imag": -0.009000000000000008,
+        "real": 1.0
+      },
+      "power": 0,
+      "power_circuit_depth": 0,
+      "power_circuit_operation_counts": {},
+      "power_circuit_size": 0,
+      "stored_correlation": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "template_depths": {
+        "F1": 2,
+        "F2_i": 11,
+        "F2_plus": 10
+      },
+      "template_operation_counts": {
+        "F1": {
+          "measure": 8,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 6,
+          "h": 2,
+          "measure": 8,
+          "sdg": 1,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 6,
+          "h": 2,
+          "measure": 8,
+          "x": 4
+        }
+      }
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "00001111": 1999,
+          "00111100": 1
+        },
+        "F2_i": {
+          "00001110": 588,
+          "00001111": 1411,
+          "10011000": 1
+        },
+        "F2_plus": {
+          "00001110": 109,
+          "00001111": 1889,
+          "00110011": 1,
+          "01101000": 1
+        }
+      },
+      "estimate": {
+        "abs": 0.9797408458362854,
+        "imag": 0.41125,
+        "real": 0.88925
+      },
+      "fidelities": {
+        "F1": 0.9995,
+        "F2_i": 0.7055,
+        "F2_plus": 0.9445
+      },
+      "measured_correlation": {
+        "imag": 0.41125,
+        "real": 0.88925
+      },
+      "power": 1,
+      "power_circuit_depth": 5908,
+      "power_circuit_operation_counts": {
+        "cx": 4048,
+        "rz": 2976,
+        "sx": 1368
+      },
+      "power_circuit_size": 8392,
+      "stored_correlation": {
+        "imag": 0.41125,
+        "real": 0.88925
+      },
+      "template_depths": {
+        "F1": 5909,
+        "F2_i": 5912,
+        "F2_plus": 5911
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 4048,
+          "measure": 8,
+          "rz": 2976,
+          "sx": 1368,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 4054,
+          "h": 2,
+          "measure": 8,
+          "rz": 2976,
+          "sdg": 1,
+          "sx": 1368,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 4054,
+          "h": 2,
+          "measure": 8,
+          "rz": 2976,
+          "sx": 1368,
+          "x": 4
+        }
+      }
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "00001111": 1996,
+          "00111100": 1,
+          "01101001": 2,
+          "11000011": 1
+        },
+        "F2_i": {
+          "00001110": 209,
+          "00001111": 1788,
+          "10011000": 2,
+          "11000011": 1
+        },
+        "F2_plus": {
+          "00001110": 396,
+          "00001111": 1599,
+          "00110011": 1,
+          "01101001": 1,
+          "10011000": 1,
+          "11000011": 2
+        }
+      },
+      "estimate": {
+        "abs": 0.9912219731220652,
+        "imag": 0.789,
+        "real": 0.6
+      },
+      "fidelities": {
+        "F1": 0.998,
+        "F2_i": 0.894,
+        "F2_plus": 0.7995
+      },
+      "measured_correlation": {
+        "imag": 0.789,
+        "real": 0.6
+      },
+      "power": 2,
+      "power_circuit_depth": 11808,
+      "power_circuit_operation_counts": {
+        "cx": 8096,
+        "rz": 5952,
+        "sx": 2736
+      },
+      "power_circuit_size": 16784,
+      "stored_correlation": {
+        "imag": 0.789,
+        "real": 0.6
+      },
+      "template_depths": {
+        "F1": 11809,
+        "F2_i": 11812,
+        "F2_plus": 11811
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 8096,
+          "measure": 8,
+          "rz": 5952,
+          "sx": 2736,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 8102,
+          "h": 2,
+          "measure": 8,
+          "rz": 5952,
+          "sdg": 1,
+          "sx": 2736,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 8102,
+          "h": 2,
+          "measure": 8,
+          "rz": 5952,
+          "sx": 2736,
+          "x": 4
+        }
+      }
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "00001111": 1994,
+          "00110011": 1,
+          "00111100": 1,
+          "10011001": 1,
+          "11000011": 2,
+          "11001100": 1
+        },
+        "F2_i": {
+          "00001110": 34,
+          "00001111": 1960,
+          "00110011": 2,
+          "01101000": 1,
+          "11000011": 3
+        },
+        "F2_plus": {
+          "00001110": 797,
+          "00001111": 1195,
+          "00110011": 2,
+          "01101000": 1,
+          "10011000": 1,
+          "11000011": 4
+        }
+      },
+      "estimate": {
+        "abs": 0.9813737820015369,
+        "imag": 0.9615,
+        "real": 0.19650000000000012
+      },
+      "fidelities": {
+        "F1": 0.997,
+        "F2_i": 0.98,
+        "F2_plus": 0.5975
+      },
+      "measured_correlation": {
+        "imag": 0.9615,
+        "real": 0.19650000000000012
+      },
+      "power": 3,
+      "power_circuit_depth": 17708,
+      "power_circuit_operation_counts": {
+        "cx": 12144,
+        "rz": 8928,
+        "sx": 4104
+      },
+      "power_circuit_size": 25176,
+      "stored_correlation": {
+        "imag": 0.9615,
+        "real": 0.19650000000000012
+      },
+      "template_depths": {
+        "F1": 17709,
+        "F2_i": 17712,
+        "F2_plus": 17711
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 12144,
+          "measure": 8,
+          "rz": 8928,
+          "sx": 4104,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 12150,
+          "h": 2,
+          "measure": 8,
+          "rz": 8928,
+          "sdg": 1,
+          "sx": 4104,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 12150,
+          "h": 2,
+          "measure": 8,
+          "rz": 8928,
+          "sx": 4104,
+          "x": 4
+        }
+      }
+    }
+  ],
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          3.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          4.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "linear_h4_sto3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "spacing_angstrom": 1.0,
+    "symmetry": "c1"
+  },
+  "notes": [
+    "This is the deterministic UQK branch: every time step uses the full saved Trotter block.",
+    "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+    "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
+    "No IBM credentials or QPU backend are used in this script."
+  ],
+  "occupied_qubits": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "options": {
+    "backend_mode": "local_noiseless_statevector",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "krylov_dimension": 3,
+    "max_correlation_power": 3,
+    "mfe_verbose_for_first_nonzero_power": true,
+    "random_seed": 230623,
+    "shots_per_mfe_experiment": 2000,
+    "trotter_order": 1
+  },
+  "outputs": {
+    "metadata_json": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_uqk_overlap_matrix_metadata.json",
+    "npz": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_uqk_overlap_matrix.npz"
+  },
+  "overlap_matrix": [
+    [
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.41125,
+        "real": 0.88925
+      },
+      {
+        "imag": 0.789,
+        "real": 0.6
+      }
+    ],
+    [
+      {
+        "imag": -0.41125,
+        "real": 0.88925
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.41125,
+        "real": 0.88925
+      }
+    ],
+    [
+      {
+        "imag": -0.789,
+        "real": 0.6
+      },
+      {
+        "imag": -0.41125,
+        "real": 0.88925
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      }
+    ]
+  ],
+  "schema_version": 1,
+  "script": "scripts/qiskit/build_uqk_overlap_matrix.py",
+  "source_circuit_archive": {
+    "num_group_circuits": 111,
+    "source_depth_statistics": {
+      "raw_max": 1,
+      "raw_min": 1,
+      "raw_sum": 111,
+      "transpiled_max": 145,
+      "transpiled_min": 0,
+      "transpiled_sum": 6062
+    },
+    "source_qiskit_version": "2.2.2",
+    "source_target": {
+      "backend": null,
+      "description": "Local, topology-free transpilation to GENERIC_BASIS_GATES. No hardware coupling map is imposed.",
+      "mode": "generic_simulator",
+      "note": "This script transpiles and serializes circuits; it does not submit jobs."
+    }
+  }
+}
