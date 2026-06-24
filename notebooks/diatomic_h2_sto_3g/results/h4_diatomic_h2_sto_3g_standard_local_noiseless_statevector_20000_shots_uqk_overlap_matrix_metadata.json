@@ -1,0 +1,1265 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "backend": {
+    "backend_mode": "local_noiseless_statevector",
+    "final_mfe_transpilation": false,
+    "noise_model": null,
+    "simulator_method": "statevector"
+  },
+  "correlations": [
+    {
+      "imag": 0.0,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.09422390891916105,
+      "index": 1,
+      "real": 0.9922477519440362
+    },
+    {
+      "imag": 0.20431606112251569,
+      "index": 2,
+      "real": 0.9719720531822817
+    },
+    {
+      "imag": 0.3079427616648305,
+      "index": 3,
+      "real": 0.9428631537971126
+    },
+    {
+      "imag": 0.4112009395905492,
+      "index": 4,
+      "real": 0.9038894559235934
+    }
+  ],
+  "diagnostics": {
+    "condition_number": 1308.1179512491906,
+    "hermiticity_error_frobenius": 0.0
+  },
+  "full_trotter_step": {
+    "depth": 191,
+    "non_scalar_group_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "operation_counts": {
+      "cx": 104,
+      "rz": 130,
+      "sx": 56,
+      "x": 4
+    },
+    "scalar_groups_skipped_for_mfe": [
+      0
+    ],
+    "scalar_phase_applied_analytically_to_correlations": 0.52917721067,
+    "size": 294
+  },
+  "generated_at_utc": "2026-06-24T20:38:32.681783Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "inputs": {
+    "circuit_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution_metadata.json",
+    "grouped_pauli_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_grouped_paulis.json",
+    "hermitian_pair_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_hermitian_pairs.json",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
+    "qpy": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution.qpy"
+  },
+  "measured_correlations": [
+    {
+      "imag": -0.013800000000000034,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.09422390891916105,
+      "index": 1,
+      "real": 0.9922477519440362
+    },
+    {
+      "imag": 0.20431606112251569,
+      "index": 2,
+      "real": 0.9719720531822817
+    },
+    {
+      "imag": 0.3079427616648305,
+      "index": 3,
+      "real": 0.9428631537971126
+    },
+    {
+      "imag": 0.4112009395905492,
+      "index": 4,
+      "real": 0.9038894559235934
+    }
+  ],
+  "mfe_by_power": [
+    {
+      "c0_enforced": true,
+      "counts": {
+        "F1": {
+          "0011": 20000
+        },
+        "F2_i": {
+          "0010": 10138,
+          "0011": 9862
+        },
+        "F2_plus": {
+          "0011": 20000
+        }
+      },
+      "estimate": {
+        "abs": 1.0000952154670073,
+        "imag": -0.013800000000000034,
+        "real": 1.0
+      },
+      "execution_template_depths": {
+        "F1": 2,
+        "F2_i": 7,
+        "F2_plus": 6
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "measure": 4,
+          "x": 2
+        },
+        "F2_i": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "sdg": 1,
+          "x": 2
+        },
+        "F2_plus": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "x": 2
+        }
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.4931,
+        "F2_plus": 1.0
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.4931,
+        "F2_plus": 1.0
+      },
+      "measured_correlation": {
+        "imag": -0.013800000000000034,
+        "real": 1.0
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": -0.013800000000000034,
+        "real": 1.0
+      },
+      "num_instances": 1,
+      "power": 0,
+      "power_circuit_depth": 0,
+      "power_circuit_operation_counts": {},
+      "power_circuit_size": 0,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": -0.013800000000000034,
+        "real": 1.0
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": -0.013800000000000034,
+        "real": 1.0
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "stored_correlation": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "summed_counts": {
+        "F1": {
+          "0011": 20000
+        },
+        "F2_i": {
+          "0010": 10138,
+          "0011": 9862
+        },
+        "F2_plus": {
+          "0011": 20000
+        }
+      },
+      "template_depths": {
+        "F1": 2,
+        "F2_i": 7,
+        "F2_plus": 6
+      },
+      "template_operation_counts": {
+        "F1": {
+          "measure": 4,
+          "x": 2
+        },
+        "F2_i": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "sdg": 1,
+          "x": 2
+        },
+        "F2_plus": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "x": 2
+        }
+      },
+      "total_time": 0.0
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "0011": 19989,
+          "1100": 11
+        },
+        "F2_i": {
+          "0010": 8532,
+          "0011": 11463,
+          "1110": 2,
+          "1111": 3
+        },
+        "F2_plus": {
+          "0010": 141,
+          "0011": 19856,
+          "1110": 3
+        }
+      },
+      "estimate": {
+        "abs": 0.9967114658967259,
+        "imag": 0.14657500000000012,
+        "real": 0.9858750000000001
+      },
+      "execution_template_depths": {
+        "F1": 193,
+        "F2_i": 195,
+        "F2_plus": 194
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "cx": 104,
+          "measure": 4,
+          "rz": 130,
+          "sx": 56,
+          "x": 6
+        },
+        "F2_i": {
+          "cx": 106,
+          "h": 2,
+          "measure": 4,
+          "rz": 130,
+          "sdg": 1,
+          "sx": 56,
+          "x": 6
+        },
+        "F2_plus": {
+          "cx": 106,
+          "h": 2,
+          "measure": 4,
+          "rz": 130,
+          "sx": 56,
+          "x": 6
+        }
+      },
+      "fidelities": {
+        "F1": 0.99945,
+        "F2_i": 0.57315,
+        "F2_plus": 0.9928
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "mean_fidelities": {
+        "F1": 0.99945,
+        "F2_i": 0.57315,
+        "F2_plus": 0.9928
+      },
+      "measured_correlation": {
+        "imag": 0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": 0.14657500000000012,
+        "real": 0.9858750000000001
+      },
+      "num_instances": 1,
+      "power": 1,
+      "power_circuit_depth": 191,
+      "power_circuit_operation_counts": {
+        "cx": 104,
+        "rz": 130,
+        "sx": 56,
+        "x": 4
+      },
+      "power_circuit_size": 294,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": 0.14657500000000012,
+        "real": 0.9858750000000001
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": 0.14657500000000012,
+        "real": 0.9858750000000001
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.052893027072885505,
+        "real": 0.9986001841012583
+      },
+      "stored_correlation": {
+        "imag": 0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      "summed_counts": {
+        "F1": {
+          "0011": 19989,
+          "1100": 11
+        },
+        "F2_i": {
+          "0010": 8532,
+          "0011": 11463,
+          "1110": 2,
+          "1111": 3
+        },
+        "F2_plus": {
+          "0010": 141,
+          "0011": 19856,
+          "1110": 3
+        }
+      },
+      "template_depths": {
+        "F1": 193,
+        "F2_i": 195,
+        "F2_plus": 194
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 104,
+          "measure": 4,
+          "rz": 130,
+          "sx": 56,
+          "x": 6
+        },
+        "F2_i": {
+          "cx": 106,
+          "h": 2,
+          "measure": 4,
+          "rz": 130,
+          "sdg": 1,
+          "sx": 56,
+          "x": 6
+        },
+        "F2_plus": {
+          "cx": 106,
+          "h": 2,
+          "measure": 4,
+          "rz": 130,
+          "sx": 56,
+          "x": 6
+        }
+      },
+      "total_time": 0.1
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "0011": 19966,
+          "1100": 34
+        },
+        "F2_i": {
+          "0010": 6928,
+          "0011": 13050,
+          "1110": 13,
+          "1111": 9
+        },
+        "F2_plus": {
+          "0010": 537,
+          "0011": 19441,
+          "1110": 11,
+          "1111": 11
+        }
+      },
+      "estimate": {
+        "abs": 0.9932143399085617,
+        "imag": 0.30584999999999996,
+        "real": 0.94495
+      },
+      "execution_template_depths": {
+        "F1": 380,
+        "F2_i": 382,
+        "F2_plus": 381
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "cx": 208,
+          "measure": 4,
+          "rz": 260,
+          "sx": 112,
+          "x": 10
+        },
+        "F2_i": {
+          "cx": 210,
+          "h": 2,
+          "measure": 4,
+          "rz": 260,
+          "sdg": 1,
+          "sx": 112,
+          "x": 10
+        },
+        "F2_plus": {
+          "cx": 210,
+          "h": 2,
+          "measure": 4,
+          "rz": 260,
+          "sx": 112,
+          "x": 10
+        }
+      },
+      "fidelities": {
+        "F1": 0.9983,
+        "F2_i": 0.6525,
+        "F2_plus": 0.97205
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "mean_fidelities": {
+        "F1": 0.9983,
+        "F2_i": 0.6525,
+        "F2_plus": 0.97205
+      },
+      "measured_correlation": {
+        "imag": 0.20431606112251569,
+        "real": 0.9719720531822817
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": 0.30584999999999996,
+        "real": 0.94495
+      },
+      "num_instances": 1,
+      "power": 2,
+      "power_circuit_depth": 378,
+      "power_circuit_operation_counts": {
+        "cx": 208,
+        "rz": 260,
+        "sx": 112,
+        "x": 8
+      },
+      "power_circuit_size": 588,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": 0.30584999999999996,
+        "real": 0.94495
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": 0.30584999999999996,
+        "real": 0.94495
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.1056379731453126,
+        "real": 0.994404655374134
+      },
+      "stored_correlation": {
+        "imag": 0.20431606112251569,
+        "real": 0.9719720531822817
+      },
+      "summed_counts": {
+        "F1": {
+          "0011": 19966,
+          "1100": 34
+        },
+        "F2_i": {
+          "0010": 6928,
+          "0011": 13050,
+          "1110": 13,
+          "1111": 9
+        },
+        "F2_plus": {
+          "0010": 537,
+          "0011": 19441,
+          "1110": 11,
+          "1111": 11
+        }
+      },
+      "template_depths": {
+        "F1": 380,
+        "F2_i": 382,
+        "F2_plus": 381
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 208,
+          "measure": 4,
+          "rz": 260,
+          "sx": 112,
+          "x": 10
+        },
+        "F2_i": {
+          "cx": 210,
+          "h": 2,
+          "measure": 4,
+          "rz": 260,
+          "sdg": 1,
+          "sx": 112,
+          "x": 10
+        },
+        "F2_plus": {
+          "cx": 210,
+          "h": 2,
+          "measure": 4,
+          "rz": 260,
+          "sx": 112,
+          "x": 10
+        }
+      },
+      "total_time": 0.2
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "0011": 19927,
+          "1100": 73
+        },
+        "F2_i": {
+          "0010": 5443,
+          "0011": 14513,
+          "1110": 21,
+          "1111": 23
+        },
+        "F2_plus": {
+          "0010": 1151,
+          "0011": 18805,
+          "1110": 20,
+          "1111": 24
+        }
+      },
+      "estimate": {
+        "abs": 0.9918768427834174,
+        "imag": 0.453125,
+        "real": 0.882325
+      },
+      "execution_template_depths": {
+        "F1": 567,
+        "F2_i": 569,
+        "F2_plus": 568
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "cx": 312,
+          "measure": 4,
+          "rz": 390,
+          "sx": 168,
+          "x": 14
+        },
+        "F2_i": {
+          "cx": 314,
+          "h": 2,
+          "measure": 4,
+          "rz": 390,
+          "sdg": 1,
+          "sx": 168,
+          "x": 14
+        },
+        "F2_plus": {
+          "cx": 314,
+          "h": 2,
+          "measure": 4,
+          "rz": 390,
+          "sx": 168,
+          "x": 14
+        }
+      },
+      "fidelities": {
+        "F1": 0.99635,
+        "F2_i": 0.72565,
+        "F2_plus": 0.94025
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "mean_fidelities": {
+        "F1": 0.99635,
+        "F2_i": 0.72565,
+        "F2_plus": 0.94025
+      },
+      "measured_correlation": {
+        "imag": 0.3079427616648305,
+        "real": 0.9428631537971126
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": 0.453125,
+        "real": 0.882325
+      },
+      "num_instances": 1,
+      "power": 3,
+      "power_circuit_depth": 565,
+      "power_circuit_operation_counts": {
+        "cx": 312,
+        "rz": 390,
+        "sx": 168,
+        "x": 12
+      },
+      "power_circuit_size": 882,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": 0.453125,
+        "real": 0.882325
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": 0.453125,
+        "real": 0.882325
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.15808717178910042,
+        "real": 0.9874251597542588
+      },
+      "stored_correlation": {
+        "imag": 0.3079427616648305,
+        "real": 0.9428631537971126
+      },
+      "summed_counts": {
+        "F1": {
+          "0011": 19927,
+          "1100": 73
+        },
+        "F2_i": {
+          "0010": 5443,
+          "0011": 14513,
+          "1110": 21,
+          "1111": 23
+        },
+        "F2_plus": {
+          "0010": 1151,
+          "0011": 18805,
+          "1110": 20,
+          "1111": 24
+        }
+      },
+      "template_depths": {
+        "F1": 567,
+        "F2_i": 569,
+        "F2_plus": 568
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 312,
+          "measure": 4,
+          "rz": 390,
+          "sx": 168,
+          "x": 14
+        },
+        "F2_i": {
+          "cx": 314,
+          "h": 2,
+          "measure": 4,
+          "rz": 390,
+          "sdg": 1,
+          "sx": 168,
+          "x": 14
+        },
+        "F2_plus": {
+          "cx": 314,
+          "h": 2,
+          "measure": 4,
+          "rz": 390,
+          "sx": 168,
+          "x": 14
+        }
+      },
+      "total_time": 0.30000000000000004
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "0011": 19879,
+          "1100": 121
+        },
+        "F2_i": {
+          "0010": 4043,
+          "0011": 15889,
+          "1110": 34,
+          "1111": 34
+        },
+        "F2_plus": {
+          "0010": 1987,
+          "0011": 17943,
+          "1110": 34,
+          "1111": 36
+        }
+      },
+      "estimate": {
+        "abs": 0.9930268683424432,
+        "imag": 0.591925,
+        "real": 0.7973250000000001
+      },
+      "execution_template_depths": {
+        "F1": 754,
+        "F2_i": 756,
+        "F2_plus": 755
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "cx": 416,
+          "measure": 4,
+          "rz": 520,
+          "sx": 224,
+          "x": 18
+        },
+        "F2_i": {
+          "cx": 418,
+          "h": 2,
+          "measure": 4,
+          "rz": 520,
+          "sdg": 1,
+          "sx": 224,
+          "x": 18
+        },
+        "F2_plus": {
+          "cx": 418,
+          "h": 2,
+          "measure": 4,
+          "rz": 520,
+          "sx": 224,
+          "x": 18
+        }
+      },
+      "fidelities": {
+        "F1": 0.99395,
+        "F2_i": 0.79445,
+        "F2_plus": 0.89715
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "mean_fidelities": {
+        "F1": 0.99395,
+        "F2_i": 0.79445,
+        "F2_plus": 0.89715
+      },
+      "measured_correlation": {
+        "imag": 0.4112009395905492,
+        "real": 0.9038894559235934
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": 0.591925,
+        "real": 0.7973250000000001
+      },
+      "num_instances": 1,
+      "power": 4,
+      "power_circuit_depth": 752,
+      "power_circuit_operation_counts": {
+        "cx": 416,
+        "rz": 520,
+        "sx": 224,
+        "x": 16
+      },
+      "power_circuit_size": 1176,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": 0.591925,
+        "real": 0.7973250000000001
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": 0.591925,
+        "real": 0.7973250000000001
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.2100937845599732,
+        "real": 0.9776812372595004
+      },
+      "stored_correlation": {
+        "imag": 0.4112009395905492,
+        "real": 0.9038894559235934
+      },
+      "summed_counts": {
+        "F1": {
+          "0011": 19879,
+          "1100": 121
+        },
+        "F2_i": {
+          "0010": 4043,
+          "0011": 15889,
+          "1110": 34,
+          "1111": 34
+        },
+        "F2_plus": {
+          "0010": 1987,
+          "0011": 17943,
+          "1110": 34,
+          "1111": 36
+        }
+      },
+      "template_depths": {
+        "F1": 754,
+        "F2_i": 756,
+        "F2_plus": 755
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 416,
+          "measure": 4,
+          "rz": 520,
+          "sx": 224,
+          "x": 18
+        },
+        "F2_i": {
+          "cx": 418,
+          "h": 2,
+          "measure": 4,
+          "rz": 520,
+          "sdg": 1,
+          "sx": 224,
+          "x": 18
+        },
+        "F2_plus": {
+          "cx": 418,
+          "h": 2,
+          "measure": 4,
+          "rz": 520,
+          "sx": 224,
+          "x": 18
+        }
+      },
+      "total_time": 0.4
+    }
+  ],
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "notes": [
+    "This is the deterministic UQK branch: every time step uses the saved non-scalar Trotter block and applies the scalar phase analytically.",
+    "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+    "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
+    "The local_noisy_ibm_model mode uses a local Aer simulator. Runtime credentials are only needed if IBM_MODEL_SOURCE='runtime_backend'."
+  ],
+  "occupied_qubits": [
+    0,
+    1
+  ],
+  "option_documentation": {
+    "backend_mode": {
+      "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware.",
+      "local_noisy_ibm_model": "Aer noisy simulator with IBM fake/runtime backend-derived noise. The default compresses target averages to the active-space qubit count.",
+      "local_noisy_simple": "Aer noisy simulator with compact hand-controlled depolarizing, thermal, and readout noise."
+    },
+    "krylov_dimension": "Matrix dimension M; S has shape M x M.",
+    "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
+    "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
+    "rough_numeric_ranges": {
+      "krylov_dimension": "2-4 for debugging, 5-10 for early studies, larger values need care with conditioning.",
+      "qdrift_segment_count_Nd": "2-8 debugging, 10-100 convergence studies.",
+      "shots_per_mfe_experiment": "100-1000 smoke tests, 2000-10000 smoother simulator studies.",
+      "stochastic_instances_per_correlation": "1-5 plumbing checks, 10-100 convergence studies."
+    },
+    "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i. In stochastic mode this is per sampled instance.",
+    "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
+    "stochastic_weight_convention": {
+      "group_pauli_l1_norm": "For non-scalar K_mu=sum_rho alpha_mu,rho P_mu,rho, use h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda."
+    },
+    "uqk_mode": {
+      "standard": "Use deterministic non-scalar Trotter blocks plus the analytic scalar phase.",
+      "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt."
+    }
+  },
+  "options": {
+    "backend_mode": "local_noiseless_statevector",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "ibm_model_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "ecr"
+    ],
+    "ibm_model_compress_to_active_space": true,
+    "ibm_model_fake_backend_class": "FakeBrisbane",
+    "ibm_model_runtime_backend_name": "ibm_brisbane",
+    "ibm_model_runtime_instance": null,
+    "ibm_model_source": "fake_backend",
+    "ibm_model_two_qubit_gate": "ecr",
+    "krylov_dimension": 4,
+    "max_correlation_power": 4,
+    "mfe_verbose_for_first_nonzero_power": false,
+    "noisy_simulation_method": "density_matrix",
+    "noisy_transpile_optimization_level": 1,
+    "output_label_override": "diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots",
+    "output_label_suffix": "",
+    "qdrift_segment_count_Nd": 50,
+    "random_seed": 230623,
+    "shots_per_mfe_experiment": 20000,
+    "simple_noise_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "simple_noise_include_thermal_relaxation": true,
+    "simple_noise_one_qubit_depolarizing_probability": 0.001,
+    "simple_noise_one_qubit_gate_time_seconds": 5e-08,
+    "simple_noise_readout_error_probability": 0.02,
+    "simple_noise_t1_seconds": 0.0001,
+    "simple_noise_t2_seconds": 8e-05,
+    "simple_noise_two_qubit_depolarizing_probability": 0.01,
+    "simple_noise_two_qubit_gate_time_seconds": 3e-07,
+    "stochastic_instances_per_correlation": 200,
+    "stochastic_weight_convention": "group_pauli_l1_norm",
+    "transpile_mfe_circuits_for_noisy_backend": true,
+    "trotter_order": 1,
+    "uqk_mode": "standard",
+    "valid_backend_modes": [
+      "local_noiseless_statevector",
+      "local_noisy_ibm_model",
+      "local_noisy_simple"
+    ],
+    "valid_uqk_modes": [
+      "standard",
+      "stochastic"
+    ]
+  },
+  "outputs": {
+    "metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix_metadata.json",
+    "npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix.npz"
+  },
+  "overlap_matrix": [
+    [
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      {
+        "imag": 0.20431606112251569,
+        "real": 0.9719720531822817
+      },
+      {
+        "imag": 0.3079427616648305,
+        "real": 0.9428631537971126
+      }
+    ],
+    [
+      {
+        "imag": -0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      {
+        "imag": 0.20431606112251569,
+        "real": 0.9719720531822817
+      }
+    ],
+    [
+      {
+        "imag": -0.20431606112251569,
+        "real": 0.9719720531822817
+      },
+      {
+        "imag": -0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.09422390891916105,
+        "real": 0.9922477519440362
+      }
+    ],
+    [
+      {
+        "imag": -0.3079427616648305,
+        "real": 0.9428631537971126
+      },
+      {
+        "imag": -0.20431606112251569,
+        "real": 0.9719720531822817
+      },
+      {
+        "imag": -0.09422390891916105,
+        "real": 0.9922477519440362
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      }
+    ]
+  ],
+  "schema_version": 1,
+  "script": "scripts/qiskit/build_uqk_overlap_matrix.py",
+  "source_circuit_archive": {
+    "num_group_circuits": 13,
+    "source_depth_statistics": {
+      "raw_max": 1,
+      "raw_min": 1,
+      "raw_sum": 13,
+      "transpiled_max": 83,
+      "transpiled_min": 0,
+      "transpiled_sum": 194
+    },
+    "source_qiskit_version": "2.2.2",
+    "source_target": {
+      "backend": null,
+      "description": "Local, topology-free transpilation to GENERIC_BASIS_GATES. No hardware coupling map is imposed.",
+      "mode": "generic_simulator",
+      "note": "This script transpiles and serializes circuits; it does not submit jobs."
+    }
+  },
+  "stochastic_sampling": {
+    "current_archive_convention_note": "The grouped Pauli archive stores K_mu directly rather than a separate h_mu and normalized G_mu. This script defines an effective positive h_mu from the Pauli L1 norm and leaves all coefficient signs in G_mu.",
+    "entries": [
+      {
+        "coefficient_scale_for_G_mu": 0.9002162664385587,
+        "group_index": 1,
+        "h_mu": 1.110844179650526,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.155010943898045,
+        "source_classification": "operator",
+        "w_mu": 1.110844179650526,
+        "weight": 1.110844179650526
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.9002162664385587,
+        "group_index": 2,
+        "h_mu": 1.110844179650526,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.155010943898045,
+        "source_classification": "operator",
+        "w_mu": 1.110844179650526,
+        "weight": 1.110844179650526
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.5964176402310601,
+        "group_index": 3,
+        "h_mu": 0.6264024994457361,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08741031773666566,
+        "source_classification": "operator",
+        "w_mu": 0.6264024994457361,
+        "weight": 0.6264024994457361
+      },
+      {
+        "coefficient_scale_for_G_mu": 5.081543954676503,
+        "group_index": 4,
+        "h_mu": 0.19679058351541134,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.027460821832426412,
+        "source_classification": "operator",
+        "w_mu": 0.19679058351541134,
+        "weight": 0.19679058351541134
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6974441472519977,
+        "group_index": 5,
+        "h_mu": 0.589121003845049,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.08220793208361085,
+        "source_classification": "operator",
+        "w_mu": 0.589121003845049,
+        "weight": 0.589121003845049
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.353405325955376,
+        "group_index": 6,
+        "h_mu": 0.42491617953403127,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.05929423700796915,
+        "source_classification": "operator",
+        "w_mu": 0.42491617953403127,
+        "weight": 0.42491617953403127
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6084753447027769,
+        "group_index": 7,
+        "h_mu": 0.6217067630494427,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08675505884039558,
+        "source_classification": "operator",
+        "w_mu": 0.6217067630494427,
+        "weight": 0.6217067630494427
+      },
+      {
+        "coefficient_scale_for_G_mu": 5.0815439546765,
+        "group_index": 8,
+        "h_mu": 0.19679058351541143,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.027460821832426423,
+        "source_classification": "operator",
+        "w_mu": 0.19679058351541143,
+        "weight": 0.19679058351541143
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6974441472519977,
+        "group_index": 9,
+        "h_mu": 0.589121003845049,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.08220793208361085,
+        "source_classification": "operator",
+        "w_mu": 0.589121003845049,
+        "weight": 0.589121003845049
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6084753447027769,
+        "group_index": 10,
+        "h_mu": 0.6217067630494427,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08675505884039558,
+        "source_classification": "operator",
+        "w_mu": 0.6217067630494427,
+        "weight": 0.6217067630494427
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.353405325955376,
+        "group_index": 11,
+        "h_mu": 0.42491617953403127,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.05929423700796915,
+        "source_classification": "operator",
+        "w_mu": 0.42491617953403127,
+        "weight": 0.42491617953403127
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.5312276729548038,
+        "group_index": 12,
+        "h_mu": 0.6530707468669921,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.09113169493844027,
+        "source_classification": "operator",
+        "w_mu": 0.6530707468669921,
+        "weight": 0.6530707468669921
+      }
+    ],
+    "implemented_sampled_circuit": "For total time T_k=k*dt, each sampled instance is prod_s exp[-i theta_k G_mu_s], theta_k=lambda*T_k/N_d. Each G_mu is rebuilt from grouped Pauli terms using PauliEvolutionGate(SparsePauliOp(K_mu/h_mu), time=theta_k).",
+    "lambda_excludes_zero_body_scalar": true,
+    "mode": false,
+    "qdrift_formula": "Write H=E_scalar I + sum_mu K_mu. For non-scalar groups, define h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda. A sampled chunk for T_k=k*dt uses prod_s exp[-i (lambda*T_k/N_d) G_mu_s]. The zero-body scalar phase exp(-i E_scalar T_k) is applied analytically after MFE.",
+    "sampled_non_scalar_groups": 12,
+    "scalar_energy_applied_analytically_to_correlations": 0.52917721067,
+    "scalar_energy_excluded_from_lambda": 0.52917721067,
+    "weight_convention": "group_pauli_l1_norm",
+    "weight_sum_lambda": 7.166230665501649
+  }
+}

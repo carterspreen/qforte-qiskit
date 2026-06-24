@@ -1,0 +1,1686 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "diagnostics": {
+    "fermion_operator_groups": 13,
+    "total_compressed_fermion_terms": 15
+  },
+  "generated_at_utc": "2026-06-24T20:31:36.500263Z",
+  "groups": [
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.52917721067
+          },
+          "is_identity": true,
+          "ladder_ops": []
+        }
+      ],
+      "group_index": 0,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "is_identity": true,
+          "ladder_ops": [],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "is_identity": true,
+          "ladder_ops": [],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "zero_body_scalar",
+      "source_group_index": 0,
+      "source_inner_terms": [
+        {
+          "annihilators": [],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "creators": [],
+          "is_zero_body": true,
+          "rank": 0,
+          "term_index": 0
+        },
+        {
+          "annihilators": [],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "creators": [],
+          "is_zero_body": true,
+          "rank": 0,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -1.110844179650526
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ]
+        }
+      ],
+      "group_index": 1,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 1,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -1.110844179650526
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ]
+        }
+      ],
+      "group_index": 2,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 2,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.6264024994457361
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ]
+        }
+      ],
+      "group_index": 3,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 3,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            0,
+            1
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "creators": [
+            0,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            1
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "creators": [
+            0,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.19679058351541134
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ]
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.19679058351541134
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ]
+        }
+      ],
+      "group_index": 4,
+      "num_compressed_fermion_terms": 2,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 4,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            3,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "creators": [
+            1,
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            0
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "creators": [
+            3,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.589121003845049
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ]
+        }
+      ],
+      "group_index": 5,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 5,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.42491617953403127
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ]
+        }
+      ],
+      "group_index": 6,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 6,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            0,
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            0,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            0,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.6217067630494427
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ]
+        }
+      ],
+      "group_index": 7,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 7,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            1,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            1,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            1,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ]
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ]
+        }
+      ],
+      "group_index": 8,
+      "num_compressed_fermion_terms": 2,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 8,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            3,
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "creators": [
+            2,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2,
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "creators": [
+            3,
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.589121003845049
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ]
+        }
+      ],
+      "group_index": 9,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 9,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.6217067630494427
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ]
+        }
+      ],
+      "group_index": 10,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 0
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 0
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 10,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            0,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            0,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            0,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.42491617953403127
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ]
+        }
+      ],
+      "group_index": 11,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 1
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 1
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 11,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            1,
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            1,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            1,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    },
+    {
+      "compressed_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.6530707468669921
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ]
+        }
+      ],
+      "group_index": 12,
+      "num_compressed_fermion_terms": 1,
+      "openfermion_fermion_terms": [
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 0
+        },
+        {
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "is_identity": false,
+          "ladder_ops": [
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 2
+            },
+            {
+              "action": 1,
+              "action_label": "create",
+              "mode": 3
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 2
+            },
+            {
+              "action": 0,
+              "action_label": "annihilate",
+              "mode": 3
+            }
+          ],
+          "source_term_index": 1
+        }
+      ],
+      "source_classification": "operator",
+      "source_group_index": 12,
+      "source_inner_terms": [
+        {
+          "annihilators": [
+            2,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "creators": [
+            2,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "creators": [
+            2,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "source_num_inner_terms": 2
+    }
+  ],
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "input_hermitian_pair_archive": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_hermitian_pairs.json",
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "openfermion": {
+    "coefficient_tolerance": 1e-12,
+    "fermion_operator": "openfermion.FermionOperator"
+  },
+  "schema_version": 1
+}

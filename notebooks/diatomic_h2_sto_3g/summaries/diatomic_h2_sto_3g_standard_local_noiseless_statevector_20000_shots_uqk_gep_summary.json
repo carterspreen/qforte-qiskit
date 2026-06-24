@@ -1,0 +1,426 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "conventions": {
+    "S": "S_mn = C_(n-m), with C_-k=conj(C_k)",
+    "U": "U_mn = C_(n+1-m)",
+    "canonical_orthogonalization": "Diagonalize Hermitian S, discard eigenvalues below the qforte threshold, form X'=U_s s^(-1/2), solve X'^dagger U X', and back-transform eigenvectors.",
+    "energy_modulo_ambiguity": "2*pi/dt",
+    "phase_to_energy": "E = -Arg(lambda)/dt"
+  },
+  "correlation_metadata_options": {
+    "backend_mode": "local_noiseless_statevector",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "ibm_model_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "ecr"
+    ],
+    "ibm_model_compress_to_active_space": true,
+    "ibm_model_fake_backend_class": "FakeBrisbane",
+    "ibm_model_runtime_backend_name": "ibm_brisbane",
+    "ibm_model_runtime_instance": null,
+    "ibm_model_source": "fake_backend",
+    "ibm_model_two_qubit_gate": "ecr",
+    "krylov_dimension": 4,
+    "max_correlation_power": 4,
+    "mfe_verbose_for_first_nonzero_power": false,
+    "noisy_simulation_method": "density_matrix",
+    "noisy_transpile_optimization_level": 1,
+    "output_label_override": "diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots",
+    "output_label_suffix": "",
+    "qdrift_segment_count_Nd": 50,
+    "random_seed": 230623,
+    "shots_per_mfe_experiment": 20000,
+    "simple_noise_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "simple_noise_include_thermal_relaxation": true,
+    "simple_noise_one_qubit_depolarizing_probability": 0.001,
+    "simple_noise_one_qubit_gate_time_seconds": 5e-08,
+    "simple_noise_readout_error_probability": 0.02,
+    "simple_noise_t1_seconds": 0.0001,
+    "simple_noise_t2_seconds": 8e-05,
+    "simple_noise_two_qubit_depolarizing_probability": 0.01,
+    "simple_noise_two_qubit_gate_time_seconds": 3e-07,
+    "stochastic_instances_per_correlation": 200,
+    "stochastic_weight_convention": "group_pauli_l1_norm",
+    "transpile_mfe_circuits_for_noisy_backend": true,
+    "trotter_order": 1,
+    "uqk_mode": "standard",
+    "valid_backend_modes": [
+      "local_noiseless_statevector",
+      "local_noisy_ibm_model",
+      "local_noisy_simple"
+    ],
+    "valid_uqk_modes": [
+      "standard",
+      "stochastic"
+    ]
+  },
+  "correlation_values_used": [
+    {
+      "imag": 0.0,
+      "power": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.09422390891916105,
+      "power": 1,
+      "real": 0.9922477519440362
+    },
+    {
+      "imag": 0.20431606112251569,
+      "power": 2,
+      "real": 0.9719720531822817
+    },
+    {
+      "imag": 0.3079427616648305,
+      "power": 3,
+      "real": 0.9428631537971126
+    },
+    {
+      "imag": 0.4112009395905492,
+      "power": 4,
+      "real": 0.9038894559235934
+    }
+  ],
+  "direct_validation": {
+    "note": "not found: /Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/direct_validation_optional.npz",
+    "solution": null,
+    "used": false
+  },
+  "energy_modulo_2pi_over_dt": 62.83185307179586,
+  "generated_at_utc": "2026-06-24T20:38:32.765126Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "input_correlation_solution": {
+    "S": [
+      [
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": 0.3079427616648305,
+          "real": 0.9428631537971126
+        }
+      ],
+      [
+        {
+          "imag": -0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.20431606112251569,
+          "real": 0.9719720531822817
+        }
+      ],
+      [
+        {
+          "imag": -0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": -0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        }
+      ],
+      [
+        {
+          "imag": -0.3079427616648305,
+          "real": 0.9428631537971126
+        },
+        {
+          "imag": -0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": -0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.0,
+          "real": 1.0
+        }
+      ]
+    ],
+    "U": [
+      [
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": 0.3079427616648305,
+          "real": 0.9428631537971126
+        },
+        {
+          "imag": 0.4112009395905492,
+          "real": 0.9038894559235934
+        }
+      ],
+      [
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": 0.3079427616648305,
+          "real": 0.9428631537971126
+        }
+      ],
+      [
+        {
+          "imag": -0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.20431606112251569,
+          "real": 0.9719720531822817
+        }
+      ],
+      [
+        {
+          "imag": -0.20431606112251569,
+          "real": 0.9719720531822817
+        },
+        {
+          "imag": -0.09422390891916105,
+          "real": 0.9922477519440362
+        },
+        {
+          "imag": 0.0,
+          "real": 1.0
+        },
+        {
+          "imag": 0.09422390891916105,
+          "real": 0.9922477519440362
+        }
+      ]
+    ],
+    "condition_number": 1308.1179512491906,
+    "energies_hartree": [
+      {
+        "energy": -1.0358666950553512,
+        "root": 0
+      },
+      {
+        "energy": 13.209335801108605,
+        "root": 1
+      },
+      {
+        "energy": 18.373084391262868,
+        "root": 2
+      }
+    ],
+    "lambda_magnitudes": [
+      1.0006947241243975,
+      1.34314631636929,
+      1.7043890636346228
+    ],
+    "lambda_values": [
+      {
+        "imag": 0.10347335348408061,
+        "index": 0,
+        "real": 0.9953306968084339
+      },
+      {
+        "imag": -1.301436747084834,
+        "index": 1,
+        "real": 0.3321210931477236
+      },
+      {
+        "imag": -1.644216223818718,
+        "index": 2,
+        "real": -0.4488820441592891
+      }
+    ],
+    "overlap_eigenvalues": [
+      -0.00994455601073875,
+      0.003045717743620619,
+      0.02274078339785384,
+      3.984158054869262
+    ],
+    "phases": [
+      {
+        "arg_lambda": 0.10358666950553512,
+        "root": 0
+      },
+      {
+        "arg_lambda": -1.3209335801108606,
+        "root": 1
+      },
+      {
+        "arg_lambda": -1.8373084391262868,
+        "root": 2
+      }
+    ],
+    "residuals": [
+      {
+        "absolute_residual_norm": 0.0012691979197217173,
+        "relative_residual_norm": 0.00031779611563636725,
+        "root": 0,
+        "s_norm": {
+          "imag": 2.7755575615628914e-17,
+          "real": 1.0000000000000002
+        }
+      },
+      {
+        "absolute_residual_norm": 0.03090067271385518,
+        "relative_residual_norm": 0.08384854173077752,
+        "root": 1,
+        "s_norm": {
+          "imag": 6.730727086790012e-16,
+          "real": 0.9999999999999938
+        }
+      },
+      {
+        "absolute_residual_norm": 0.0503820601091486,
+        "relative_residual_norm": 0.15074960552162606,
+        "root": 2,
+        "s_norm": {
+          "imag": 4.746203430272544e-15,
+          "real": 1.0000000000000029
+        }
+      }
+    ],
+    "retained_overlap_indices": [
+      1,
+      2,
+      3
+    ],
+    "retained_rank": 3,
+    "threshold": 1e-15
+  },
+  "inputs": {
+    "correlation_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix_metadata.json",
+    "correlation_npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix.npz",
+    "direct_validation_npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/direct_validation_optional.npz",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json"
+  },
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "options": {
+    "dt": 0.1,
+    "effective_overlap_eigenvalue_threshold": 1e-15,
+    "krylov_dimension_to_use": 4,
+    "overlap_eigenvalue_threshold_option": null,
+    "sort_roots_by": "energy_real_ascending",
+    "use_direct_validation_when_available": true
+  },
+  "outputs": {
+    "summary_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_gep_summary.json"
+  },
+  "reference_energies_hartree": {
+    "fci_roots": [
+      -1.101150330132957,
+      -0.3522906262607206
+    ],
+    "hf": -1.0661086491853158,
+    "nuclear_repulsion": 0.52917721067
+  },
+  "schema_version": 1,
+  "script": "scripts/qiskit/solve_uqk_gep.py"
+}

@@ -9,8 +9,8 @@
   },
   "conventions": {
     "dt_guard": "KRYLOV_DT is checked against QPY metadata; it does not rescale the already-transpiled standard circuits.",
-    "reference_branch_correction": "If r_k=<vac|V^k|vac> is known and HF/vacuum cross terms vanish, the raw MFE templates estimate C_k*r_k^*. Current overlap files divide by r_k^* before saving physical C_k.",
-    "standard_path": "Use the saved non-scalar QPY Trotter block. Apply the separate zero-body scalar phase exp(-i E_scalar k dt) analytically.",
+    "reference_branch_correction": "No simulated reference-branch correction is applied. Raw MFE is a vacuum-reference measurement, and the zero-body scalar phase exp(-i E_scalar k dt) is applied analytically.",
+    "standard_path": "Direct validation builds the physical grouped-Pauli Trotter block including identity terms. Exact MFE uses the saved QPY circuits because those are what hardware would measure.",
     "toeplitz": "S_mn=C_(n-m), C_-k=conj(C_k)"
   },
   "correlations_direct": [
@@ -20,14 +20,19 @@
       "real": 1.0
     },
     {
-      "imag": -0.05250530938489881,
+      "imag": 0.20828542610270528,
       "index": 1,
-      "real": 0.9982179259719397
+      "real": 0.9776569012279159
     },
     {
-      "imag": -0.10463440286589132,
+      "imag": 0.40703602388630494,
       "index": 2,
-      "real": 0.992902064480826
+      "real": 0.9116603222540001
+    },
+    {
+      "imag": 0.5871599413846699,
+      "index": 3,
+      "real": 0.8050603013762011
     }
   ],
   "correlations_direct_non_scalar": [
@@ -37,14 +42,19 @@
       "real": 1.0
     },
     {
-      "imag": 0.17576978420381598,
+      "imag": 0.4250602758198863,
       "index": 1,
-      "real": 0.9840227732152691
+      "real": 0.9047207288248008
     },
     {
-      "imag": 0.34574709774826135,
+      "imag": 0.7685770006452544,
       "index": 2,
-      "real": 0.9366225559487888
+      "real": 0.6372536873118778
+    },
+    {
+      "imag": 0.9647820047750209,
+      "index": 3,
+      "real": 0.2491476848800331
     }
   ],
   "correlations_mfe_saved": [
@@ -54,37 +64,20 @@
       "real": 1.0
     },
     {
-      "imag": -0.057374010911623585,
+      "imag": 0.20398514155532813,
       "index": 1,
-      "real": 0.9780594807433473
+      "real": 0.9717285080075878
     },
     {
-      "imag": -0.062306105668605394,
+      "imag": 0.40310093835322336,
       "index": 2,
-      "real": 0.989261820347102
-    }
-  ],
-  "correlations_mfe_saved_after_reference_handling": [
-    {
-      "imag": 0.0,
-      "index": 0,
-      "real": 1.0
-    },
-    {
-      "imag": -0.057374010911623585,
-      "index": 1,
-      "real": 0.9780594807433473
-    },
-    {
-      "imag": -0.062306105668605394,
-      "index": 2,
-      "real": 0.989261820347102
+      "real": 0.9117765370411497
     }
   ],
   "exact_mfe_probability_comparison_metrics": {
-    "frobenius_difference": 0.900306584672279,
+    "frobenius_difference": 1.8367788550396825e-13,
     "left_hermiticity_error": 0.0,
-    "max_abs_difference": 0.5180799612924458,
+    "max_abs_difference": 1.0109836497186267e-13,
     "right_hermiticity_error": 7.691850745534255e-16
   },
   "exact_mfe_probability_records": [
@@ -141,15 +134,27 @@
         "imag": -0.442711355675266,
         "real": 0.8966641821530333
       }
+    },
+    {
+      "F1_exact": 0.9928788856187034,
+      "F2_i_exact": 0.9806107237921132,
+      "F2_plus_exact": 0.622793563844668,
+      "full_correlation": {
+        "imag": 0.587159941384588,
+        "real": 0.8050603013760705
+      },
+      "non_scalar_mfe_correlation": {
+        "imag": 0.9647820047748747,
+        "real": 0.2491476848799843
+      },
+      "power": 3,
+      "scalar_phase": {
+        "imag": -0.634939629200931,
+        "real": 0.7725617562824244
+      }
     }
   ],
-  "exact_mfe_probability_reference_corrected_comparison_metrics": {
-    "frobenius_difference": 8.44114101922523e-14,
-    "left_hermiticity_error": 0.0,
-    "max_abs_difference": 4.692711924602906e-14,
-    "right_hermiticity_error": 7.691850745534255e-16
-  },
-  "generated_at_utc": "2026-06-23T20:55:52.715828Z",
+  "generated_at_utc": "2026-06-24T18:45:17.260004Z",
   "hf_reference": {
     "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are usually printed as c[n-1]...c[0] when qubit q[i] is measured into classical bit c[i].",
     "occupation_little_endian": [
@@ -286,6 +291,7 @@
   ],
   "inputs": {
     "circuit_metadata_json": "/Users/nstair/Src/qforte-qiskit/circuits/transpiled/h4_linear_sto3g_grouped_evolution_metadata.json",
+    "grouped_pauli_json": "/Users/nstair/Src/qforte-qiskit/data/hamiltonians/h4_linear_sto3g_grouped_paulis.json",
     "mfe_metadata_json": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_standard_uqk_overlap_matrix_metadata.json",
     "mfe_npz": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_standard_uqk_overlap_matrix.npz",
     "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/data/molecules/h4_linear_sto3g_metadata.json",
@@ -366,36 +372,36 @@
         "real": 1.0
       },
       {
-        "imag": -0.05250530938489881,
-        "real": 0.9982179259719397
+        "imag": 0.20828542610270528,
+        "real": 0.9776569012279159
       },
       {
-        "imag": -0.10463440286589132,
-        "real": 0.992902064480826
+        "imag": 0.40703602388630494,
+        "real": 0.9116603222540001
       }
     ],
     [
       {
-        "imag": 0.05250530938489881,
-        "real": 0.9982179259719397
+        "imag": -0.20828542610270528,
+        "real": 0.9776569012279159
       },
       {
         "imag": 0.0,
         "real": 1.0
       },
       {
-        "imag": -0.05250530938489881,
-        "real": 0.9982179259719397
+        "imag": 0.20828542610270528,
+        "real": 0.9776569012279159
       }
     ],
     [
       {
-        "imag": 0.10463440286589132,
-        "real": 0.992902064480826
+        "imag": -0.40703602388630494,
+        "real": 0.9116603222540001
       },
       {
-        "imag": 0.05250530938489881,
-        "real": 0.9982179259719397
+        "imag": -0.20828542610270528,
+        "real": 0.9776569012279159
       },
       {
         "imag": 0.0,
@@ -410,80 +416,36 @@
         "real": 1.0
       },
       {
-        "imag": -0.057374010911623585,
-        "real": 0.9780594807433473
+        "imag": 0.20398514155532813,
+        "real": 0.9717285080075878
       },
       {
-        "imag": -0.062306105668605394,
-        "real": 0.989261820347102
+        "imag": 0.40310093835322336,
+        "real": 0.9117765370411497
       }
     ],
     [
       {
-        "imag": 0.057374010911623585,
-        "real": 0.9780594807433473
+        "imag": -0.20398514155532813,
+        "real": 0.9717285080075878
       },
       {
         "imag": 0.0,
         "real": 1.0
       },
       {
-        "imag": -0.057374010911623585,
-        "real": 0.9780594807433473
+        "imag": 0.20398514155532813,
+        "real": 0.9717285080075878
       }
     ],
     [
       {
-        "imag": 0.062306105668605394,
-        "real": 0.989261820347102
+        "imag": -0.40310093835322336,
+        "real": 0.9117765370411497
       },
       {
-        "imag": 0.057374010911623585,
-        "real": 0.9780594807433473
-      },
-      {
-        "imag": 0.0,
-        "real": 1.0
-      }
-    ]
-  ],
-  "overlap_mfe_saved_after_reference_handling": [
-    [
-      {
-        "imag": 0.0,
-        "real": 1.0
-      },
-      {
-        "imag": -0.057374010911623585,
-        "real": 0.9780594807433473
-      },
-      {
-        "imag": -0.062306105668605394,
-        "real": 0.989261820347102
-      }
-    ],
-    [
-      {
-        "imag": 0.057374010911623585,
-        "real": 0.9780594807433473
-      },
-      {
-        "imag": 0.0,
-        "real": 1.0
-      },
-      {
-        "imag": -0.057374010911623585,
-        "real": 0.9780594807433473
-      }
-    ],
-    [
-      {
-        "imag": 0.062306105668605394,
-        "real": 0.989261820347102
-      },
-      {
-        "imag": 0.057374010911623585,
-        "real": 0.9780594807433473
+        "imag": -0.20398514155532813,
+        "real": 0.9717285080075878
       },
       {
         "imag": 0.0,
@@ -492,12 +454,11 @@
     ]
   ],
   "saved_mfe_comparison_metrics": {
-    "frobenius_difference": 0.073007814077068,
+    "frobenius_difference": 0.015670034508954128,
     "left_hermiticity_error": 0.0,
-    "max_abs_difference": 0.04248453978772602,
+    "max_abs_difference": 0.0073238168575711395,
     "right_hermiticity_error": 0.0
   },
-  "saved_mfe_reference_branch_correction_already_applied": true,
   "scalar_energy": 2.2931012462366667,
   "schema_version": 1,
   "script": "scripts/qiskit/validate_uqk_overlap_statevector.py",
@@ -526,17 +487,17 @@
     },
     {
       "hf_hf": {
-        "imag": 0.175769784203817,
-        "real": 0.9840227732152746
+        "imag": 0.17576978420381598,
+        "real": 0.9840227732152691
       },
       "hf_vacuum": {
-        "imag": 6.9077654448545215e-18,
-        "real": 1.644989772919772e-16
+        "imag": 1.2142277708164214e-16,
+        "real": 1.1119415433973765e-16
       },
       "power": 1,
       "vacuum_hf": {
-        "imag": 3.362530259174252e-17,
-        "real": -5.906614436589798e-17
+        "imag": -1.118682434248556e-16,
+        "real": -2.776561310662267e-17
       },
       "vacuum_vacuum": {
         "imag": -0.25945506874737206,
@@ -545,21 +506,40 @@
     },
     {
       "hf_hf": {
-        "imag": 0.34574709774825896,
-        "real": 0.9366225559487886
+        "imag": 0.34574709774826135,
+        "real": 0.9366225559487888
       },
       "hf_vacuum": {
-        "imag": -9.176005027746697e-17,
-        "real": -4.91566808566402e-18
+        "imag": -6.823860734314766e-17,
+        "real": 6.154318067438015e-17
       },
       "power": 2,
       "vacuum_hf": {
-        "imag": 4.6339263795080765e-17,
-        "real": -9.204537813534316e-17
+        "imag": 1.8885532676639368e-17,
+        "real": -2.0129698883606733e-16
       },
       "vacuum_vacuum": {
         "imag": -0.5011401531337923,
         "real": 0.8653661346025647
+      }
+    },
+    {
+      "hf_hf": {
+        "imag": 0.504333121447721,
+        "real": 0.8593759295148438
+      },
+      "hf_vacuum": {
+        "imag": -2.055871590993916e-17,
+        "real": 9.968933051219162e-17
+      },
+      "power": 3,
+      "vacuum_hf": {
+        "imag": -2.6791054726668732e-17,
+        "real": -2.915295710167431e-17
+      },
+      "vacuum_vacuum": {
+        "imag": -0.708502328637265,
+        "real": 0.7057084740283804
       }
     }
   ]

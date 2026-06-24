@@ -1,0 +1,2066 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 4,
+    "num_qubits": 8,
+    "num_spatial_orbitals": 4,
+    "num_spin_orbitals": 8
+  },
+  "backend": {
+    "active_space_num_qubits": 8,
+    "backend_mode": "local_noisy_simple",
+    "final_mfe_transpilation": true,
+    "final_mfe_transpile_optimization_level": 1,
+    "noise_model": {
+      "basis_gates": [
+        "id",
+        "rz",
+        "sx",
+        "x",
+        "cx"
+      ],
+      "include_thermal_relaxation": true,
+      "model_kind": "simple_all_qubit_noise",
+      "one_qubit_depolarizing_probability": 0.001,
+      "one_qubit_gate_time_seconds": 5e-08,
+      "readout_error_probability": 0.02,
+      "t1_seconds": 0.0001,
+      "t2_seconds": 8e-05,
+      "two_qubit_depolarizing_probability": 0.01,
+      "two_qubit_gate_time_seconds": 3e-07
+    },
+    "simulator_method": "density_matrix"
+  },
+  "correlations": [
+    {
+      "imag": 0.0,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": -0.3732588392539197,
+      "index": 1,
+      "real": -0.6005646001212662
+    }
+  ],
+  "diagnostics": {
+    "condition_number": 5.828427124746189,
+    "hermiticity_error_frobenius": 0.0
+  },
+  "full_trotter_step": {
+    "depth": 5908,
+    "non_scalar_group_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+    ],
+    "operation_counts": {
+      "cx": 4048,
+      "rz": 2976,
+      "sx": 1368
+    },
+    "scalar_groups_skipped_for_mfe": [
+      0
+    ],
+    "scalar_phase_applied_analytically_to_correlations": 2.2931012462366667,
+    "size": 8392
+  },
+  "generated_at_utc": "2026-06-24T19:18:52.050082Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are usually printed as c[n-1]...c[0] when qubit q[i] is measured into classical bit c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "11110000",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "00001111"
+  },
+  "inputs": {
+    "circuit_metadata_json": "/Users/nstair/Src/qforte-qiskit/circuits/transpiled/h4_linear_sto3g_grouped_evolution_metadata.json",
+    "grouped_pauli_json": "/Users/nstair/Src/qforte-qiskit/data/hamiltonians/h4_linear_sto3g_grouped_paulis.json",
+    "hermitian_pair_json": "/Users/nstair/Src/qforte-qiskit/data/hamiltonians/h4_linear_sto3g_hermitian_pairs.json",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/data/molecules/h4_linear_sto3g_metadata.json",
+    "qpy": "/Users/nstair/Src/qforte-qiskit/circuits/transpiled/h4_linear_sto3g_grouped_evolution.qpy"
+  },
+  "measured_correlations": [
+    {
+      "imag": 0.19999999999999996,
+      "index": 0,
+      "real": 0.8
+    },
+    {
+      "imag": -0.3732588392539197,
+      "index": 1,
+      "real": -0.6005646001212662
+    }
+  ],
+  "mfe_by_power": [
+    {
+      "c0_enforced": true,
+      "counts": {
+        "F1": {
+          "00001111": 10
+        },
+        "F2_i": {
+          "00001011": 1,
+          "00001110": 2,
+          "00001111": 6,
+          "01001110": 1
+        },
+        "F2_plus": {
+          "00001111": 9,
+          "00011111": 1
+        }
+      },
+      "estimate": {
+        "abs": 0.8246211251235323,
+        "imag": 0.19999999999999996,
+        "real": 0.8
+      },
+      "execution_template_depths": {
+        "F1": 2,
+        "F2_i": 2,
+        "F2_plus": 2
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "measure": 8,
+          "x": 4
+        },
+        "F2_i": {
+          "measure": 8,
+          "sx": 1,
+          "x": 3
+        },
+        "F2_plus": {
+          "measure": 8,
+          "x": 4
+        }
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6,
+        "F2_plus": 0.9
+      },
+      "final_mfe_transpiled_for_backend": true,
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6,
+        "F2_plus": 0.9
+      },
+      "measured_correlation": {
+        "imag": 0.19999999999999996,
+        "real": 0.8
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": 0.19999999999999996,
+        "real": 0.8
+      },
+      "num_instances": 1,
+      "power": 0,
+      "power_circuit_depth": 0,
+      "power_circuit_operation_counts": {},
+      "power_circuit_size": 0,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": 0.19999999999999996,
+        "real": 0.8
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": 0.19999999999999996,
+        "real": 0.8
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 2.2931012462366667,
+      "scalar_phase_applied_analytically": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "stored_correlation": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "summed_counts": {
+        "F1": {
+          "00001111": 10
+        },
+        "F2_i": {
+          "00001011": 1,
+          "00001110": 2,
+          "00001111": 6,
+          "01001110": 1
+        },
+        "F2_plus": {
+          "00001111": 9,
+          "00011111": 1
+        }
+      },
+      "template_depths": {
+        "F1": 2,
+        "F2_i": 11,
+        "F2_plus": 10
+      },
+      "template_operation_counts": {
+        "F1": {
+          "measure": 8,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 6,
+          "h": 2,
+          "measure": 8,
+          "sdg": 1,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 6,
+          "h": 2,
+          "measure": 8,
+          "x": 4
+        }
+      },
+      "total_time": 0.0
+    },
+    {
+      "c0_enforced": false,
+      "counts": {
+        "F1": {
+          "00110110": 1,
+          "10001101": 1,
+          "10101101": 1,
+          "10111010": 1,
+          "11001100": 1,
+          "11010011": 1,
+          "11011001": 1,
+          "11011110": 1,
+          "11110010": 1,
+          "11111001": 1
+        },
+        "F2_i": {
+          "01000000": 1,
+          "01000010": 1,
+          "01111001": 1,
+          "10000110": 1,
+          "10011101": 1,
+          "10100000": 1,
+          "11001110": 1,
+          "11010011": 1,
+          "11101100": 1,
+          "11111111": 1
+        },
+        "F2_plus": {
+          "00010110": 1,
+          "00111100": 1,
+          "01000000": 1,
+          "01010010": 1,
+          "01110100": 1,
+          "01110101": 1,
+          "01111011": 1,
+          "11000011": 1,
+          "11000101": 1,
+          "11010100": 1
+        }
+      },
+      "estimate": {
+        "abs": 0.7071067811865476,
+        "imag": -0.5,
+        "real": -0.5
+      },
+      "execution_template_depths": {
+        "F1": 5786,
+        "F2_i": 5788,
+        "F2_plus": 5789
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "cx": 4048,
+          "measure": 8,
+          "rz": 2545,
+          "sx": 1235,
+          "x": 3
+        },
+        "F2_i": {
+          "cx": 4054,
+          "measure": 8,
+          "rz": 2548,
+          "sx": 1237,
+          "x": 3
+        },
+        "F2_plus": {
+          "cx": 4054,
+          "measure": 8,
+          "rz": 2549,
+          "sx": 1237,
+          "x": 3
+        }
+      },
+      "fidelities": {
+        "F1": 0.0,
+        "F2_i": 0.0,
+        "F2_plus": 0.0
+      },
+      "final_mfe_transpiled_for_backend": true,
+      "mean_fidelities": {
+        "F1": 0.0,
+        "F2_i": 0.0,
+        "F2_plus": 0.0
+      },
+      "measured_correlation": {
+        "imag": -0.3732588392539197,
+        "real": -0.6005646001212662
+      },
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "standard",
+      "non_scalar_measured_correlation": {
+        "imag": -0.5,
+        "real": -0.5
+      },
+      "num_instances": 1,
+      "power": 1,
+      "power_circuit_depth": 5908,
+      "power_circuit_operation_counts": {
+        "cx": 4048,
+        "rz": 2976,
+        "sx": 1368
+      },
+      "power_circuit_size": 8392,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": -0.5,
+        "real": -0.5
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": -0.5,
+        "real": -0.5
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 2.2931012462366667,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.22730576086734652,
+        "real": 0.973823439375186
+      },
+      "stored_correlation": {
+        "imag": -0.3732588392539197,
+        "real": -0.6005646001212662
+      },
+      "summed_counts": {
+        "F1": {
+          "00110110": 1,
+          "10001101": 1,
+          "10101101": 1,
+          "10111010": 1,
+          "11001100": 1,
+          "11010011": 1,
+          "11011001": 1,
+          "11011110": 1,
+          "11110010": 1,
+          "11111001": 1
+        },
+        "F2_i": {
+          "01000000": 1,
+          "01000010": 1,
+          "01111001": 1,
+          "10000110": 1,
+          "10011101": 1,
+          "10100000": 1,
+          "11001110": 1,
+          "11010011": 1,
+          "11101100": 1,
+          "11111111": 1
+        },
+        "F2_plus": {
+          "00010110": 1,
+          "00111100": 1,
+          "01000000": 1,
+          "01010010": 1,
+          "01110100": 1,
+          "01110101": 1,
+          "01111011": 1,
+          "11000011": 1,
+          "11000101": 1,
+          "11010100": 1
+        }
+      },
+      "template_depths": {
+        "F1": 5909,
+        "F2_i": 5912,
+        "F2_plus": 5911
+      },
+      "template_operation_counts": {
+        "F1": {
+          "cx": 4048,
+          "measure": 8,
+          "rz": 2976,
+          "sx": 1368,
+          "x": 4
+        },
+        "F2_i": {
+          "cx": 4054,
+          "h": 2,
+          "measure": 8,
+          "rz": 2976,
+          "sdg": 1,
+          "sx": 1368,
+          "x": 4
+        },
+        "F2_plus": {
+          "cx": 4054,
+          "h": 2,
+          "measure": 8,
+          "rz": 2976,
+          "sx": 1368,
+          "x": 4
+        }
+      },
+      "total_time": 0.1
+    }
+  ],
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          3.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          4.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "linear_h4_sto3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "spacing_angstrom": 1.0,
+    "symmetry": "c1"
+  },
+  "notes": [
+    "This is the deterministic UQK branch: every time step uses the saved non-scalar Trotter block and applies the scalar phase analytically.",
+    "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+    "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
+    "The local_noisy_ibm_model mode uses a local Aer simulator. Runtime credentials are only needed if IBM_MODEL_SOURCE='runtime_backend'."
+  ],
+  "occupied_qubits": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "option_documentation": {
+    "backend_mode": {
+      "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware.",
+      "local_noisy_ibm_model": "Aer noisy simulator with IBM fake/runtime backend-derived noise. The default compresses target averages to the active-space qubit count.",
+      "local_noisy_simple": "Aer noisy simulator with compact hand-controlled depolarizing, thermal, and readout noise."
+    },
+    "krylov_dimension": "Matrix dimension M; S has shape M x M.",
+    "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
+    "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
+    "rough_numeric_ranges": {
+      "krylov_dimension": "2-4 for debugging, 5-10 for early studies, larger values need care with conditioning.",
+      "qdrift_segment_count_Nd": "2-8 debugging, 10-100 convergence studies.",
+      "shots_per_mfe_experiment": "100-1000 smoke tests, 2000-10000 smoother simulator studies.",
+      "stochastic_instances_per_correlation": "1-5 plumbing checks, 10-100 convergence studies."
+    },
+    "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i. In stochastic mode this is per sampled instance.",
+    "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
+    "stochastic_weight_convention": {
+      "group_pauli_l1_norm": "For non-scalar K_mu=sum_rho alpha_mu,rho P_mu,rho, use h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda."
+    },
+    "uqk_mode": {
+      "standard": "Use deterministic non-scalar Trotter blocks plus the analytic scalar phase.",
+      "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt."
+    }
+  },
+  "options": {
+    "backend_mode": "local_noisy_simple",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "ibm_model_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "ecr"
+    ],
+    "ibm_model_compress_to_active_space": true,
+    "ibm_model_fake_backend_class": "FakeBrisbane",
+    "ibm_model_runtime_backend_name": "ibm_brisbane",
+    "ibm_model_runtime_instance": null,
+    "ibm_model_source": "fake_backend",
+    "ibm_model_two_qubit_gate": "ecr",
+    "krylov_dimension": 2,
+    "max_correlation_power": 1,
+    "mfe_verbose_for_first_nonzero_power": false,
+    "noisy_simulation_method": "density_matrix",
+    "noisy_transpile_optimization_level": 1,
+    "output_label_override": "standard_smoke_simple",
+    "output_label_suffix": "",
+    "qdrift_segment_count_Nd": 50,
+    "random_seed": 230623,
+    "shots_per_mfe_experiment": 10,
+    "simple_noise_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "simple_noise_include_thermal_relaxation": true,
+    "simple_noise_one_qubit_depolarizing_probability": 0.001,
+    "simple_noise_one_qubit_gate_time_seconds": 5e-08,
+    "simple_noise_readout_error_probability": 0.02,
+    "simple_noise_t1_seconds": 0.0001,
+    "simple_noise_t2_seconds": 8e-05,
+    "simple_noise_two_qubit_depolarizing_probability": 0.01,
+    "simple_noise_two_qubit_gate_time_seconds": 3e-07,
+    "stochastic_instances_per_correlation": 200,
+    "stochastic_weight_convention": "group_pauli_l1_norm",
+    "transpile_mfe_circuits_for_noisy_backend": true,
+    "trotter_order": 1,
+    "uqk_mode": "standard",
+    "valid_backend_modes": [
+      "local_noiseless_statevector",
+      "local_noisy_ibm_model",
+      "local_noisy_simple"
+    ],
+    "valid_uqk_modes": [
+      "standard",
+      "stochastic"
+    ]
+  },
+  "outputs": {
+    "metadata_json": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_standard_smoke_simple_uqk_overlap_matrix_metadata.json",
+    "npz": "/Users/nstair/Src/qforte-qiskit/results/krylov/h4_standard_smoke_simple_uqk_overlap_matrix.npz"
+  },
+  "overlap_matrix": [
+    [
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": -0.3732588392539197,
+        "real": -0.6005646001212662
+      }
+    ],
+    [
+      {
+        "imag": 0.3732588392539197,
+        "real": -0.6005646001212662
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      }
+    ]
+  ],
+  "schema_version": 1,
+  "script": "scripts/qiskit/build_uqk_overlap_matrix.py",
+  "source_circuit_archive": {
+    "num_group_circuits": 111,
+    "source_depth_statistics": {
+      "raw_max": 1,
+      "raw_min": 1,
+      "raw_sum": 111,
+      "transpiled_max": 145,
+      "transpiled_min": 0,
+      "transpiled_sum": 6062
+    },
+    "source_qiskit_version": "2.2.2",
+    "source_target": {
+      "backend": null,
+      "description": "Local, topology-free transpilation to GENERIC_BASIS_GATES. No hardware coupling map is imposed.",
+      "mode": "generic_simulator",
+      "note": "This script transpiles and serializes circuits; it does not submit jobs."
+    }
+  },
+  "stochastic_sampling": {
+    "current_archive_convention_note": "The grouped Pauli archive stores K_mu directly rather than a separate h_mu and normalized G_mu. This script defines an effective positive h_mu from the Pauli L1 norm and leaves all coefficient signs in G_mu.",
+    "entries": [
+      {
+        "coefficient_scale_for_G_mu": 0.5449268128429979,
+        "group_index": 1,
+        "h_mu": 1.835108819077537,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.06359415512232895,
+        "source_classification": "operator",
+        "w_mu": 1.835108819077537,
+        "weight": 1.835108819077537
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.251724317686449,
+        "group_index": 2,
+        "h_mu": 0.1599558696423879,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 2,
+        "num_pauli_terms": 2,
+        "probability": 0.0055431363421153314,
+        "source_classification": "operator",
+        "w_mu": 0.1599558696423879,
+        "weight": 0.1599558696423879
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.5449268128429979,
+        "group_index": 3,
+        "h_mu": 1.835108819077537,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.06359415512232895,
+        "source_classification": "operator",
+        "w_mu": 1.835108819077537,
+        "weight": 1.835108819077537
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.251724317686449,
+        "group_index": 4,
+        "h_mu": 0.1599558696423879,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 2,
+        "num_pauli_terms": 2,
+        "probability": 0.0055431363421153314,
+        "source_classification": "operator",
+        "w_mu": 0.1599558696423879,
+        "weight": 0.1599558696423879
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.0109194550471354,
+        "group_index": 5,
+        "h_mu": 0.4972849596189124,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.0172329926886314,
+        "source_classification": "operator",
+        "w_mu": 0.4972849596189124,
+        "weight": 0.4972849596189124
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.353968580778796,
+        "group_index": 6,
+        "h_mu": 0.15738195543255765,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005453939506576286,
+        "source_classification": "operator",
+        "w_mu": 0.15738195543255765,
+        "weight": 0.15738195543255765
+      },
+      {
+        "coefficient_scale_for_G_mu": 12.260122052277763,
+        "group_index": 7,
+        "h_mu": 0.08156525650690513,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0028265754711484016,
+        "source_classification": "operator",
+        "w_mu": 0.08156525650690513,
+        "weight": 0.08156525650690513
+      },
+      {
+        "coefficient_scale_for_G_mu": 12.260122052277763,
+        "group_index": 8,
+        "h_mu": 0.08156525650690513,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0028265754711484016,
+        "source_classification": "operator",
+        "w_mu": 0.08156525650690513,
+        "weight": 0.08156525650690513
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.27367953046485,
+        "group_index": 9,
+        "h_mu": 0.10783206349916583,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0037368296103409628,
+        "source_classification": "operator",
+        "w_mu": 0.10783206349916583,
+        "weight": 0.10783206349916583
+      },
+      {
+        "coefficient_scale_for_G_mu": 23.21043361151193,
+        "group_index": 10,
+        "h_mu": 0.043084072307206664,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014930423466568124,
+        "source_classification": "operator",
+        "w_mu": 0.043084072307206664,
+        "weight": 0.043084072307206664
+      },
+      {
+        "coefficient_scale_for_G_mu": 23.21043361151193,
+        "group_index": 11,
+        "h_mu": 0.043084072307206664,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014930423466568124,
+        "source_classification": "operator",
+        "w_mu": 0.043084072307206664,
+        "weight": 0.043084072307206664
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.301891591132522,
+        "group_index": 12,
+        "h_mu": 0.0970695518540267,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033638638069228874,
+        "source_classification": "operator",
+        "w_mu": 0.0970695518540267,
+        "weight": 0.0970695518540267
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.6448898342764092,
+        "group_index": 13,
+        "h_mu": 1.5506524476727686,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.05373655843891105,
+        "source_classification": "operator",
+        "w_mu": 1.5506524476727686,
+        "weight": 1.5506524476727686
+      },
+      {
+        "coefficient_scale_for_G_mu": 7.723937347376572,
+        "group_index": 14,
+        "h_mu": 0.12946764778453945,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 2,
+        "num_pauli_terms": 2,
+        "probability": 0.004486592615620346,
+        "source_classification": "operator",
+        "w_mu": 0.12946764778453945,
+        "weight": 0.12946764778453945
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.590018720591733,
+        "group_index": 15,
+        "h_mu": 0.27855007949239124,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.009652919096907098,
+        "source_classification": "operator",
+        "w_mu": 0.27855007949239124,
+        "weight": 0.27855007949239124
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.338406478805075,
+        "group_index": 16,
+        "h_mu": 0.08819581498240549,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.003056351907213159,
+        "source_classification": "operator",
+        "w_mu": 0.08819581498240549,
+        "weight": 0.08819581498240549
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.293325639940374,
+        "group_index": 17,
+        "h_mu": 0.041163569567268785,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0014264889369152254,
+        "source_classification": "operator",
+        "w_mu": 0.041163569567268785,
+        "weight": 0.041163569567268785
+      },
+      {
+        "coefficient_scale_for_G_mu": 21.95271198116019,
+        "group_index": 18,
+        "h_mu": 0.04555245843238866,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0015785821950378665,
+        "source_classification": "operator",
+        "w_mu": 0.04555245843238866,
+        "weight": 0.04555245843238866
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.2939355676674746,
+        "group_index": 19,
+        "h_mu": 0.4359320349249489,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.015106858603483384,
+        "source_classification": "operator",
+        "w_mu": 0.4359320349249489,
+        "weight": 0.4359320349249489
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.353968580778795,
+        "group_index": 20,
+        "h_mu": 0.15738195543255767,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005453939506576287,
+        "source_classification": "operator",
+        "w_mu": 0.15738195543255767,
+        "weight": 0.15738195543255767
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.203975758441198,
+        "group_index": 21,
+        "h_mu": 0.098001016826481,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033961429433607207,
+        "source_classification": "operator",
+        "w_mu": 0.098001016826481,
+        "weight": 0.098001016826481
+      },
+      {
+        "coefficient_scale_for_G_mu": 101.98668175344268,
+        "group_index": 22,
+        "h_mu": 0.009805201844075526,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0003397910361475618,
+        "source_classification": "operator",
+        "w_mu": 0.009805201844075526,
+        "weight": 0.009805201844075526
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.869768432093885,
+        "group_index": 23,
+        "h_mu": 0.08424764187447549,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.002919531283572039,
+        "source_classification": "operator",
+        "w_mu": 0.08424764187447549,
+        "weight": 0.08424764187447549
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.150952200953391,
+        "group_index": 24,
+        "h_mu": 0.09851292570425843,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0034138827156529375,
+        "source_classification": "operator",
+        "w_mu": 0.09851292570425843,
+        "weight": 0.09851292570425843
+      },
+      {
+        "coefficient_scale_for_G_mu": 23.21043361151191,
+        "group_index": 25,
+        "h_mu": 0.043084072307206706,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014930423466568137,
+        "source_classification": "operator",
+        "w_mu": 0.043084072307206706,
+        "weight": 0.043084072307206706
+      },
+      {
+        "coefficient_scale_for_G_mu": 18.882008628559724,
+        "group_index": 26,
+        "h_mu": 0.052960467271869774,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.001835300520615071,
+        "source_classification": "operator",
+        "w_mu": 0.052960467271869774,
+        "weight": 0.052960467271869774
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.6448898342764092,
+        "group_index": 27,
+        "h_mu": 1.5506524476727686,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.05373655843891105,
+        "source_classification": "operator",
+        "w_mu": 1.5506524476727686,
+        "weight": 1.5506524476727686
+      },
+      {
+        "coefficient_scale_for_G_mu": 7.723937347376572,
+        "group_index": 28,
+        "h_mu": 0.12946764778453945,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 2,
+        "num_pauli_terms": 2,
+        "probability": 0.004486592615620346,
+        "source_classification": "operator",
+        "w_mu": 0.12946764778453945,
+        "weight": 0.12946764778453945
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.2939355676674746,
+        "group_index": 29,
+        "h_mu": 0.4359320349249489,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.015106858603483384,
+        "source_classification": "operator",
+        "w_mu": 0.4359320349249489,
+        "weight": 0.4359320349249489
+      },
+      {
+        "coefficient_scale_for_G_mu": 101.98668175344268,
+        "group_index": 30,
+        "h_mu": 0.009805201844075526,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0003397910361475618,
+        "source_classification": "operator",
+        "w_mu": 0.009805201844075526,
+        "weight": 0.009805201844075526
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.203975758441198,
+        "group_index": 31,
+        "h_mu": 0.098001016826481,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033961429433607207,
+        "source_classification": "operator",
+        "w_mu": 0.098001016826481,
+        "weight": 0.098001016826481
+      },
+      {
+        "coefficient_scale_for_G_mu": 23.21043361151191,
+        "group_index": 32,
+        "h_mu": 0.043084072307206706,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014930423466568137,
+        "source_classification": "operator",
+        "w_mu": 0.043084072307206706,
+        "weight": 0.043084072307206706
+      },
+      {
+        "coefficient_scale_for_G_mu": 18.882008628559724,
+        "group_index": 33,
+        "h_mu": 0.052960467271869774,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.001835300520615071,
+        "source_classification": "operator",
+        "w_mu": 0.052960467271869774,
+        "weight": 0.052960467271869774
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.869768432093885,
+        "group_index": 34,
+        "h_mu": 0.08424764187447549,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.002919531283572039,
+        "source_classification": "operator",
+        "w_mu": 0.08424764187447549,
+        "weight": 0.08424764187447549
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.150952200953391,
+        "group_index": 35,
+        "h_mu": 0.09851292570425843,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0034138827156529375,
+        "source_classification": "operator",
+        "w_mu": 0.09851292570425843,
+        "weight": 0.09851292570425843
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.590018720591733,
+        "group_index": 36,
+        "h_mu": 0.27855007949239124,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.009652919096907098,
+        "source_classification": "operator",
+        "w_mu": 0.27855007949239124,
+        "weight": 0.27855007949239124
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.338406478805075,
+        "group_index": 37,
+        "h_mu": 0.08819581498240549,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.003056351907213159,
+        "source_classification": "operator",
+        "w_mu": 0.08819581498240549,
+        "weight": 0.08819581498240549
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.293325639940374,
+        "group_index": 38,
+        "h_mu": 0.041163569567268785,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0014264889369152254,
+        "source_classification": "operator",
+        "w_mu": 0.041163569567268785,
+        "weight": 0.041163569567268785
+      },
+      {
+        "coefficient_scale_for_G_mu": 21.95271198116019,
+        "group_index": 39,
+        "h_mu": 0.04555245843238866,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0015785821950378665,
+        "source_classification": "operator",
+        "w_mu": 0.04555245843238866,
+        "weight": 0.04555245843238866
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.204458392863005,
+        "group_index": 40,
+        "h_mu": 0.4536261619804337,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.015720033718235615,
+        "source_classification": "operator",
+        "w_mu": 0.4536261619804337,
+        "weight": 0.4536261619804337
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.203975758441198,
+        "group_index": 41,
+        "h_mu": 0.098001016826481,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033961429433607207,
+        "source_classification": "operator",
+        "w_mu": 0.098001016826481,
+        "weight": 0.098001016826481
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.203975758441198,
+        "group_index": 42,
+        "h_mu": 0.098001016826481,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033961429433607207,
+        "source_classification": "operator",
+        "w_mu": 0.098001016826481,
+        "weight": 0.098001016826481
+      },
+      {
+        "coefficient_scale_for_G_mu": 7.284231594963679,
+        "group_index": 43,
+        "h_mu": 0.13728283992115248,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.004757421536434101,
+        "source_classification": "operator",
+        "w_mu": 0.13728283992115248,
+        "weight": 0.13728283992115248
+      },
+      {
+        "coefficient_scale_for_G_mu": 246.52179958553484,
+        "group_index": 44,
+        "h_mu": 0.0040564363950013815,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0001405723969422432,
+        "source_classification": "operator",
+        "w_mu": 0.0040564363950013815,
+        "weight": 0.0040564363950013815
+      },
+      {
+        "coefficient_scale_for_G_mu": 246.52179958553484,
+        "group_index": 45,
+        "h_mu": 0.0040564363950013815,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0001405723969422432,
+        "source_classification": "operator",
+        "w_mu": 0.0040564363950013815,
+        "weight": 0.0040564363950013815
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.556092851555556,
+        "group_index": 46,
+        "h_mu": 0.10464527872782425,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0036263942601408345,
+        "source_classification": "operator",
+        "w_mu": 0.10464527872782425,
+        "weight": 0.10464527872782425
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.8026960116999218,
+        "group_index": 47,
+        "h_mu": 1.2458016302862085,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.04317220935589869,
+        "source_classification": "operator",
+        "w_mu": 1.2458016302862085,
+        "weight": 1.2458016302862085
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.957162818765133,
+        "group_index": 48,
+        "h_mu": 0.3381619685106095,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.011718719052718575,
+        "source_classification": "operator",
+        "w_mu": 0.3381619685106095,
+        "weight": 0.3381619685106095
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.238253151566296,
+        "group_index": 49,
+        "h_mu": 0.09767291208725537,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003384772749143478,
+        "source_classification": "operator",
+        "w_mu": 0.09767291208725537,
+        "weight": 0.09767291208725537
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.242182469334213,
+        "group_index": 50,
+        "h_mu": 0.44599403200977533,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.015455548663059539,
+        "source_classification": "operator",
+        "w_mu": 0.44599403200977533,
+        "weight": 0.44599403200977533
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.27367953046485,
+        "group_index": 51,
+        "h_mu": 0.10783206349916583,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0037368296103409628,
+        "source_classification": "operator",
+        "w_mu": 0.10783206349916583,
+        "weight": 0.10783206349916583
+      },
+      {
+        "coefficient_scale_for_G_mu": 145.71835920897274,
+        "group_index": 52,
+        "h_mu": 0.006862553252922052,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.000237816020262463,
+        "source_classification": "operator",
+        "w_mu": 0.006862553252922052,
+        "weight": 0.006862553252922052
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.638634838138361,
+        "group_index": 53,
+        "h_mu": 0.15063337935912513,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005220073269758548,
+        "source_classification": "operator",
+        "w_mu": 0.15063337935912513,
+        "weight": 0.15063337935912513
+      },
+      {
+        "coefficient_scale_for_G_mu": 18.88200862855973,
+        "group_index": 54,
+        "h_mu": 0.05296046727186976,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0018353005206150706,
+        "source_classification": "operator",
+        "w_mu": 0.05296046727186976,
+        "weight": 0.05296046727186976
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.40840756051004,
+        "group_index": 55,
+        "h_mu": 0.04096948961217296,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014197632590468674,
+        "source_classification": "operator",
+        "w_mu": 0.04096948961217296,
+        "weight": 0.04096948961217296
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.220805173416935,
+        "group_index": 56,
+        "h_mu": 0.3104813691475493,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01075947112612512,
+        "source_classification": "operator",
+        "w_mu": 0.3104813691475493,
+        "weight": 0.3104813691475493
+      },
+      {
+        "coefficient_scale_for_G_mu": 19.186325710475202,
+        "group_index": 57,
+        "h_mu": 0.052120453654866686,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0018061905541056104,
+        "source_classification": "operator",
+        "w_mu": 0.052120453654866686,
+        "weight": 0.052120453654866686
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.786558430179763,
+        "group_index": 58,
+        "h_mu": 0.10218096659150397,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0035409955924227167,
+        "source_classification": "operator",
+        "w_mu": 0.10218096659150397,
+        "weight": 0.10218096659150397
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.2333182950908146,
+        "group_index": 59,
+        "h_mu": 0.44776420906870174,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01551689266255922,
+        "source_classification": "operator",
+        "w_mu": 0.44776420906870174,
+        "weight": 0.44776420906870174
+      },
+      {
+        "coefficient_scale_for_G_mu": 7.284231594963682,
+        "group_index": 60,
+        "h_mu": 0.13728283992115242,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.004757421536434099,
+        "source_classification": "operator",
+        "w_mu": 0.13728283992115242,
+        "weight": 0.13728283992115242
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.638634838138362,
+        "group_index": 61,
+        "h_mu": 0.1506333793591251,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0052200732697585475,
+        "source_classification": "operator",
+        "w_mu": 0.1506333793591251,
+        "weight": 0.1506333793591251
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.063749801236312,
+        "group_index": 62,
+        "h_mu": 0.09936654028075617,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003443464011992501,
+        "source_classification": "operator",
+        "w_mu": 0.09936654028075617,
+        "weight": 0.09936654028075617
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.150952200953393,
+        "group_index": 63,
+        "h_mu": 0.09851292570425842,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003413882715652937,
+        "source_classification": "operator",
+        "w_mu": 0.09851292570425842,
+        "weight": 0.09851292570425842
+      },
+      {
+        "coefficient_scale_for_G_mu": 355.31219850425003,
+        "group_index": 64,
+        "h_mu": 0.002814426310747782,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 9.753158043021542e-05,
+        "source_classification": "operator",
+        "w_mu": 0.002814426310747782,
+        "weight": 0.002814426310747782
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.8026960116999218,
+        "group_index": 65,
+        "h_mu": 1.2458016302862085,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.04317220935589869,
+        "source_classification": "operator",
+        "w_mu": 1.2458016302862085,
+        "weight": 1.2458016302862085
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.242182469334213,
+        "group_index": 66,
+        "h_mu": 0.44599403200977533,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.015455548663059539,
+        "source_classification": "operator",
+        "w_mu": 0.44599403200977533,
+        "weight": 0.44599403200977533
+      },
+      {
+        "coefficient_scale_for_G_mu": 145.71835920897274,
+        "group_index": 67,
+        "h_mu": 0.006862553252922052,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.000237816020262463,
+        "source_classification": "operator",
+        "w_mu": 0.006862553252922052,
+        "weight": 0.006862553252922052
+      },
+      {
+        "coefficient_scale_for_G_mu": 18.88200862855973,
+        "group_index": 68,
+        "h_mu": 0.05296046727186976,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0018353005206150706,
+        "source_classification": "operator",
+        "w_mu": 0.05296046727186976,
+        "weight": 0.05296046727186976
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.638634838138361,
+        "group_index": 69,
+        "h_mu": 0.15063337935912513,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005220073269758548,
+        "source_classification": "operator",
+        "w_mu": 0.15063337935912513,
+        "weight": 0.15063337935912513
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.40840756051004,
+        "group_index": 70,
+        "h_mu": 0.04096948961217296,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014197632590468674,
+        "source_classification": "operator",
+        "w_mu": 0.04096948961217296,
+        "weight": 0.04096948961217296
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.957162818765133,
+        "group_index": 71,
+        "h_mu": 0.3381619685106095,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.011718719052718575,
+        "source_classification": "operator",
+        "w_mu": 0.3381619685106095,
+        "weight": 0.3381619685106095
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.238253151566296,
+        "group_index": 72,
+        "h_mu": 0.09767291208725537,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003384772749143478,
+        "source_classification": "operator",
+        "w_mu": 0.09767291208725537,
+        "weight": 0.09767291208725537
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.2333182950908146,
+        "group_index": 73,
+        "h_mu": 0.44776420906870174,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01551689266255922,
+        "source_classification": "operator",
+        "w_mu": 0.44776420906870174,
+        "weight": 0.44776420906870174
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.150952200953393,
+        "group_index": 74,
+        "h_mu": 0.09851292570425842,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003413882715652937,
+        "source_classification": "operator",
+        "w_mu": 0.09851292570425842,
+        "weight": 0.09851292570425842
+      },
+      {
+        "coefficient_scale_for_G_mu": 355.31219850425003,
+        "group_index": 75,
+        "h_mu": 0.002814426310747782,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 9.753158043021542e-05,
+        "source_classification": "operator",
+        "w_mu": 0.002814426310747782,
+        "weight": 0.002814426310747782
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.638634838138362,
+        "group_index": 76,
+        "h_mu": 0.1506333793591251,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0052200732697585475,
+        "source_classification": "operator",
+        "w_mu": 0.1506333793591251,
+        "weight": 0.1506333793591251
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.063749801236312,
+        "group_index": 77,
+        "h_mu": 0.09936654028075617,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003443464011992501,
+        "source_classification": "operator",
+        "w_mu": 0.09936654028075617,
+        "weight": 0.09936654028075617
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.220805173416935,
+        "group_index": 78,
+        "h_mu": 0.3104813691475493,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01075947112612512,
+        "source_classification": "operator",
+        "w_mu": 0.3104813691475493,
+        "weight": 0.3104813691475493
+      },
+      {
+        "coefficient_scale_for_G_mu": 19.186325710475202,
+        "group_index": 79,
+        "h_mu": 0.052120453654866686,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0018061905541056104,
+        "source_classification": "operator",
+        "w_mu": 0.052120453654866686,
+        "weight": 0.052120453654866686
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.786558430179763,
+        "group_index": 80,
+        "h_mu": 0.10218096659150397,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0035409955924227167,
+        "source_classification": "operator",
+        "w_mu": 0.10218096659150397,
+        "weight": 0.10218096659150397
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.139468788986297,
+        "group_index": 81,
+        "h_mu": 0.46740574349477215,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.016197553544435406,
+        "source_classification": "operator",
+        "w_mu": 0.46740574349477215,
+        "weight": 0.46740574349477215
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.06374980123631,
+        "group_index": 82,
+        "h_mu": 0.0993665402807562,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003443464011992502,
+        "source_classification": "operator",
+        "w_mu": 0.0993665402807562,
+        "weight": 0.0993665402807562
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.06374980123631,
+        "group_index": 83,
+        "h_mu": 0.0993665402807562,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.003443464011992502,
+        "source_classification": "operator",
+        "w_mu": 0.0993665402807562,
+        "weight": 0.0993665402807562
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.155194891096746,
+        "group_index": 84,
+        "h_mu": 0.1624643927110191,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005630067102567271,
+        "source_classification": "operator",
+        "w_mu": 0.1624643927110191,
+        "weight": 0.1624643927110191
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.103356875191578,
+        "group_index": 85,
+        "h_mu": 0.9063250725893813,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.03140793431883664,
+        "source_classification": "operator",
+        "w_mu": 0.9063250725893813,
+        "weight": 0.9063250725893813
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.3480638617969576,
+        "group_index": 86,
+        "h_mu": 0.4258827948719873,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.014758610628133995,
+        "source_classification": "operator",
+        "w_mu": 0.4258827948719873,
+        "weight": 0.4258827948719873
+      },
+      {
+        "coefficient_scale_for_G_mu": 22.25295596040056,
+        "group_index": 87,
+        "h_mu": 0.04493785013458498,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0015572834605848086,
+        "source_classification": "operator",
+        "w_mu": 0.04493785013458498,
+        "weight": 0.04493785013458498
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.9122201215093153,
+        "group_index": 88,
+        "h_mu": 0.522952346726014,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01812247443505688,
+        "source_classification": "operator",
+        "w_mu": 0.522952346726014,
+        "weight": 0.522952346726014
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.640448917960333,
+        "group_index": 89,
+        "h_mu": 0.08590733974675802,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.002977046719631678,
+        "source_classification": "operator",
+        "w_mu": 0.08590733974675802,
+        "weight": 0.08590733974675802
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.301891591132527,
+        "group_index": 90,
+        "h_mu": 0.09706955185402666,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0033638638069228856,
+        "source_classification": "operator",
+        "w_mu": 0.09706955185402666,
+        "weight": 0.09706955185402666
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.408407560509996,
+        "group_index": 91,
+        "h_mu": 0.04096948961217303,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014197632590468698,
+        "source_classification": "operator",
+        "w_mu": 0.04096948961217303,
+        "weight": 0.04096948961217303
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.7831897728963972,
+        "group_index": 92,
+        "h_mu": 0.3592999693151806,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.012451238720308387,
+        "source_classification": "operator",
+        "w_mu": 0.3592999693151806,
+        "weight": 0.3592999693151806
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.1554267539502985,
+        "group_index": 93,
+        "h_mu": 0.46394524804300485,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01607763298044922,
+        "source_classification": "operator",
+        "w_mu": 0.46394524804300485,
+        "weight": 0.46394524804300485
+      },
+      {
+        "coefficient_scale_for_G_mu": 9.556092851555553,
+        "group_index": 94,
+        "h_mu": 0.10464527872782428,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0036263942601408353,
+        "source_classification": "operator",
+        "w_mu": 0.10464527872782428,
+        "weight": 0.10464527872782428
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.690837490585206,
+        "group_index": 95,
+        "h_mu": 0.09353804141917238,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0032414822783314976,
+        "source_classification": "operator",
+        "w_mu": 0.09353804141917238,
+        "weight": 0.09353804141917238
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.1470889681840806,
+        "group_index": 96,
+        "h_mu": 0.31775396568372694,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.011011496852041624,
+        "source_classification": "operator",
+        "w_mu": 0.31775396568372694,
+        "weight": 0.31775396568372694
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.0823860281867574,
+        "group_index": 97,
+        "h_mu": 0.480218358394746,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.016641563954608897,
+        "source_classification": "operator",
+        "w_mu": 0.480218358394746,
+        "weight": 0.480218358394746
+      },
+      {
+        "coefficient_scale_for_G_mu": 24.408407560510053,
+        "group_index": 98,
+        "h_mu": 0.040969489612172935,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.0014197632590468663,
+        "source_classification": "operator",
+        "w_mu": 0.040969489612172935,
+        "weight": 0.040969489612172935
+      },
+      {
+        "coefficient_scale_for_G_mu": 6.155194891096746,
+        "group_index": 99,
+        "h_mu": 0.1624643927110191,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.005630067102567271,
+        "source_classification": "operator",
+        "w_mu": 0.1624643927110191,
+        "weight": 0.1624643927110191
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.103356875191578,
+        "group_index": 100,
+        "h_mu": 0.9063250725893813,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.03140793431883664,
+        "source_classification": "operator",
+        "w_mu": 0.9063250725893813,
+        "weight": 0.9063250725893813
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.9122201215093153,
+        "group_index": 101,
+        "h_mu": 0.522952346726014,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01812247443505688,
+        "source_classification": "operator",
+        "w_mu": 0.522952346726014,
+        "weight": 0.522952346726014
+      },
+      {
+        "coefficient_scale_for_G_mu": 11.640448917960333,
+        "group_index": 102,
+        "h_mu": 0.08590733974675802,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.002977046719631678,
+        "source_classification": "operator",
+        "w_mu": 0.08590733974675802,
+        "weight": 0.08590733974675802
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.3480638617969576,
+        "group_index": 103,
+        "h_mu": 0.4258827948719873,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.014758610628133995,
+        "source_classification": "operator",
+        "w_mu": 0.4258827948719873,
+        "weight": 0.4258827948719873
+      },
+      {
+        "coefficient_scale_for_G_mu": 22.25295596040056,
+        "group_index": 104,
+        "h_mu": 0.04493785013458498,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0015572834605848086,
+        "source_classification": "operator",
+        "w_mu": 0.04493785013458498,
+        "weight": 0.04493785013458498
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.1554267539502985,
+        "group_index": 105,
+        "h_mu": 0.46394524804300485,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.01607763298044922,
+        "source_classification": "operator",
+        "w_mu": 0.46394524804300485,
+        "weight": 0.46394524804300485
+      },
+      {
+        "coefficient_scale_for_G_mu": 10.690837490585206,
+        "group_index": 106,
+        "h_mu": 0.09353804141917238,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 4,
+        "num_pauli_terms": 4,
+        "probability": 0.0032414822783314976,
+        "source_classification": "operator",
+        "w_mu": 0.09353804141917238,
+        "weight": 0.09353804141917238
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.7831897728963972,
+        "group_index": 107,
+        "h_mu": 0.3592999693151806,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.012451238720308387,
+        "source_classification": "operator",
+        "w_mu": 0.3592999693151806,
+        "weight": 0.3592999693151806
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.0823860281867574,
+        "group_index": 108,
+        "h_mu": 0.480218358394746,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.016641563954608897,
+        "source_classification": "operator",
+        "w_mu": 0.480218358394746,
+        "weight": 0.480218358394746
+      },
+      {
+        "coefficient_scale_for_G_mu": 3.1470889681840806,
+        "group_index": 109,
+        "h_mu": 0.31775396568372694,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.011011496852041624,
+        "source_classification": "operator",
+        "w_mu": 0.31775396568372694,
+        "weight": 0.31775396568372694
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.721034081465983,
+        "group_index": 110,
+        "h_mu": 0.5810460180708312,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.02013566183229526,
+        "source_classification": "operator",
+        "w_mu": 0.5810460180708312,
+        "weight": 0.5810460180708312
+      }
+    ],
+    "implemented_sampled_circuit": "For total time T_k=k*dt, each sampled instance is prod_s exp[-i theta_k G_mu_s], theta_k=lambda*T_k/N_d. Each G_mu is rebuilt from grouped Pauli terms using PauliEvolutionGate(SparsePauliOp(K_mu/h_mu), time=theta_k).",
+    "lambda_excludes_zero_body_scalar": true,
+    "mode": false,
+    "qdrift_formula": "Write H=E_scalar I + sum_mu K_mu. For non-scalar groups, define h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda. A sampled chunk for T_k=k*dt uses prod_s exp[-i (lambda*T_k/N_d) G_mu_s]. The zero-body scalar phase exp(-i E_scalar T_k) is applied analytically after MFE.",
+    "sampled_non_scalar_groups": 110,
+    "scalar_energy_applied_analytically_to_correlations": 2.2931012462366667,
+    "scalar_energy_excluded_from_lambda": 2.2931012462366667,
+    "weight_convention": "group_pauli_l1_norm",
+    "weight_sum_lambda": 28.8565641849875
+  }
+}

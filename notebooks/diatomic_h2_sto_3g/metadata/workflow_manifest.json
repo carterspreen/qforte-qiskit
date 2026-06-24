@@ -1,0 +1,195 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "created_at_utc": "2026-06-24T20:30:56.557013Z",
+  "directories": {
+    "circuits_dir": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits",
+    "hamiltonian_blocks_dir": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks",
+    "metadata_dir": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata",
+    "results_dir": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results",
+    "summaries_dir": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries"
+  },
+  "energies_hartree": {
+    "fci_roots": [
+      -1.101150330132957,
+      -0.3522906262607206
+    ],
+    "frozen_core": 0.0,
+    "hf": -1.0661086491853158,
+    "nuclear_repulsion": 0.52917721067
+  },
+  "fermion_block_diagnostics": {
+    "fermion_operator_groups": 13,
+    "total_compressed_fermion_terms": 15
+  },
+  "files": {
+    "fermion_blocks_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_fermion_blocks.json",
+    "grouped_evolution_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution_metadata.json",
+    "grouped_evolution_qpy": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution.qpy",
+    "grouped_paulis_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_grouped_paulis.json",
+    "hermitian_pairs_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_hermitian_pairs.json",
+    "manifest_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/workflow_manifest.json",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
+    "uqk_gep_summary_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_gep_summary.json",
+    "uqk_overlap_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix_metadata.json",
+    "uqk_overlap_npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix.npz"
+  },
+  "grouped_pauli_diagnostics": {
+    "grouped_pauli_groups": 13,
+    "identity_pauli_terms": 11,
+    "max_pauli_terms_in_group": 8,
+    "non_identity_pauli_terms": 38,
+    "nonempty_pauli_groups": 13,
+    "source_fermion_operator_groups": 13,
+    "source_hermitian_pair_groups": 13,
+    "total_pauli_terms": 49
+  },
+  "hermitian_pair_diagnostics": {
+    "hermitian_pair_groups": 13,
+    "max_group_rank": 2,
+    "nontrivial_groups": 12,
+    "scalar_energy_from_zero_body_groups": {
+      "imag": 0.0,
+      "real": 0.52917721067
+    },
+    "scalar_groups": 1,
+    "source_sq_hamiltonian_terms": 15,
+    "total_inner_terms": 26
+  },
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "molecule_name": "diatomic_h2_sto_3g",
+  "qiskit_circuit_options": {
+    "dt": 0.1,
+    "evolution_method": "pauli_evolution_gate",
+    "generic_basis_gates": [
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "target_mode": "generic_simulator",
+    "transpiler_optimization_level": 3,
+    "trotter_sequence_order": 1
+  },
+  "schema_version": 1,
+  "updated_at_utc": "2026-06-24T20:38:32.771649Z",
+  "uqk_gep_options": {
+    "dt": 0.1,
+    "effective_overlap_eigenvalue_threshold": 1e-15,
+    "krylov_dimension_to_use": 4,
+    "overlap_eigenvalue_threshold_option": null,
+    "sort_roots_by": "energy_real_ascending",
+    "use_direct_validation_when_available": true
+  },
+  "uqk_overlap_options": {
+    "backend_mode": "local_noiseless_statevector",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "ibm_model_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "ecr"
+    ],
+    "ibm_model_compress_to_active_space": true,
+    "ibm_model_fake_backend_class": "FakeBrisbane",
+    "ibm_model_runtime_backend_name": "ibm_brisbane",
+    "ibm_model_runtime_instance": null,
+    "ibm_model_source": "fake_backend",
+    "ibm_model_two_qubit_gate": "ecr",
+    "krylov_dimension": 4,
+    "max_correlation_power": 4,
+    "mfe_verbose_for_first_nonzero_power": false,
+    "noisy_simulation_method": "density_matrix",
+    "noisy_transpile_optimization_level": 1,
+    "output_label_override": "diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots",
+    "output_label_suffix": "",
+    "qdrift_segment_count_Nd": 50,
+    "random_seed": 230623,
+    "shots_per_mfe_experiment": 20000,
+    "simple_noise_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "simple_noise_include_thermal_relaxation": true,
+    "simple_noise_one_qubit_depolarizing_probability": 0.001,
+    "simple_noise_one_qubit_gate_time_seconds": 5e-08,
+    "simple_noise_readout_error_probability": 0.02,
+    "simple_noise_t1_seconds": 0.0001,
+    "simple_noise_t2_seconds": 8e-05,
+    "simple_noise_two_qubit_depolarizing_probability": 0.01,
+    "simple_noise_two_qubit_gate_time_seconds": 3e-07,
+    "stochastic_instances_per_correlation": 200,
+    "stochastic_weight_convention": "group_pauli_l1_norm",
+    "transpile_mfe_circuits_for_noisy_backend": true,
+    "trotter_order": 1,
+    "uqk_mode": "standard",
+    "valid_backend_modes": [
+      "local_noiseless_statevector",
+      "local_noisy_ibm_model",
+      "local_noisy_simple"
+    ],
+    "valid_uqk_modes": [
+      "standard",
+      "stochastic"
+    ]
+  },
+  "workflow_root": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g"
+}

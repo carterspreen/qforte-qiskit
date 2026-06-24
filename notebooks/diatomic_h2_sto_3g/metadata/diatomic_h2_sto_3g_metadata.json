@@ -1,0 +1,85 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "backend": "psi4",
+  "energies_hartree": {
+    "fci_roots": [
+      -1.101150330132957,
+      -0.3522906262607206
+    ],
+    "frozen_core": 0.0,
+    "hf": -1.0661086491853158,
+    "nuclear_repulsion": 0.52917721067
+  },
+  "fci": {
+    "fallback_reason": null,
+    "num_roots_requested": 2,
+    "num_roots_returned": 2,
+    "num_roots_used_for_build": 2,
+    "status": "all_requested_roots_returned"
+  },
+  "files": {
+    "metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
+    "psi4_output": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_psi4.out"
+  },
+  "generated_at_utc": "2026-06-24T20:30:56.554844Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "qforte_import_file": "/Users/nstair/Src/my_qforte/qforte/src/qforte/__init__.py",
+  "qforte_source_path": "/Users/nstair/Src/my_qforte/qforte/src",
+  "qforte_source_root": "/Users/nstair/Src/my_qforte/qforte",
+  "qforte_version": "0.1",
+  "schema_version": 1
+}

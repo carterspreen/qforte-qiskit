@@ -1,0 +1,706 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "construction": {
+    "method": "hermitian_pairs.add_hermitian_pairs",
+    "outer_pool_coefficient": {
+      "imag": 0.0,
+      "real": 1.0
+    },
+    "pool_class": "qforte.SQOpPool",
+    "source_operator": "mol.sq_hamiltonian"
+  },
+  "diagnostics": {
+    "hermitian_pair_groups": 13,
+    "max_group_rank": 2,
+    "nontrivial_groups": 12,
+    "scalar_energy_from_zero_body_groups": {
+      "imag": 0.0,
+      "real": 0.52917721067
+    },
+    "scalar_groups": 1,
+    "source_sq_hamiltonian_terms": 15,
+    "total_inner_terms": 26
+  },
+  "generated_at_utc": "2026-06-24T20:31:16.432215Z",
+  "groups": [
+    {
+      "classification": "zero_body_scalar",
+      "group_index": 0,
+      "inner_terms": [
+        {
+          "annihilators": [],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "creators": [],
+          "is_zero_body": true,
+          "rank": 0,
+          "term_index": 0
+        },
+        {
+          "annihilators": [],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.264588605335
+          },
+          "creators": [],
+          "is_zero_body": true,
+          "rank": 0,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 0,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.52917721067
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 1,
+      "inner_terms": [
+        {
+          "annihilators": [
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 1,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 2,
+      "inner_terms": [
+        {
+          "annihilators": [
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.555422089825263
+          },
+          "creators": [
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 1,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 3,
+      "inner_terms": [
+        {
+          "annihilators": [
+            0,
+            1
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "creators": [
+            0,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            1
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31320124972286806
+          },
+          "creators": [
+            0,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 4,
+      "inner_terms": [
+        {
+          "annihilators": [
+            3,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "creators": [
+            1,
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            0
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.19679058351541134
+          },
+          "creators": [
+            3,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 5,
+      "inner_terms": [
+        {
+          "annihilators": [
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 1,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 6,
+      "inner_terms": [
+        {
+          "annihilators": [
+            0,
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            0,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            2
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            0,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 7,
+      "inner_terms": [
+        {
+          "annihilators": [
+            1,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            1,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            2
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            1,
+            2
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 8,
+      "inner_terms": [
+        {
+          "annihilators": [
+            3,
+            0
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "creators": [
+            2,
+            1
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2,
+            1
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": 0.19679058351541143
+          },
+          "creators": [
+            3,
+            0
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 9,
+      "inner_terms": [
+        {
+          "annihilators": [
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.2945605019225245
+          },
+          "creators": [
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 1,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 1,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 10,
+      "inner_terms": [
+        {
+          "annihilators": [
+            0,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            0,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            0,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.31085338152472136
+          },
+          "creators": [
+            0,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 11,
+      "inner_terms": [
+        {
+          "annihilators": [
+            1,
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            1,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            1,
+            3
+          ],
+          "coefficient": {
+            "imag": 0.0,
+            "real": -0.21245808976701563
+          },
+          "creators": [
+            1,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    },
+    {
+      "classification": "operator",
+      "group_index": 12,
+      "inner_terms": [
+        {
+          "annihilators": [
+            2,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "creators": [
+            2,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 0
+        },
+        {
+          "annihilators": [
+            2,
+            3
+          ],
+          "coefficient": {
+            "imag": -0.0,
+            "real": -0.32653537343349603
+          },
+          "creators": [
+            2,
+            3
+          ],
+          "is_zero_body": false,
+          "rank": 2,
+          "term_index": 1
+        }
+      ],
+      "max_rank": 2,
+      "num_inner_terms": 2,
+      "outer_coefficient": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "zero_body_contribution": {
+        "imag": 0.0,
+        "real": 0.0
+      }
+    }
+  ],
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "input_molecule_metadata": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "schema_version": 1
+}

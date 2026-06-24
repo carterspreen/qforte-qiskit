@@ -717,4 +717,262 @@ It is helpful to contrast the standard and stochastic workflows explicitly.
 \end{itemize}
 The point of the stochastic version is to trade deterministic circuit depth for additional sampling.  This is most useful when the full Trotter product is too deep, especially in UQK where matrix elements may require several time steps and where each additional step would otherwise repeat the entire grouped product.
 
+\section{Current Standard UQK Implementation: MFE with Full Trotter Blocks}
+
+This section records the current \texttt{qforte-qiskit} implementation of the standard UQK overlap-matrix path.  It is intentionally more concrete than the derivation above.  The goal of the code path is to estimate
+\begin{equation}
+    C_k=\bra{\Phi_{\mathrm{HF}}}\hat{U}^k\ket{\Phi_{\mathrm{HF}}},
+    \qquad
+    \hat{U}=e^{-\ii\Delta t\hat{H}_{\mathrm{q}}},
+    \qquad k=0,1,\ldots,
+\end{equation}
+and then assemble
+\begin{equation}
+    S_{mn}=C_{n-m},
+    \qquad C_{-k}=C_k^*.
+\end{equation}
+The script that presently performs this task is
+\texttt{scripts/qiskit/build\_uqk\_overlap\_matrix.py} with
+\texttt{UQK\_MODE = "standard"}.  The inputs to that script are the molecule metadata, the grouped Pauli archive, and the Qiskit circuit archive produced by the earlier workflow steps.
+
+\subsection{Pauli archive used by the circuit builder}
+
+The code begins from the grouped Hamiltonian data produced by QForte and OpenFermion.  In the notation of the previous sections, the qubit Hamiltonian is stored as
+\begin{equation}
+    \hat{H}_{\mathrm{q}}
+    =
+    h_o I
+    +
+    \sum_{\mu=1}^{N_\Gamma}
+    \sum_{\rho\in\mathcal{P}_\mu}
+    \alpha_{\mu\rho}P_{\mu\rho}.
+    \label{eq:code_pauli_archive_hamiltonian}
+\end{equation}
+Here $h_o I$ is the zero-body scalar contribution stored as a separate scalar group.  The index $\mu$ labels a QForte Hermitian-paired group, and $\rho$ labels the Pauli strings inside that group after the Jordan--Wigner transformation.  The archive keeps the parent group index $\mu$ attached to every Pauli string so that later circuit construction can preserve the same grouped Trotter structure used in Eq.~\eqref{eq:first_order_trotter_step}.
+
+Each Pauli record contains the real coefficient $\alpha_{\mu\rho}$ and a Pauli word $P_{\mu\rho}$.  Identity terms are represented explicitly.  There are two kinds of identity contributions that must not be confused:
+\begin{itemize}
+    \item The true zero-body scalar group $h_o I$ multiplies every state by the same phase $e^{-\ii h_o t}$.  It is not measured by MFE and is applied analytically to the final correlation value.
+    \item Identity Pauli strings may also appear inside a non-scalar grouped operator after normal ordering and Jordan--Wigner mapping.  These terms are kept in the archive because they are part of the physical grouped qubit operator.  In a circuit, however, a pure identity string is only a global phase, so it is not directly visible in computational-basis counts.
+\end{itemize}
+The second point is subtle but important.  For a number-operator example,
+\begin{equation}
+    \hat{n}_p=\frac{I-Z_p}{2},
+\end{equation}
+the $I$ term and the $Z_p$ term cancel on the vacuum branch, so the full fermionic operator still leaves $\ket{\mathrm{vac}}$ invariant.  If a Qiskit synthesis path omits an identity-string global phase while keeping the corresponding $Z$ rotations, the omitted global phase appears as a common phase in the two branches of the MFE interference experiment.  The MFE count formulas therefore recover the physical non-scalar correlation without requiring a separate simulated vacuum-branch correction.  The code deliberately does not divide by a simulated value such as $\bra{\mathrm{vac}}V\ket{\mathrm{vac}}$.
+
+\subsection{Full Trotter block used for the standard path}
+
+For the standard UQK path, the grouped Pauli archive is first converted into saved Qiskit circuits for the grouped factors.  For a non-scalar group $\mu$, it is useful to introduce the temporary abbreviation
+\begin{equation}
+    K_\mu
+    =
+    \sum_{\rho\in\mathcal{P}_\mu}\alpha_{\mu\rho}P_{\mu\rho}
+\end{equation}
+for the already-defined grouped Pauli sum.  This is only a shorthand for this implementation section; the underlying stored data are still the coefficients $\alpha_{\mu\rho}$ and Pauli words $P_{\mu\rho}$.  A first-order non-scalar Trotter step is then
+\begin{equation}
+    \hat{U}^{(1)}_{\mathrm{ns}}(\Delta t)
+    =
+    \prod_{\mu=1}^{N_\Gamma}
+    \exp\left[-\ii\Delta t K_\mu\right],
+    \label{eq:code_standard_non_scalar_step}
+\end{equation}
+where ``ns'' denotes the non-scalar part of the Hamiltonian.  The product order is the order stored in the circuit metadata.  The zero-body scalar group is skipped when composing the measured circuit.
+
+Within each group, the Pauli strings commute by construction in the current workflow, so
+\begin{equation}
+    \exp\left[-\ii\Delta t K_\mu\right]
+    =
+    \prod_{\rho\in\mathcal{P}_\mu}
+    \exp\left[-\ii\Delta t\alpha_{\mu\rho}P_{\mu\rho}\right].
+\end{equation}
+In Qiskit this is represented with a \texttt{SparsePauliOp} or a previously saved grouped circuit.  The sign of the rotation is not supplied as an extra convention; it is the sign of the stored coefficient $\alpha_{\mu\rho}$.  For a CNOT-ladder implementation this matches Eq.~\eqref{eq:cnot_ladder}, with
+\begin{equation}
+    \theta_{\mu\rho}=\Delta t\,\alpha_{\mu\rho},
+    \qquad
+    R_z(2\theta_{\mu\rho}).
+\end{equation}
+Equivalently, Qiskit's \texttt{PauliEvolutionGate} convention is
+\begin{equation}
+    \texttt{PauliEvolutionGate}(K_\mu,\mathrm{time}=\Delta t)
+    \quad\longleftrightarrow\quad
+    e^{-\ii\Delta t K_\mu}.
+\end{equation}
+
+The saved QPY grouped circuits are fixed-time primitives.  In the standard path, the value of $\Delta t$ used to make those circuits is read from the circuit metadata and is treated as part of the saved circuit definition.  For the $k$th UQK correlation, the script composes the same non-scalar step $k$ times:
+\begin{equation}
+    V_k^{\mathrm{(std,ns)}}
+    =
+    \left[\hat{U}^{(1)}_{\mathrm{ns}}(\Delta t)\right]^k.
+    \label{eq:code_standard_vk}
+\end{equation}
+Thus changing the Krylov time step requires regenerating the standard grouped QPY circuits, or otherwise rebuilding the group factors from the Pauli archive at the new time step.  Reusing old fixed-$\Delta t$ QPY files with a different intended Krylov $\Delta t$ would estimate a different correlation sequence.
+
+\subsection{MFE measurement and scalar phase}
+
+For each nonzero $k$, the standard path inserts $V_k^{\mathrm{(std,ns)}}$ into the three MFE templates described in Eq.~\eqref{eq:mfe_f1_counts}--Eq.~\eqref{eq:mfe_z_counts}.  The three measured fidelities give a raw non-scalar estimate
+\begin{equation}
+    \widehat{z}^{\mathrm{(std,ns)}}_k
+    =
+    \left(2\widehat{F}_{2,k}^{(+)}-\frac{\widehat{F}_{1,k}+1}{2}\right)
+    +
+    \ii\left(2\widehat{F}_{2,k}^{(\ii)}-\frac{\widehat{F}_{1,k}+1}{2}\right).
+\end{equation}
+The code then restores the zero-body scalar phase analytically:
+\begin{equation}
+    \widehat{C}^{\mathrm{(std)}}_k
+    =
+    e^{-\ii h_o k\Delta t}
+    \widehat{z}^{\mathrm{(std,ns)}}_k.
+    \label{eq:code_standard_scalar_phase}
+\end{equation}
+The scalar phase is deterministic and comes directly from the stored Hamiltonian archive; no quantum measurement of a full Trotter circuit is needed to obtain it.  The special value $C_0=1$ is enforced in the saved overlap matrix, while the measured identity-circuit MFE diagnostics may still be printed and stored as a check on finite-shot behavior.
+
+The no-noise validation script compares this convention against direct state-vector linear algebra.  In that validation, the physical grouped Pauli matrices, including identity strings inside non-scalar groups, are exponentiated directly.  The direct calculation therefore uses the same mathematical Hamiltonian as Eq.~\eqref{eq:code_pauli_archive_hamiltonian}.  Agreement between the direct calculation and the MFE path checks the sign convention, the Toeplitz assembly rule, and the analytical handling of $h_o$.
+
+\section{Current Stochastic UQK Implementation: MFE with qDRIFT}
+
+The stochastic path uses the same MFE templates and the same final Toeplitz assembly as the standard path, but replaces the deterministic full grouped Trotter product by qDRIFT-sampled grouped chunks.  In code this is selected by setting \texttt{UQK\_MODE = "stochastic"} in \texttt{scripts/qiskit/build\_uqk\_overlap\_matrix.py}.  The stochastic path is designed to avoid measuring the full Trotter circuit.  It uses only sampled qDRIFT circuits, plus the same analytical zero-body scalar phase from Eq.~\eqref{eq:code_standard_scalar_phase}.
+
+\subsection{Implemented grouped qDRIFT weights}
+
+The theoretical section above introduced the compact choice $w_\mu=|h_\mu|$ for grouped generators written as
+\begin{equation}
+    h_\mu\left(\hat{g}_\mu-\hat{g}_\mu^\dagger\right).
+\end{equation}
+The present code operates one step later in the workflow, after Jordan--Wigner transformation and Pauli collection.  It therefore computes the qDRIFT weight of a group from the saved Pauli coefficients:
+\begin{equation}
+    w_\mu
+    =
+    \sum_{\rho\in\mathcal{P}_\mu}
+    |\alpha_{\mu\rho}|,
+    \qquad
+    \lambda
+    =
+    \sum_{\mu\in\Gamma_{\mathrm{ns}}}w_\mu,
+    \qquad
+    p_\mu=\frac{w_\mu}{\lambda}.
+    \label{eq:code_qdrift_weights}
+\end{equation}
+Here $\Gamma_{\mathrm{ns}}$ is the set of non-scalar groups.  The zero-body scalar group $h_o I$ is explicitly excluded from $\lambda$.  This exclusion is required because the scalar phase is known analytically and does not need to be sampled; including it would waste qDRIFT probability mass and would also change the sampled time scale incorrectly.
+
+For each non-scalar group, the code defines the normalized grouped generator
+\begin{equation}
+    G_\mu
+    =
+    \frac{1}{w_\mu}
+    \sum_{\rho\in\mathcal{P}_\mu}
+    \alpha_{\mu\rho}P_{\mu\rho}
+    =
+    \frac{K_\mu}{w_\mu}.
+    \label{eq:code_qdrift_normalized_generator}
+\end{equation}
+This $G_\mu$ is again only a local abbreviation for the normalized grouped Pauli sum used by the implementation.  The coefficients $\alpha_{\mu\rho}$ remain signed in $G_\mu$.  Thus the qDRIFT sampling distribution uses positive weights $w_\mu$, but the direction of every Pauli rotation is still determined by the sign of $\alpha_{\mu\rho}$.  No separate sign bit is needed.  This is the Pauli-archive version of the earlier expression involving $\operatorname{sgn}(h_\mu)$.
+
+\subsection{Sampled circuit for one correlation value}
+
+For a UQK correlation value $C_k$, the target total time is
+\begin{equation}
+    t_k=k\Delta t.
+\end{equation}
+Given a qDRIFT segment count $N_{\mathrm{d}}$, one stochastic circuit instance $\omega$ samples independent group labels
+\begin{equation}
+    \mu_1,\mu_2,\ldots,\mu_{N_{\mathrm{d}}},
+    \qquad
+    \mu_s\sim p_\mu.
+\end{equation}
+The sampled non-scalar circuit is
+\begin{equation}
+    \widetilde{V}^{\mathrm{(qD,ns)}}_{\omega}(t_k)
+    =
+    \prod_{s=1}^{N_{\mathrm{d}}}
+    \exp\left[
+        -\ii\frac{\lambda t_k}{N_{\mathrm{d}}}
+        G_{\mu_s}
+    \right].
+    \label{eq:code_qdrift_sampled_chunk}
+\end{equation}
+Substituting Eq.~\eqref{eq:code_qdrift_normalized_generator} gives the explicit Pauli form used to build each sampled grouped block:
+\begin{equation}
+    \exp\left[
+        -\ii\frac{\lambda t_k}{N_{\mathrm{d}}}
+        G_{\mu_s}
+    \right]
+    =
+    \exp\left[
+        -\ii\frac{\lambda t_k}{N_{\mathrm{d}}w_{\mu_s}}
+        \sum_{\rho\in\mathcal{P}_{\mu_s}}
+        \alpha_{\mu_s\rho}P_{\mu_s\rho}
+    \right].
+    \label{eq:code_qdrift_pauli_block}
+\end{equation}
+Equivalently, each Pauli subrotation in that sampled group has angle parameter
+\begin{equation}
+    \theta_{\mu_s\rho,k}
+    =
+    \frac{\lambda k\Delta t}{N_{\mathrm{d}}w_{\mu_s}}
+    \alpha_{\mu_s\rho}.
+\end{equation}
+The factor $\lambda k\Delta t/N_{\mathrm{d}}$ is the qDRIFT time rescaling.  The magnitude of an individual original Hamiltonian coefficient does not directly set the sampled block duration; it enters through the probability $p_\mu$ and through the normalization by $w_\mu$.  The sign and relative sizes of the Pauli terms inside the selected group remain in the signed coefficients $\alpha_{\mu\rho}$.
+
+Unlike the standard path, the stochastic path does not reuse the fixed-$\Delta t$ QPY group circuits.  It rebuilds sampled group blocks from the grouped Pauli archive because the required qDRIFT angle depends on $k$, $\lambda$, $N_{\mathrm{d}}$, and $w_{\mu_s}$.  This avoids the architectural error of using standard circuits with $\Delta t h_\mu$ sealed into them for qDRIFT, which would generally apply the wrong amount of time evolution.
+
+\subsection{MFE averaging over stochastic instances}
+
+For each nonzero $k$, the code generates several independent sampled circuits
+\begin{equation}
+    \widetilde{V}^{\mathrm{(qD,ns)}}_{\omega_1}(t_k),
+    \widetilde{V}^{\mathrm{(qD,ns)}}_{\omega_2}(t_k),
+    \ldots,
+    \widetilde{V}^{\mathrm{(qD,ns)}}_{\omega_{N_\omega}}(t_k),
+\end{equation}
+where $N_\omega$ is the number of stochastic circuit instances per correlation value.  Each sampled circuit is inserted into the same three MFE templates used in the standard path.  The implementation aggregates the observed HF-return counts across stochastic instances before applying the MFE arithmetic:
+\begin{align}
+    \overline{F}_{1,k}
+    &=
+    \frac{\sum_{\omega}N^{(1)}_{o,k,\omega}}
+         {\sum_{\omega}N^{(1)}_{\mathrm{tot},k,\omega}}, \\
+    \overline{F}_{2,k}^{(+)}
+    &=
+    \frac{\sum_{\omega}N^{(+)}_{o,k,\omega}}
+         {\sum_{\omega}N^{(+)}_{\mathrm{tot},k,\omega}}, \\
+    \overline{F}_{2,k}^{(\ii)}
+    &=
+    \frac{\sum_{\omega}N^{(\ii)}_{o,k,\omega}}
+         {\sum_{\omega}N^{(\ii)}_{\mathrm{tot},k,\omega}}.
+\end{align}
+The qDRIFT MFE estimate is then
+\begin{equation}
+    \widehat{z}^{\mathrm{(qD,ns)}}_k
+    =
+    \left(2\overline{F}_{2,k}^{(+)}-\frac{\overline{F}_{1,k}+1}{2}\right)
+    +
+    \ii\left(2\overline{F}_{2,k}^{(\ii)}-\frac{\overline{F}_{1,k}+1}{2}\right).
+    \label{eq:code_qdrift_mfe_estimator}
+\end{equation}
+This is an average over measured qDRIFT circuit outcomes.  It is not corrected by measuring or simulating a full deterministic Trotter circuit, and it is not divided by a per-sample vacuum amplitude.  The stochastic channel approximation enters only through the sampled circuits in Eq.~\eqref{eq:code_qdrift_sampled_chunk} and the empirical averages above.
+
+Finally, the same zero-body scalar phase is applied analytically:
+\begin{equation}
+    \widehat{C}^{\mathrm{(qD)}}_k
+    =
+    e^{-\ii h_o k\Delta t}
+    \widehat{z}^{\mathrm{(qD,ns)}}_k.
+    \label{eq:code_qdrift_scalar_phase}
+\end{equation}
+As in the standard path, $C_0=1$ is enforced in the stored Toeplitz matrix, and negative-index correlations are filled using $C_{-k}=C_k^*$.  The saved metadata records $\lambda$, the scalar $h_o$ excluded from $\lambda$, the sampled group histories, the qDRIFT segment count $N_{\mathrm{d}}$, the stochastic instance count $N_\omega$, the shot counts, and the hard-coded options used for the run.
+
+\subsection{Practical interpretation}
+
+The standard and stochastic paths estimate different finite-resource approximations to the same ideal correlation sequence.  Standard UQK uses the deterministic first-order grouped Trotter approximation,
+\begin{equation}
+    \widehat{C}^{\mathrm{(std)}}_k
+    \approx
+    e^{-\ii h_o k\Delta t}
+    \bra{\Phi_{\mathrm{HF}}}
+    \left[\hat{U}^{(1)}_{\mathrm{ns}}(\Delta t)\right]^k
+    \ket{\Phi_{\mathrm{HF}}},
+\end{equation}
+with circuit depth growing with $k$ and with the number of non-scalar groups.  Stochastic UQK replaces the deterministic non-scalar product by the qDRIFT sampled product in Eq.~\eqref{eq:code_qdrift_sampled_chunk}.  Increasing $N_{\mathrm{d}}$ improves the qDRIFT channel approximation at the cost of deeper sampled circuits; increasing $N_\omega$ reduces stochastic sampling noise at the cost of more circuit executions.  Increasing the shots per MFE experiment reduces ordinary binomial measurement noise.  These are separate error sources, and the saved metadata is meant to keep them distinguishable.
+
 \end{document}

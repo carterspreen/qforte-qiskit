@@ -5,14 +5,16 @@
 # Summary:
 #   Validate the standard UQK overlap matrix by direct noiseless statevector
 #   linear algebra. This script mirrors build_uqk_overlap_matrix.py for the
-#   standard path: use the saved non-scalar full Trotter block, apply the
-#   zero-body scalar phase analytically, compute
+#   standard path: build the physical non-scalar full Trotter block directly
+#   from the grouped Pauli archive, including identity terms that Qiskit circuits
+#   cannot expose as measurable global phases; apply the zero-body scalar phase
+#   analytically; compute
 #       C_k = <HF|U^k|HF>,
 #       S_mn = C_(n-m), with C_-k = conj(C_k),
-#   and compare against the saved finite-shot MFE result. Current MFE overlap
-#   files should already contain the reference-branch correction. The script
-#   still recomputes an exact-probability raw MFE path and divides by
-#   r_k^*=<vac|V^k|vac>^* to verify the correction itself.
+#   and compare against the saved finite-shot MFE result. The exact-probability
+#   MFE check still uses the saved QPY circuits, because those are the circuits
+#   actually measured. Its raw vacuum-reference estimate should match the
+#   physical grouped-Pauli direct result.
 #
 # Hard-coded options:
 #   INPUT_MOLECULE_METADATA_JSON = data/molecules/h4_linear_sto3g_metadata.json
@@ -21,6 +23,8 @@
 #   INPUT_MFE_NPZ = results/krylov/h4_standard_uqk_overlap_matrix.npz
 #   INPUT_MFE_METADATA_JSON = results/krylov/h4_standard_uqk_overlap_matrix_metadata.json
 #   KRYLOV_DIMENSION = 3
+#   MAX_CORRELATION_POWER = KRYLOV_DIMENSION, so shifted C_M is available for
+#       the projected unitary GEV post-processing script
 #   KRYLOV_DT = 0.1
 #   TROTTER_ORDER = 1
 #   COMPUTE_EXACT_MFE_PROBABILITY_CHECK = True
@@ -41,7 +45,8 @@ from pathlib import Path
 
 import numpy as np
 from qiskit import QuantumCircuit, qpy
-from qiskit.quantum_info import Statevector
+from qiskit.quantum_info import SparsePauliOp, Statevector
+from scipy.linalg import expm
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -69,6 +74,9 @@ INPUT_CIRCUIT_METADATA_JSON = (
     / "transpiled"
     / "h4_linear_sto3g_grouped_evolution_metadata.json"
 )
+INPUT_GROUPED_PAULI_JSON = (
+    REPO_ROOT / "data" / "hamiltonians" / "h4_linear_sto3g_grouped_paulis.json"
+)
 INPUT_MFE_NPZ = REPO_ROOT / "results" / "krylov" / "h4_standard_uqk_overlap_matrix.npz"
 INPUT_MFE_METADATA_JSON = (
     REPO_ROOT / "results" / "krylov" / "h4_standard_uqk_overlap_matrix_metadata.json"
@@ -84,6 +92,12 @@ OUTPUT_COMPARISON_JSON = OUTPUT_COMPARISON_NPZ.with_suffix(".json")
 # KRYLOV_DIMENSION is M in the notes. The S matrix is M x M and uses Krylov
 # states |phi_n> = U^n |HF>, n=0,...,M-1.
 KRYLOV_DIMENSION = 3
+
+# The overlap matrix S only needs C_0 through C_(M-1), but the projected UQK
+# unitary matrix uses U_mn=C_(n+1-m), which needs the shifted value C_M. Save
+# direct correlations through k=M so the post-processing GEV script can verify
+# both S and U from the same direct-linear-algebra data.
+MAX_CORRELATION_POWER = KRYLOV_DIMENSION
 
 # KRYLOV_DT must match the dt sealed into the saved standard QPY circuits.
 # Change dt by rerunning build_h4_grouped_evolution_circuits.py, not by editing
@@ -145,6 +159,17 @@ def complex_matrix_records(matrix):
         [complex_record(matrix[row, col]) for col in range(matrix.shape[1])]
         for row in range(matrix.shape[0])
     ]
+
+
+def complex_from_record(record):
+    return complex(float(record["real"]), float(record["imag"]))
+
+
+def pauli_label(pauli_word, num_qubits):
+    letters = ["I"] * num_qubits
+    for item in pauli_word:
+        letters[int(item["qubit"])] = item["pauli"]
+    return "".join(reversed(letters))
 
 
 def prepare_hf_statevector(occupation):
@@ -231,40 +256,50 @@ def validate_inputs(circuit_metadata, mfe_metadata, mfe_npz):
         )
 
 
-def saved_mfe_has_reference_branch_correction(mfe_metadata):
-    """Return whether saved MFE correlations are already physical C_k values."""
+def build_physical_non_scalar_step_matrix(pauli_archive, circuit_metadata):
+    """Build one first-order Trotter step including identity Pauli terms.
 
-    for record in mfe_metadata.get("mfe_by_power", []):
-        if record.get("reference_branch_correction_applied"):
-            return True
-    return False
-
-
-def apply_reference_branch_correction(raw_mfe_value, reference_branch, context):
-    """Convert raw MFE y=C*r^* into the physical C.
-
-    For the standard saved Trotter block r is currently a unit phase, so this
-    looks numerically like multiplying by r. We keep the explicit division by
-    r^* here because that is the actual MFE algebra and it also covers
-    stochastic qDRIFT chunks where |r| need not be one.
+    QPY circuits are what we measure, but they cannot make global identity
+    phases directly observable. For direct linear-algebra validation, build the
+    grouped Pauli matrices explicitly so the physical Hamiltonian represented by
+    the archive is the target.
     """
 
-    if abs(reference_branch) <= 1.0e-12:
-        raise ValueError(
-            f"Reference branch amplitude is too small for stable correction in "
-            f"{context}: r={reference_branch}."
-        )
-    return raw_mfe_value / np.conjugate(reference_branch)
+    num_qubits = int(circuit_metadata["active_space"]["num_qubits"])
+    pauli_by_index = {
+        int(group["group_index"]): group
+        for group in pauli_archive["groups"]
+    }
+    step = np.eye(2**num_qubits, dtype=np.complex128)
+
+    for item in circuit_metadata["trotter_step_sequence"]:
+        group_index = int(item["group_index"])
+        group = pauli_by_index[group_index]
+        if group["source_classification"] == "zero_body_scalar":
+            continue
+
+        labels = []
+        coefficients = []
+        for term in group["pauli_terms"]:
+            labels.append(pauli_label(term["pauli_word"], num_qubits))
+            coefficients.append(complex_from_record(term["coefficient"]))
+
+        h_group = SparsePauliOp(labels, coeffs=coefficients).to_matrix()
+        step = expm(-1j * KRYLOV_DT * h_group) @ step
+
+    return step
 
 
-def direct_correlations(hf_state, non_scalar_step, scalar_energy):
-    correlations = np.zeros(KRYLOV_DIMENSION, dtype=np.complex128)
-    non_scalar_correlations = np.zeros(KRYLOV_DIMENSION, dtype=np.complex128)
+def direct_correlations(hf_state, physical_non_scalar_step, scalar_energy):
+    correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
+    non_scalar_correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
+    hf_vector = hf_state.data
+    step_power = np.eye(physical_non_scalar_step.shape[0], dtype=np.complex128)
 
-    for power in range(KRYLOV_DIMENSION):
-        power_circuit = build_power_circuit(non_scalar_step, power)
-        state = hf_state.evolve(power_circuit)
-        non_scalar_value = np.vdot(hf_state.data, state.data)
+    for power in range(MAX_CORRELATION_POWER + 1):
+        if power > 0:
+            step_power = physical_non_scalar_step @ step_power
+        non_scalar_value = np.vdot(hf_vector, step_power @ hf_vector)
         scalar_phase = np.exp(-1j * scalar_energy * power * KRYLOV_DT)
         non_scalar_correlations[power] = non_scalar_value
         correlations[power] = scalar_phase * non_scalar_value
@@ -278,7 +313,7 @@ def vacuum_branch_diagnostics(hf_state, non_scalar_step):
     vacuum_state = Statevector.from_label("0" * non_scalar_step.num_qubits)
     records = []
 
-    for power in range(KRYLOV_DIMENSION):
+    for power in range(MAX_CORRELATION_POWER + 1):
         power_circuit = build_power_circuit(non_scalar_step, power)
         evolved_hf = hf_state.evolve(power_circuit)
         evolved_vacuum = vacuum_state.evolve(power_circuit)
@@ -309,10 +344,10 @@ def hf_probability_exact(circuit, hf_count_key):
 
 
 def exact_mfe_correlations(non_scalar_step, occupation, hf_count_key, scalar_energy):
-    correlations = np.zeros(KRYLOV_DIMENSION, dtype=np.complex128)
+    correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
     records = []
 
-    for power in range(KRYLOV_DIMENSION):
+    for power in range(MAX_CORRELATION_POWER + 1):
         power_circuit = build_power_circuit(non_scalar_step, power)
         templates = build_mfe_templates(power_circuit, occupation, verbose=False)
         f1 = hf_probability_exact(templates[F1_LABEL], hf_count_key)
@@ -365,6 +400,7 @@ def comparison_metrics(left, right):
 def main():
     molecule_metadata = load_json(INPUT_MOLECULE_METADATA_JSON)
     circuit_metadata = load_json(INPUT_CIRCUIT_METADATA_JSON)
+    pauli_archive = load_json(INPUT_GROUPED_PAULI_JSON)
     mfe_metadata = load_json(INPUT_MFE_METADATA_JSON)
     mfe_npz = np.load(INPUT_MFE_NPZ)
     validate_inputs(circuit_metadata, mfe_metadata, mfe_npz)
@@ -391,9 +427,11 @@ def main():
     print_kv("Molecule metadata:", INPUT_MOLECULE_METADATA_JSON)
     print_kv("Grouped QPY archive:", INPUT_QPY)
     print_kv("Circuit metadata:", INPUT_CIRCUIT_METADATA_JSON)
+    print_kv("Grouped Pauli archive:", INPUT_GROUPED_PAULI_JSON)
     print_kv("Saved MFE NPZ:", INPUT_MFE_NPZ)
     print_kv("Saved MFE metadata:", INPUT_MFE_METADATA_JSON)
     print_kv("Krylov dimension M:", KRYLOV_DIMENSION)
+    print_kv("Max correlation power:", MAX_CORRELATION_POWER)
     print_kv("Guard dt:", KRYLOV_DT)
     print_kv("Trotter order:", TROTTER_ORDER)
     print_kv("Exact MFE probability check:", COMPUTE_EXACT_MFE_PROBABILITY_CHECK)
@@ -413,9 +451,13 @@ def main():
     print_kv("Non-scalar step size:", non_scalar_step.size())
     print_kv("Non-scalar step ops:", operation_counts(non_scalar_step))
 
+    physical_non_scalar_step = build_physical_non_scalar_step_matrix(
+        pauli_archive,
+        circuit_metadata,
+    )
     direct_c, direct_non_scalar_c = direct_correlations(
         hf_state,
-        non_scalar_step,
+        physical_non_scalar_step,
         scalar_energy,
     )
     vacuum_diagnostics = vacuum_branch_diagnostics(hf_state, non_scalar_step)
@@ -423,37 +465,12 @@ def main():
     s_mfe_saved = np.asarray(mfe_npz["S"], dtype=np.complex128)
     saved_c = np.asarray(mfe_npz["correlations"], dtype=np.complex128)
     saved_c_for_m = saved_c[:KRYLOV_DIMENSION]
-    reference_branch = np.array(
-        [record["vacuum_vacuum"] for record in vacuum_diagnostics],
-        dtype=np.complex128,
-    )
-    saved_is_already_corrected = saved_mfe_has_reference_branch_correction(
-        mfe_metadata
-    )
-    saved_c_after_reference_handling = (
-        saved_c_for_m
-        if saved_is_already_corrected
-        else np.array(
-            [
-                apply_reference_branch_correction(value, reference, f"saved C_{index}")
-                for index, (value, reference) in enumerate(
-                    zip(saved_c_for_m, reference_branch)
-                )
-            ],
-            dtype=np.complex128,
-        )
-    )
-    s_mfe_saved_after_reference_handling = assemble_overlap_matrix(
-        saved_c_after_reference_handling
-    )
-    saved_metrics = comparison_metrics(s_direct, s_mfe_saved_after_reference_handling)
+    saved_metrics = comparison_metrics(s_direct, s_mfe_saved)
 
     exact_mfe_c = None
     exact_mfe_records = []
     exact_mfe_metrics = None
-    exact_mfe_reference_corrected_metrics = None
     s_exact_mfe = None
-    s_exact_mfe_reference_corrected = None
     if COMPUTE_EXACT_MFE_PROBABILITY_CHECK:
         exact_mfe_c, exact_mfe_records = exact_mfe_correlations(
             non_scalar_step,
@@ -463,25 +480,6 @@ def main():
         )
         s_exact_mfe = assemble_overlap_matrix(exact_mfe_c)
         exact_mfe_metrics = comparison_metrics(s_direct, s_exact_mfe)
-        # exact_mfe_c is the exact-probability version of the raw MFE estimate
-        # after applying the analytic scalar phase. It still contains the
-        # non-scalar reference factor r_k^*, so divide by that factor here.
-        exact_mfe_reference_corrected_c = np.array(
-            [
-                apply_reference_branch_correction(value, reference, f"exact C_{index}")
-                for index, (value, reference) in enumerate(
-                    zip(exact_mfe_c, reference_branch)
-                )
-            ],
-            dtype=np.complex128,
-        )
-        s_exact_mfe_reference_corrected = assemble_overlap_matrix(
-            exact_mfe_reference_corrected_c
-        )
-        exact_mfe_reference_corrected_metrics = comparison_metrics(
-            s_direct,
-            s_exact_mfe_reference_corrected,
-        )
 
     print_header("Correlation Values")
     print(f"{'k':>3} {'direct C_k':>28} {'saved MFE C_k':>28}")
@@ -495,10 +493,11 @@ def main():
 
     print_header("MFE Vacuum-Branch Assumption Check")
     print(
-        "The simplified MFE formulas used by the overlap builder assume the\n"
-        "reference vacuum branch is invariant under V: <vac|V^k|vac> = 1 and\n"
-        "the HF/vacuum cross terms vanish. Deviations here explain why exact\n"
-        "MFE probabilities can differ from direct <HF|V^k|HF>."
+        "The QPY circuits may give the vacuum branch a phase because identity\n"
+        "Pauli terms in non-scalar groups are not measurable as standalone\n"
+        "global phases. Raw MFE is intentionally a vacuum-reference measurement:\n"
+        "that phase cancels in the extracted physical grouped-Pauli amplitude.\n"
+        "The HF/vacuum cross terms should still vanish."
     )
     print(
         f"{'k':>3} {'<vac|V^k|vac>':>28} {'<vac|V^k|HF>':>28} {'<HF|V^k|vac>':>28}"
@@ -520,44 +519,18 @@ def main():
     print(s_direct)
     print("\nS_MFE_saved:")
     print(s_mfe_saved)
-    if saved_is_already_corrected:
-        print("\nSaved MFE metadata says reference-branch correction was already applied.")
-    else:
-        print("\nS_MFE_saved_after_reference_correction:")
-        print(s_mfe_saved_after_reference_handling)
     if s_exact_mfe is not None:
         print("\nS_MFE_exact_probability:")
         print(s_exact_mfe)
-        print("\nS_MFE_exact_probability_reference_corrected:")
-        print(s_exact_mfe_reference_corrected)
 
     print_header("Comparison Metrics")
-    if saved_is_already_corrected:
-        print("Direct statevector vs saved finite-shot MFE:")
-    else:
-        print(
-            "Direct statevector vs saved finite-shot MFE after applying "
-            "C_k = y_k / r_k^*, with r_k=<vac|V^k|vac>:"
-        )
+    print("Physical grouped-Pauli direct statevector vs saved finite-shot raw MFE:")
     for key, value in saved_metrics.items():
         print_kv(key + ":", f"{value:.12e}")
     if exact_mfe_metrics is not None:
-        print("\nDirect statevector vs exact-probability MFE:")
+        print("\nPhysical grouped-Pauli direct statevector vs exact-probability raw MFE:")
         for key, value in exact_mfe_metrics.items():
             print_kv(key + ":", f"{value:.12e}")
-        print(
-            "\nDirect statevector vs exact-probability MFE after applying "
-            "C_k = y_k / r_k^*, with r_k=<vac|V^k|vac>:"
-        )
-        for key, value in exact_mfe_reference_corrected_metrics.items():
-            print_kv(key + ":", f"{value:.12e}")
-        if exact_mfe_metrics["max_abs_difference"] > 1.0e-8:
-            print(
-                "\nWarning: exact-probability MFE does not match direct statevector. "
-                "This is not finite-shot noise. In the current circuit, MFE "
-                "estimates C_k r_k^*, so use the reference-branch-corrected "
-                "comparison when r_k=<vac|V^k|vac> is known."
-            )
 
     OUTPUT_COMPARISON_NPZ.parent.mkdir(parents=True, exist_ok=True)
     np.savez(
@@ -567,20 +540,12 @@ def main():
         C_direct_non_scalar=direct_non_scalar_c,
         S_MFE_saved=s_mfe_saved,
         C_MFE_saved=saved_c,
-        S_MFE_saved_after_reference_handling=s_mfe_saved_after_reference_handling,
-        C_MFE_saved_after_reference_handling=saved_c_after_reference_handling,
         S_MFE_exact_probability=(
             s_exact_mfe if s_exact_mfe is not None else np.array([], dtype=np.complex128)
         ),
         C_MFE_exact_probability=(
             exact_mfe_c if exact_mfe_c is not None else np.array([], dtype=np.complex128)
         ),
-        S_MFE_exact_probability_reference_corrected=(
-            s_exact_mfe_reference_corrected
-            if s_exact_mfe_reference_corrected is not None
-            else np.array([], dtype=np.complex128)
-        ),
-        reference_branch_vacuum_vacuum=reference_branch,
     )
 
     metadata = {
@@ -591,6 +556,7 @@ def main():
             "molecule_metadata_json": str(INPUT_MOLECULE_METADATA_JSON),
             "qpy": str(INPUT_QPY),
             "circuit_metadata_json": str(INPUT_CIRCUIT_METADATA_JSON),
+            "grouped_pauli_json": str(INPUT_GROUPED_PAULI_JSON),
             "mfe_npz": str(INPUT_MFE_NPZ),
             "mfe_metadata_json": str(INPUT_MFE_METADATA_JSON),
         },
@@ -607,13 +573,14 @@ def main():
         "conventions": {
             "toeplitz": "S_mn=C_(n-m), C_-k=conj(C_k)",
             "standard_path": (
-                "Use the saved non-scalar QPY Trotter block. Apply the separate "
-                "zero-body scalar phase exp(-i E_scalar k dt) analytically."
+                "Direct validation builds the physical grouped-Pauli Trotter "
+                "block including identity terms. Exact MFE uses the saved QPY "
+                "circuits because those are what hardware would measure."
             ),
             "reference_branch_correction": (
-                "If r_k=<vac|V^k|vac> is known and HF/vacuum cross terms vanish, "
-                "the raw MFE templates estimate C_k*r_k^*. Current overlap files "
-                "divide by r_k^* before saving physical C_k."
+                "No simulated reference-branch correction is applied. Raw MFE "
+                "is a vacuum-reference measurement, and the zero-body scalar "
+                "phase exp(-i E_scalar k dt) is applied analytically."
             ),
             "dt_guard": (
                 "KRYLOV_DT is checked against QPY metadata; it does not rescale "
@@ -634,23 +601,11 @@ def main():
         "correlations_direct": complex_array_records(direct_c),
         "correlations_direct_non_scalar": complex_array_records(direct_non_scalar_c),
         "correlations_mfe_saved": complex_array_records(saved_c[:KRYLOV_DIMENSION]),
-        "saved_mfe_reference_branch_correction_already_applied": (
-            saved_is_already_corrected
-        ),
-        "correlations_mfe_saved_after_reference_handling": complex_array_records(
-            saved_c_after_reference_handling
-        ),
         "overlap_direct": complex_matrix_records(s_direct),
         "overlap_mfe_saved": complex_matrix_records(s_mfe_saved),
-        "overlap_mfe_saved_after_reference_handling": complex_matrix_records(
-            s_mfe_saved_after_reference_handling
-        ),
         "saved_mfe_comparison_metrics": saved_metrics,
         "exact_mfe_probability_records": exact_mfe_records,
         "exact_mfe_probability_comparison_metrics": exact_mfe_metrics,
-        "exact_mfe_probability_reference_corrected_comparison_metrics": (
-            exact_mfe_reference_corrected_metrics
-        ),
         "vacuum_branch_diagnostics": [
             {
                 "power": record["power"],

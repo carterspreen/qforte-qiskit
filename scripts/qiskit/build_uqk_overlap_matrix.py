@@ -21,23 +21,24 @@
 #   MAX_CORRELATION_POWER = KRYLOV_DIMENSION
 #   DT = read from circuit metadata
 #   TROTTER_ORDER = read from circuit metadata, expected first order here
-#   SHOTS_PER_MFE_EXPERIMENT = 2000
-#   BACKEND_MODE = local_noiseless_statevector
-#   QDRIFT_SEGMENT_COUNT_ND = 16
-#   STOCHASTIC_INSTANCES_PER_CORRELATION = 20
+#   SHOTS_PER_MFE_EXPERIMENT = 200_000
+#   BACKEND_MODE = local_noiseless_statevector, local_noisy_simple, or
+#                  local_noisy_ibm_model
+#   QDRIFT_SEGMENT_COUNT_ND = 50
+#   STOCHASTIC_INSTANCES_PER_CORRELATION = 200
 #   STOCHASTIC_WEIGHT_CONVENTION = group_pauli_l1_norm
 #   RANDOM_SEED = 230623
-#   output path is results/krylov/h4_{UQK_MODE}_uqk_overlap_matrix.*
+#   output path is results/krylov/h4_{output_label}_uqk_overlap_matrix.*
 #
 # Scalar convention:
 #   The zero-body scalar energy is not included in qDRIFT lambda and is not
-#   placed inside the MFE circuits. The MFE superposition experiment measures
-#   the HF branch relative to the vacuum reference branch. If
-#       r_k = <vac|V_k|vac>
-#   is not exactly 1, then the raw MFE arithmetic returns C_k*r_k^*. We
-#   therefore divide the raw MFE estimate by r_k^*, then multiply by the scalar
-#   phase exp(-i E_scalar k dt) analytically. When r_k is only a phase, this is
-#   the same as multiplying by r_k.
+#   placed inside the MFE circuits. Identity Pauli terms that live inside
+#   non-scalar normal-ordered groups are also not directly measurable as global
+#   phases in the Qiskit circuits. The MFE vacuum-reference construction
+#   cancels the corresponding reference-branch phase in the sampled counts, so
+#   this script stores the raw MFE estimate as the non-scalar physical
+#   correlation. The true zero-body scalar phase exp(-i E_scalar k dt) is then
+#   applied analytically.
 
 from __future__ import annotations
 
@@ -49,9 +50,15 @@ from pathlib import Path
 import numpy as np
 from qiskit import QuantumCircuit, qpy, transpile
 from qiskit.circuit.library import PauliEvolutionGate
-from qiskit.quantum_info import SparsePauliOp, Statevector
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.synthesis import LieTrotter
 from qiskit_aer import AerSimulator
+from qiskit_aer.noise import (
+    NoiseModel,
+    ReadoutError,
+    depolarizing_error,
+    thermal_relaxation_error,
+)
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -137,7 +144,64 @@ SHOTS_PER_MFE_EXPERIMENT = 2_000
 #   "local_noiseless_statevector"
 #       AerSimulator(method="statevector") with shot sampling. No credentials,
 #       noise model, or hardware access.
+#   "local_noisy_simple"
+#       AerSimulator with a compact, hand-controlled depolarizing/readout noise
+#       model. This is useful for reproducible sensitivity tests and does not
+#       require IBM credentials.
+#   "local_noisy_ibm_model"
+#       AerSimulator with an IBM-style model. By default this uses calibration
+#       information from a fake IBM backend and compresses the average error
+#       rates to the active-space qubit count, so small molecule simulations do
+#       not accidentally become 100+ qubit density-matrix jobs.
 BACKEND_MODE = "local_noiseless_statevector"
+
+# Output filenames historically used only UQK_MODE, for example
+# h4_standard_uqk_overlap_matrix.npz. Keep that default for compatibility with
+# downstream scripts. For sweeps, set OUTPUT_LABEL_OVERRIDE or
+# OUTPUT_LABEL_SUFFIX so backend variants do not overwrite each other.
+OUTPUT_LABEL_OVERRIDE = None
+OUTPUT_LABEL_SUFFIX = ""
+
+# Noisy simulator options shared by local_noisy_simple and local_noisy_ibm_model.
+#
+# For the current H4 active space, density_matrix is the most transparent noisy
+# simulator method: it evolves a mixed state under the noise channels and then
+# samples measurement counts. For larger active spaces, "automatic" or
+# "statevector" may be more practical.
+NOISY_SIMULATION_METHOD = "density_matrix"
+TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND = True
+NOISY_TRANSPILE_OPTIMIZATION_LEVEL = 1
+
+# local_noisy_simple parameters. The basis is IBM-like but intentionally small:
+# RZ is virtual and receives no explicit error; X/SX receive one-qubit error;
+# CX receives two-qubit error; measurement receives symmetric readout error.
+SIMPLE_NOISE_BASIS_GATES = ["id", "rz", "sx", "x", "cx"]
+SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY = 1.0e-3
+SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY = 1.0e-2
+SIMPLE_NOISE_READOUT_ERROR_PROBABILITY = 2.0e-2
+SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION = True
+SIMPLE_NOISE_T1_SECONDS = 100.0e-6
+SIMPLE_NOISE_T2_SECONDS = 80.0e-6
+SIMPLE_NOISE_ONE_QUBIT_GATE_TIME_SECONDS = 50.0e-9
+SIMPLE_NOISE_TWO_QUBIT_GATE_TIME_SECONDS = 300.0e-9
+
+# local_noisy_ibm_model parameters.
+#
+# "fake_backend" avoids credentials and is the default for local development.
+# "runtime_backend" uses QiskitRuntimeService and requires the user's IBM
+# account to be configured outside this repository.
+IBM_MODEL_SOURCE = "fake_backend"
+IBM_MODEL_FAKE_BACKEND_CLASS = "FakeBrisbane"
+IBM_MODEL_RUNTIME_BACKEND_NAME = "ibm_brisbane"
+IBM_MODEL_RUNTIME_INSTANCE = None
+
+# Keep True for molecule-scale local simulation. False builds Aer directly from
+# the full IBM backend, which can be useful for target checks but may be far too
+# large for density-matrix simulation if transpilation widens the circuit to the
+# complete device.
+IBM_MODEL_COMPRESS_TO_ACTIVE_SPACE = True
+IBM_MODEL_BASIS_GATES = ["id", "rz", "sx", "x", "ecr"]
+IBM_MODEL_TWO_QUBIT_GATE = "ecr"
 
 # QDRIFT_SEGMENT_COUNT_ND is N_d in the qDRIFT formula. Larger N_d generally
 # gives a better stochastic approximation to exp(-i H t), but each sampled
@@ -151,7 +215,7 @@ BACKEND_MODE = "local_noiseless_statevector"
 # Reasonable first values:
 #   2-8 for quick debugging.
 #   10-100 for serious stochastic convergence experiments.
-QDRIFT_SEGMENT_COUNT_ND = 16
+QDRIFT_SEGMENT_COUNT_ND = 5
 
 # STOCHASTIC_INSTANCES_PER_CORRELATION is the number of independent sampled
 # qDRIFT chunks averaged for each C_k. Larger values reduce stochastic sampling
@@ -160,7 +224,7 @@ QDRIFT_SEGMENT_COUNT_ND = 16
 # Reasonable first values:
 #   1-5 for plumbing checks.
 #   10-100 for convergence studies.
-STOCHASTIC_INSTANCES_PER_CORRELATION = 20
+STOCHASTIC_INSTANCES_PER_CORRELATION = 2000
 
 # STOCHASTIC_WEIGHT_CONVENTION defines the qDRIFT weights w_mu.
 #
@@ -206,6 +270,11 @@ MFE_VERBOSE_FOR_FIRST_NONZERO_POWER = True
 PRINT_CORRELATION_TABLE = True
 
 VALID_UQK_MODES = {"standard", "stochastic"}
+VALID_BACKEND_MODES = {
+    "local_noiseless_statevector",
+    "local_noisy_simple",
+    "local_noisy_ibm_model",
+}
 
 
 def now_utc():
@@ -236,45 +305,22 @@ def operation_counts(circuit):
     return {name: int(count) for name, count in circuit.count_ops().items()}
 
 
-def reference_branch_amplitude(evolution_circuit):
-    """Return r=<vac|V|vac> for the circuit used in one MFE experiment.
-
-    The Cortes-Gray-style MFE arithmetic compares the HF branch to a reference
-    branch. Our reference branch is the computational vacuum. If the supplied
-    evolution circuit V gives the vacuum a deterministic phase, the raw MFE
-    formulas estimate C*r.conjugate(), not C itself. Computing r exactly here
-    lets us restore the physical non-scalar correlation before applying the
-    separate scalar phase.
-    """
-
-    vacuum = Statevector.from_label("0" * evolution_circuit.num_qubits)
-    evolved = vacuum.evolve(evolution_circuit)
-    return complex(np.vdot(vacuum.data, evolved.data))
-
-
-def apply_reference_branch_correction(raw_mfe_value, reference_branch, context):
-    """Convert raw MFE y=C*r^* into C.
-
-    If the reference branch amplitude is a pure phase, this reduces to
-    raw_mfe_value * reference_branch. The division form is more general and is
-    important for stochastic chunks where the Pauli/Trotter circuit may leak
-    some amplitude out of the vacuum branch, so |r| need not be exactly 1.
-    """
-
-    if abs(reference_branch) <= 1.0e-12:
-        raise ValueError(
-            f"Reference branch amplitude is too small for stable correction in "
-            f"{context}: r={reference_branch}."
-        )
-    return raw_mfe_value / np.conjugate(reference_branch)
+def output_label(mode):
+    if OUTPUT_LABEL_OVERRIDE:
+        label = str(OUTPUT_LABEL_OVERRIDE)
+    else:
+        label = str(mode)
+    if OUTPUT_LABEL_SUFFIX:
+        label = f"{label}_{OUTPUT_LABEL_SUFFIX}"
+    return label
 
 
 def output_npz_path(mode):
-    return OUTPUT_DIR / f"h4_{mode}_uqk_overlap_matrix.npz"
+    return OUTPUT_DIR / f"h4_{output_label(mode)}_uqk_overlap_matrix.npz"
 
 
 def output_metadata_path(mode):
-    return OUTPUT_DIR / f"h4_{mode}_uqk_overlap_matrix_metadata.json"
+    return OUTPUT_DIR / f"h4_{output_label(mode)}_uqk_overlap_matrix_metadata.json"
 
 
 def complex_from_record(record):
@@ -295,11 +341,21 @@ def validate_options(circuit_metadata):
         )
     if SHOTS_PER_MFE_EXPERIMENT <= 0:
         raise ValueError("SHOTS_PER_MFE_EXPERIMENT must be positive.")
-    if BACKEND_MODE != "local_noiseless_statevector":
+    if BACKEND_MODE not in VALID_BACKEND_MODES:
         raise ValueError(
-            "This first standard UQK script only implements "
-            "BACKEND_MODE='local_noiseless_statevector'."
+            f"BACKEND_MODE must be one of {sorted(VALID_BACKEND_MODES)}, "
+            f"not {BACKEND_MODE!r}."
         )
+    if NOISY_TRANSPILE_OPTIMIZATION_LEVEL not in {0, 1, 2, 3}:
+        raise ValueError("NOISY_TRANSPILE_OPTIMIZATION_LEVEL must be 0, 1, 2, or 3.")
+    if SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY < 0.0:
+        raise ValueError("Simple one-qubit depolarizing probability must be nonnegative.")
+    if SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY < 0.0:
+        raise ValueError("Simple two-qubit depolarizing probability must be nonnegative.")
+    if not 0.0 <= SIMPLE_NOISE_READOUT_ERROR_PROBABILITY <= 0.5:
+        raise ValueError("Simple readout error probability must be in [0, 0.5].")
+    if IBM_MODEL_SOURCE not in {"fake_backend", "runtime_backend"}:
+        raise ValueError("IBM_MODEL_SOURCE must be 'fake_backend' or 'runtime_backend'.")
     if QDRIFT_SEGMENT_COUNT_ND <= 0:
         raise ValueError("QDRIFT_SEGMENT_COUNT_ND must be positive.")
     if STOCHASTIC_INSTANCES_PER_CORRELATION <= 0:
@@ -345,11 +401,29 @@ def print_startup(circuit_metadata, molecule_metadata):
     print_kv("Trotter order from metadata:", circuit_metadata["options"]["trotter_sequence_order"])
     print_kv("Shots per MFE experiment:", SHOTS_PER_MFE_EXPERIMENT)
     print_kv("Backend mode:", BACKEND_MODE)
+    print_kv("Valid backend modes:", sorted(VALID_BACKEND_MODES))
+    print_kv("Noisy simulator method:", NOISY_SIMULATION_METHOD)
+    print_kv(
+        "Transpile noisy MFE circuits:",
+        TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND,
+    )
+    print_kv("Noisy transpile opt level:", NOISY_TRANSPILE_OPTIMIZATION_LEVEL)
+    print_kv("Simple 1q depol prob:", SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY)
+    print_kv("Simple 2q depol prob:", SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY)
+    print_kv("Simple readout error prob:", SIMPLE_NOISE_READOUT_ERROR_PROBABILITY)
+    print_kv("Simple thermal relaxation:", SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION)
+    print_kv("IBM model source:", IBM_MODEL_SOURCE)
+    print_kv("IBM fake backend class:", IBM_MODEL_FAKE_BACKEND_CLASS)
+    print_kv("IBM runtime backend:", IBM_MODEL_RUNTIME_BACKEND_NAME)
+    print_kv("IBM compact active-space model:", IBM_MODEL_COMPRESS_TO_ACTIVE_SPACE)
+    print_kv("IBM model basis gates:", IBM_MODEL_BASIS_GATES)
     print_kv("qDRIFT segment count N_d:", QDRIFT_SEGMENT_COUNT_ND)
     print_kv("Stochastic instances per C_k:", STOCHASTIC_INSTANCES_PER_CORRELATION)
     print_kv("Stochastic weight convention:", STOCHASTIC_WEIGHT_CONVENTION)
     print_kv("Random seed:", RANDOM_SEED)
     print_kv("Enforce C0 exact:", ENFORCE_C0_EXACT)
+    print_kv("Output label override:", OUTPUT_LABEL_OVERRIDE)
+    print_kv("Output label suffix:", OUTPUT_LABEL_SUFFIX)
     print_kv("Output NPZ:", output_npz_path(UQK_MODE))
     print_kv("Output metadata JSON:", output_metadata_path(UQK_MODE))
 
@@ -368,9 +442,12 @@ def print_startup(circuit_metadata, molecule_metadata):
     print(
         "For each k, V_k is the composed circuit U^k. The MFE templates estimate\n"
         "the HF branch relative to the vacuum reference branch using F1,\n"
-        "F2_plus, and F2_i return counts. If r_k=<vac|V_k|vac>, the raw MFE\n"
-        "estimate is y_k=C_k*r_k^*. The script stores C_k=y_k/r_k^* before\n"
-        "applying the separate scalar phase exp(-i E_scalar*k*dt).\n"
+        "F2_plus, and F2_i return counts. The raw MFE estimate is kept as the\n"
+        "non-scalar correlation. This is deliberate: identity Pauli terms inside\n"
+        "normal-ordered non-scalar groups appear as unmeasurable circuit global\n"
+        "phases, and the vacuum-reference MFE construction cancels the matching\n"
+        "reference phase. The script only applies the separate zero-body scalar\n"
+        "phase exp(-i E_scalar*k*dt) analytically.\n"
         "C_0 is physically exactly 1. This script still measures the identity\n"
         "case for diagnostics, then stores C_0 = 1 when ENFORCE_C0_EXACT=True.\n"
         "Negative powers are not measured: S_mn uses C_-k = conj(C_k)."
@@ -387,7 +464,9 @@ def print_startup(circuit_metadata, molecule_metadata):
             "STOCHASTIC UQK: each C_k uses several independently sampled qDRIFT "
             "instances. A sampled instance chooses non-scalar grouped indices "
             "with p_mu=w_mu/lambda, rebuilds normalized grouped Pauli circuits "
-            "at theta_k=lambda*k*dt/N_d, runs MFE, and averages the resulting z."
+            "at theta_k=lambda*k*dt/N_d, runs MFE, and averages the raw "
+            "counts-derived MFE statistics. It does not apply a per-sample "
+            "reference-branch correction."
         )
 
 
@@ -429,8 +508,17 @@ def print_user_option_guide():
     )
     print(
         "BACKEND_MODE:\n"
-        "  local_noiseless_statevector is the only implemented option here. It uses\n"
-        "  Aer shot sampling without credentials, noise models, or hardware jobs.\n"
+        "  local_noiseless_statevector -> Aer shot sampling without noise.\n"
+        "  local_noisy_simple         -> compact hand-tuned depolarizing/readout noise.\n"
+        "  local_noisy_ibm_model      -> IBM-style fake/runtime backend noise model.\n"
+    )
+    print(
+        "Noisy backend notes:\n"
+        "  local_noisy_simple is deliberately reproducible and easy to sweep.\n"
+        "  local_noisy_ibm_model defaults to a FakeBrisbane-derived compact model\n"
+        "  on the active-space qubits, avoiding accidental full-device density\n"
+        "  matrix simulation. Set IBM_MODEL_COMPRESS_TO_ACTIVE_SPACE=False only\n"
+        "  when you intentionally want AerSimulator.from_backend(target_backend).\n"
     )
 
 
@@ -711,17 +799,357 @@ def build_stochastic_qdrift_instance(
     return circuit, history
 
 
-def build_backend():
+def mean_or_default(values, default):
+    values = [float(value) for value in values if value is not None]
+    if not values:
+        return float(default)
+    return float(np.mean(values))
+
+
+def backend_name(backend):
+    name = getattr(backend, "name", None)
+    if callable(name):
+        return str(name())
+    if name is None:
+        return str(type(backend).__name__)
+    return str(name)
+
+
+def target_property_values(target_backend, operation_name, attribute_name):
+    """Collect Target InstructionProperties values when available."""
+
+    target = getattr(target_backend, "target", None)
+    if target is None or operation_name not in getattr(target, "operation_names", []):
+        return []
+    values = []
+    for properties in target[operation_name].values():
+        if properties is None:
+            continue
+        value = getattr(properties, attribute_name, None)
+        if value is not None:
+            values.append(float(value))
+    return values
+
+
+def mean_qubit_property(target_backend, attribute_name, default):
+    if not hasattr(target_backend, "qubit_properties"):
+        return float(default)
+    num_qubits = int(getattr(target_backend, "num_qubits", 0) or 0)
+    values = []
+    for qubit in range(num_qubits):
+        try:
+            properties = target_backend.qubit_properties(qubit)
+        except Exception:
+            continue
+        value = getattr(properties, attribute_name, None)
+        if value is not None:
+            values.append(float(value))
+    return mean_or_default(values, default)
+
+
+def build_depolarizing_thermal_error(
+    depolarizing_probability,
+    num_qubits,
+    t1_seconds,
+    t2_seconds,
+    gate_time_seconds,
+    include_thermal_relaxation,
+):
+    """Build a compact gate error used by the local noisy simulator modes.
+
+    The depolarizing term controls stochastic Pauli-like gate error. The thermal
+    term gives the model a rough T1/T2 time scale. The implementation is
+    intentionally all-qubit averaged because these local simulation modes target
+    active-space studies, not full-device calibration replay.
+    """
+
+    error = depolarizing_error(float(depolarizing_probability), int(num_qubits))
+    if not include_thermal_relaxation:
+        return error
+
+    # Qiskit's thermal channel requires T2 <= 2*T1. Real backend loaders handle
+    # this internally; for our compact averaged model we enforce the same
+    # physical constraint before constructing the channel.
+    t1 = float(t1_seconds)
+    t2 = min(float(t2_seconds), 2.0 * t1)
+    gate_time = float(gate_time_seconds)
+    one_qubit_thermal = thermal_relaxation_error(t1, t2, gate_time)
+    thermal = one_qubit_thermal
+    for _ in range(1, int(num_qubits)):
+        thermal = thermal.tensor(one_qubit_thermal)
+    return error.compose(thermal)
+
+
+def add_symmetric_readout_error(noise_model, probability):
+    probability = float(probability)
+    if probability <= 0.0:
+        return
+    readout_error = ReadoutError(
+        [
+            [1.0 - probability, probability],
+            [probability, 1.0 - probability],
+        ]
+    )
+    noise_model.add_all_qubit_readout_error(readout_error)
+
+
+def build_simple_noise_model():
+    noise_model = NoiseModel(basis_gates=SIMPLE_NOISE_BASIS_GATES)
+    one_qubit_error = build_depolarizing_thermal_error(
+        SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY,
+        1,
+        SIMPLE_NOISE_T1_SECONDS,
+        SIMPLE_NOISE_T2_SECONDS,
+        SIMPLE_NOISE_ONE_QUBIT_GATE_TIME_SECONDS,
+        SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION,
+    )
+    two_qubit_error = build_depolarizing_thermal_error(
+        SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY,
+        2,
+        SIMPLE_NOISE_T1_SECONDS,
+        SIMPLE_NOISE_T2_SECONDS,
+        SIMPLE_NOISE_TWO_QUBIT_GATE_TIME_SECONDS,
+        SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION,
+    )
+
+    # RZ is virtual in this basis, so it intentionally receives no explicit
+    # quantum error. Measurement noise is added separately below.
+    noise_model.add_all_qubit_quantum_error(one_qubit_error, ["id", "sx", "x"])
+    noise_model.add_all_qubit_quantum_error(two_qubit_error, ["cx"])
+    add_symmetric_readout_error(
+        noise_model,
+        SIMPLE_NOISE_READOUT_ERROR_PROBABILITY,
+    )
+    metadata = {
+        "model_kind": "simple_all_qubit_noise",
+        "basis_gates": list(SIMPLE_NOISE_BASIS_GATES),
+        "one_qubit_depolarizing_probability": (
+            SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY
+        ),
+        "two_qubit_depolarizing_probability": (
+            SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY
+        ),
+        "readout_error_probability": SIMPLE_NOISE_READOUT_ERROR_PROBABILITY,
+        "include_thermal_relaxation": SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION,
+        "t1_seconds": SIMPLE_NOISE_T1_SECONDS,
+        "t2_seconds": SIMPLE_NOISE_T2_SECONDS,
+        "one_qubit_gate_time_seconds": SIMPLE_NOISE_ONE_QUBIT_GATE_TIME_SECONDS,
+        "two_qubit_gate_time_seconds": SIMPLE_NOISE_TWO_QUBIT_GATE_TIME_SECONDS,
+    }
+    return noise_model, metadata
+
+
+def load_ibm_model_target_backend():
+    if IBM_MODEL_SOURCE == "fake_backend":
+        import qiskit_ibm_runtime.fake_provider as fake_provider
+
+        backend_class = getattr(fake_provider, IBM_MODEL_FAKE_BACKEND_CLASS)
+        return backend_class()
+
+    from qiskit_ibm_runtime import QiskitRuntimeService
+
+    if IBM_MODEL_RUNTIME_INSTANCE:
+        service = QiskitRuntimeService(instance=IBM_MODEL_RUNTIME_INSTANCE)
+    else:
+        service = QiskitRuntimeService()
+    return service.backend(IBM_MODEL_RUNTIME_BACKEND_NAME)
+
+
+def build_compact_ibm_noise_model(target_backend):
+    """Build an active-space-sized IBM-style model from target averages."""
+
+    noise_model = NoiseModel(basis_gates=IBM_MODEL_BASIS_GATES)
+    target_name = backend_name(target_backend)
+    t1 = mean_qubit_property(target_backend, "t1", SIMPLE_NOISE_T1_SECONDS)
+    t2 = mean_qubit_property(target_backend, "t2", SIMPLE_NOISE_T2_SECONDS)
+    readout_probability = mean_or_default(
+        target_property_values(target_backend, "measure", "error"),
+        SIMPLE_NOISE_READOUT_ERROR_PROBABILITY,
+    )
+
+    one_qubit_error_by_gate = {}
+    one_qubit_time_by_gate = {}
+    for gate_name in ["id", "sx", "x"]:
+        one_qubit_error_by_gate[gate_name] = mean_or_default(
+            target_property_values(target_backend, gate_name, "error"),
+            SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY,
+        )
+        one_qubit_time_by_gate[gate_name] = mean_or_default(
+            target_property_values(target_backend, gate_name, "duration"),
+            SIMPLE_NOISE_ONE_QUBIT_GATE_TIME_SECONDS,
+        )
+
+    two_qubit_probability = mean_or_default(
+        target_property_values(target_backend, IBM_MODEL_TWO_QUBIT_GATE, "error"),
+        SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY,
+    )
+    two_qubit_gate_time = mean_or_default(
+        target_property_values(target_backend, IBM_MODEL_TWO_QUBIT_GATE, "duration"),
+        SIMPLE_NOISE_TWO_QUBIT_GATE_TIME_SECONDS,
+    )
+
+    for gate_name in ["id", "sx", "x"]:
+        gate_error = build_depolarizing_thermal_error(
+            one_qubit_error_by_gate[gate_name],
+            1,
+            t1,
+            t2,
+            one_qubit_time_by_gate[gate_name],
+            include_thermal_relaxation=True,
+        )
+        noise_model.add_all_qubit_quantum_error(gate_error, [gate_name])
+
+    two_qubit_error = build_depolarizing_thermal_error(
+        two_qubit_probability,
+        2,
+        t1,
+        t2,
+        two_qubit_gate_time,
+        include_thermal_relaxation=True,
+    )
+    noise_model.add_all_qubit_quantum_error(
+        two_qubit_error,
+        [IBM_MODEL_TWO_QUBIT_GATE],
+    )
+    add_symmetric_readout_error(noise_model, readout_probability)
+
+    metadata = {
+        "model_kind": "ibm_target_averaged_active_space_noise",
+        "target_backend_name": target_name,
+        "target_backend_num_qubits": int(getattr(target_backend, "num_qubits", 0) or 0),
+        "target_source": IBM_MODEL_SOURCE,
+        "fake_backend_class": IBM_MODEL_FAKE_BACKEND_CLASS,
+        "runtime_backend_name": IBM_MODEL_RUNTIME_BACKEND_NAME,
+        "runtime_instance": IBM_MODEL_RUNTIME_INSTANCE,
+        "compressed_to_active_space": True,
+        "basis_gates": list(IBM_MODEL_BASIS_GATES),
+        "two_qubit_gate": IBM_MODEL_TWO_QUBIT_GATE,
+        "mean_t1_seconds": t1,
+        "mean_t2_seconds": t2,
+        "mean_readout_error_probability": readout_probability,
+        "mean_one_qubit_error_by_gate": one_qubit_error_by_gate,
+        "mean_one_qubit_gate_time_seconds_by_gate": one_qubit_time_by_gate,
+        "mean_two_qubit_error_probability": two_qubit_probability,
+        "mean_two_qubit_gate_time_seconds": two_qubit_gate_time,
+        "note": (
+            "This compact model derives average rates from the selected IBM "
+            "target and applies them to all active-space qubits. It is intended "
+            "for molecule-scale local simulation, not full-device calibration "
+            "replay with a hardware coupling map."
+        ),
+    }
+    return noise_model, metadata
+
+
+def build_backend(num_qubits):
     if BACKEND_MODE == "local_noiseless_statevector":
-        return AerSimulator(method="statevector", seed_simulator=RANDOM_SEED)
+        backend = AerSimulator(method="statevector", seed_simulator=RANDOM_SEED)
+        return backend, {
+            "backend_mode": BACKEND_MODE,
+            "simulator_method": "statevector",
+            "noise_model": None,
+            "final_mfe_transpilation": False,
+        }
+
+    if BACKEND_MODE == "local_noisy_simple":
+        noise_model, noise_metadata = build_simple_noise_model()
+        backend = AerSimulator(
+            method=NOISY_SIMULATION_METHOD,
+            noise_model=noise_model,
+            basis_gates=SIMPLE_NOISE_BASIS_GATES,
+            seed_simulator=RANDOM_SEED,
+        )
+        return backend, {
+            "backend_mode": BACKEND_MODE,
+            "simulator_method": NOISY_SIMULATION_METHOD,
+            "noise_model": noise_metadata,
+            "active_space_num_qubits": int(num_qubits),
+            "final_mfe_transpilation": TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND,
+            "final_mfe_transpile_optimization_level": (
+                NOISY_TRANSPILE_OPTIMIZATION_LEVEL
+            ),
+        }
+
+    if BACKEND_MODE == "local_noisy_ibm_model":
+        target_backend = load_ibm_model_target_backend()
+        if IBM_MODEL_COMPRESS_TO_ACTIVE_SPACE:
+            noise_model, noise_metadata = build_compact_ibm_noise_model(
+                target_backend
+            )
+            backend = AerSimulator(
+                method=NOISY_SIMULATION_METHOD,
+                noise_model=noise_model,
+                basis_gates=IBM_MODEL_BASIS_GATES,
+                seed_simulator=RANDOM_SEED,
+            )
+            return backend, {
+                "backend_mode": BACKEND_MODE,
+                "simulator_method": NOISY_SIMULATION_METHOD,
+                "noise_model": noise_metadata,
+                "active_space_num_qubits": int(num_qubits),
+                "final_mfe_transpilation": TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND,
+                "final_mfe_transpile_optimization_level": (
+                    NOISY_TRANSPILE_OPTIMIZATION_LEVEL
+                ),
+            }
+
+        backend = AerSimulator.from_backend(
+            target_backend,
+            method=NOISY_SIMULATION_METHOD,
+            seed_simulator=RANDOM_SEED,
+        )
+        return backend, {
+            "backend_mode": BACKEND_MODE,
+            "simulator_method": NOISY_SIMULATION_METHOD,
+            "noise_model": {
+                "model_kind": "aer_simulator_from_backend",
+                "target_backend_name": backend_name(target_backend),
+                "target_backend_num_qubits": int(
+                    getattr(target_backend, "num_qubits", 0) or 0
+                ),
+                "target_source": IBM_MODEL_SOURCE,
+                "fake_backend_class": IBM_MODEL_FAKE_BACKEND_CLASS,
+                "runtime_backend_name": IBM_MODEL_RUNTIME_BACKEND_NAME,
+                "runtime_instance": IBM_MODEL_RUNTIME_INSTANCE,
+                "compressed_to_active_space": False,
+                "note": (
+                    "AerSimulator.from_backend was used directly. Be careful "
+                    "with density_matrix simulations because final transpilation "
+                    "to a full device target can widen a small active-space "
+                    "circuit to the full hardware qubit count."
+                ),
+            },
+            "active_space_num_qubits": int(num_qubits),
+            "final_mfe_transpilation": TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND,
+            "final_mfe_transpile_optimization_level": (
+                NOISY_TRANSPILE_OPTIMIZATION_LEVEL
+            ),
+        }
     raise ValueError(f"Unsupported BACKEND_MODE={BACKEND_MODE!r}.")
+
+
+def maybe_transpile_mfe_circuits(backend, circuits):
+    if BACKEND_MODE == "local_noiseless_statevector":
+        return circuits
+    if not TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND:
+        return circuits
+    return transpile(
+        circuits,
+        backend=backend,
+        optimization_level=NOISY_TRANSPILE_OPTIMIZATION_LEVEL,
+        seed_transpiler=RANDOM_SEED,
+    )
 
 
 def run_mfe_for_power(backend, power_circuit, occupation, hf_count_key, verbose):
     templates = build_mfe_templates(power_circuit, occupation, verbose=verbose)
     labels = [F1_LABEL, F2_PLUS_LABEL, F2_I_LABEL]
     circuits = [templates[label] for label in labels]
-    result = backend.run(circuits, shots=SHOTS_PER_MFE_EXPERIMENT).result()
+    execution_circuits = maybe_transpile_mfe_circuits(backend, circuits)
+    result = backend.run(
+        execution_circuits,
+        shots=SHOTS_PER_MFE_EXPERIMENT,
+    ).result()
     counts_by_label = {
         label: {key: int(value) for key, value in result.get_counts(index).items()}
         for index, label in enumerate(labels)
@@ -734,6 +1162,14 @@ def run_mfe_for_power(backend, power_circuit, occupation, hf_count_key, verbose)
     }
     depths = {label: int(circuit.depth()) for label, circuit in templates.items()}
     ops = {label: operation_counts(circuit) for label, circuit in templates.items()}
+    execution_depths = {
+        label: int(circuit.depth())
+        for label, circuit in zip(labels, execution_circuits)
+    }
+    execution_ops = {
+        label: operation_counts(circuit)
+        for label, circuit in zip(labels, execution_circuits)
+    }
     return {
         "counts": counts_by_label,
         "fidelities": fidelities,
@@ -744,6 +1180,11 @@ def run_mfe_for_power(backend, power_circuit, occupation, hf_count_key, verbose)
         },
         "template_depths": depths,
         "template_operation_counts": ops,
+        "execution_template_depths": execution_depths,
+        "execution_template_operation_counts": execution_ops,
+        "final_mfe_transpiled_for_backend": bool(
+            execution_circuits is not circuits
+        ),
     }
 
 
@@ -796,20 +1237,15 @@ def standard_record_for_power(
         hf_count_key,
         verbose=verbose,
     )
-    # Raw MFE gives y=<HF|V|HF>*r.conjugate() when the vacuum reference branch
-    # amplitude r=<vac|V|vac> is not 1. Restore the physical non-scalar
-    # correlation with the general relation C = y/r.conjugate(). If r is a pure
-    # phase this equals y*r, but stochastic qDRIFT chunks can have |r| != 1, so
-    # the division form is the one we want to see and audit in the code.
-    # The scalar h_o phase is handled later in main(), so this returned value is
-    # still the non-scalar C_k only.
+    # Keep the raw MFE estimate as the physical non-scalar correlation. The
+    # saved Qiskit circuits may omit identity Pauli terms as unobservable global
+    # phases, but the MFE superposition experiment measures the HF branch
+    # relative to the vacuum branch. For normal-ordered non-scalar molecular
+    # terms, that raw reference-frame estimate restores the identity/Z vacuum
+    # cancellation that the bare circuit cannot reveal by measurement. The
+    # zero-body scalar h_o is the only phase handled separately in main().
     raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
-    reference_branch = reference_branch_amplitude(power_circuit)
-    measured_value = apply_reference_branch_correction(
-        raw_mfe_value,
-        reference_branch,
-        f"standard power {power}",
-    )
+    measured_value = raw_mfe_value
     record.update(
         {
             "mode": "standard",
@@ -819,13 +1255,11 @@ def standard_record_for_power(
                 "real": float(raw_mfe_value.real),
                 "imag": float(raw_mfe_value.imag),
             },
-            "reference_branch_amplitude": {
-                "real": float(reference_branch.real),
-                "imag": float(reference_branch.imag),
-                "abs": float(abs(reference_branch)),
-                "phase_radians": float(np.angle(reference_branch)),
-            },
-            "reference_branch_corrected_non_scalar_correlation": {
+            "mfe_reference_policy": (
+                "Use raw MFE y as the non-scalar correlation; do not divide by "
+                "<vac|V|vac> from a simulator or full-Trotter reference circuit."
+            ),
+            "raw_mfe_non_scalar_correlation": {
                 "real": float(measured_value.real),
                 "imag": float(measured_value.imag),
             },
@@ -863,12 +1297,7 @@ def stochastic_record_for_power(
             verbose=False,
         )
         raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
-        reference_branch = reference_branch_amplitude(identity)
-        measured_value = apply_reference_branch_correction(
-            raw_mfe_value,
-            reference_branch,
-            "stochastic power 0 identity",
-        )
+        measured_value = raw_mfe_value
         record.update(
             {
                 "mode": "stochastic",
@@ -880,13 +1309,11 @@ def stochastic_record_for_power(
                     "real": float(raw_mfe_value.real),
                     "imag": float(raw_mfe_value.imag),
                 },
-                "reference_branch_amplitude": {
-                    "real": float(reference_branch.real),
-                    "imag": float(reference_branch.imag),
-                    "abs": float(abs(reference_branch)),
-                    "phase_radians": float(np.angle(reference_branch)),
-                },
-                "reference_branch_corrected_non_scalar_correlation": {
+                "mfe_reference_policy": (
+                    "Use raw MFE y as the non-scalar qDRIFT correlation; no "
+                    "per-instance reference-branch correction is applied."
+                ),
+                "raw_mfe_non_scalar_correlation": {
                     "real": float(measured_value.real),
                     "imag": float(measured_value.imag),
                 },
@@ -936,21 +1363,16 @@ def stochastic_record_for_power(
             hf_count_key,
             verbose=verbose,
         )
-        # Each stochastic qDRIFT chunk is a different circuit, so each sample
-        # has its own reference branch r_omega=<vac|V_omega|vac>. The raw MFE
-        # estimate for that chunk is y_omega=C_omega*r_omega.conjugate().
-        # Correct each sampled instance before averaging. This matters more
-        # here than in standard UQK because a sampled qDRIFT chunk is not
-        # guaranteed to keep the vacuum branch as a unit-magnitude phase.
+        # qDRIFT is a randomized channel: in the hardware workflow, each shot
+        # would use a sampled circuit and then we forget the random label. The
+        # MFE estimator must therefore average the measured F1/F2 statistics (or
+        # equivalently the raw y_omega values for equal shot counts). Do not
+        # divide each sample by its own <vac|V_omega|vac>; that would reinsert a
+        # random circuit/global phase and would estimate a different coherent
+        # object, not the qDRIFT mixed-channel measurement.
         raw_mfe_value = complex(
             instance_record["estimate"]["real"],
             instance_record["estimate"]["imag"],
-        )
-        reference_branch = reference_branch_amplitude(chunk)
-        corrected_value = apply_reference_branch_correction(
-            raw_mfe_value,
-            reference_branch,
-            f"stochastic power {power} sample {instance_index}",
         )
         instance_record.update(
             {
@@ -963,44 +1385,20 @@ def stochastic_record_for_power(
                     "real": float(raw_mfe_value.real),
                     "imag": float(raw_mfe_value.imag),
                 },
-                "reference_branch_amplitude": {
-                    "real": float(reference_branch.real),
-                    "imag": float(reference_branch.imag),
-                    "abs": float(abs(reference_branch)),
-                    "phase_radians": float(np.angle(reference_branch)),
-                },
-                "reference_branch_corrected_non_scalar_correlation": {
-                    "real": float(corrected_value.real),
-                    "imag": float(corrected_value.imag),
-                    "abs": float(abs(corrected_value)),
-                },
+                "mfe_reference_policy": "raw qDRIFT MFE sample; no per-sample reference correction",
             }
         )
         instance_records.append(instance_record)
         sampled_group_histories.append(history)
 
-    raw_mean_value = average_estimate(instance_records)
-    corrected_values = np.array(
-        [
-            complex(
-                record["reference_branch_corrected_non_scalar_correlation"]["real"],
-                record["reference_branch_corrected_non_scalar_correlation"]["imag"],
-            )
-            for record in instance_records
-        ],
-        dtype=np.complex128,
+    raw_instance_mean_value = average_estimate(instance_records)
+    summed_counts = count_totals_by_label(instance_records)
+    aggregate_estimate = estimate_z_from_counts(
+        summed_counts,
+        hf_count_key,
+        verbose=False,
     )
-    measured_value = complex(np.mean(corrected_values))
-    reference_values = np.array(
-        [
-            complex(
-                record["reference_branch_amplitude"]["real"],
-                record["reference_branch_amplitude"]["imag"],
-            )
-            for record in instance_records
-        ],
-        dtype=np.complex128,
-    )
+    measured_value = complex(aggregate_estimate.real, aggregate_estimate.imag)
     max_depth = max(record["chunk_depth"] for record in instance_records)
     mean_depth = float(np.mean([record["chunk_depth"] for record in instance_records]))
     record = {
@@ -1015,29 +1413,36 @@ def stochastic_record_for_power(
         "power_circuit_operation_counts": {
             "note": "See per-instance chunk_operation_counts for stochastic mode."
         },
-        "counts": count_totals_by_label(instance_records),
-        "fidelities": average_fidelities(instance_records),
+        "counts": summed_counts,
+        "fidelities": {
+            "F1": aggregate_estimate.f1,
+            "F2_plus": aggregate_estimate.f2_plus,
+            "F2_i": aggregate_estimate.f2_i,
+        },
         "estimate": {
             "real": float(measured_value.real),
             "imag": float(measured_value.imag),
             "abs": float(abs(measured_value)),
         },
         "raw_mfe_relative_correlation_mean": {
-            "real": float(raw_mean_value.real),
-            "imag": float(raw_mean_value.imag),
-            "abs": float(abs(raw_mean_value)),
-        },
-        "reference_branch_corrected_non_scalar_correlation": {
             "real": float(measured_value.real),
             "imag": float(measured_value.imag),
             "abs": float(abs(measured_value)),
         },
-        "reference_branch_amplitude_mean": {
-            "real": float(np.mean(reference_values).real),
-            "imag": float(np.mean(reference_values).imag),
-            "abs_mean": float(np.mean(np.abs(reference_values))),
-            "phase_radians_mean": float(np.mean(np.angle(reference_values))),
+        "raw_mfe_relative_correlation_instance_mean": {
+            "real": float(raw_instance_mean_value.real),
+            "imag": float(raw_instance_mean_value.imag),
+            "abs": float(abs(raw_instance_mean_value)),
         },
+        "raw_mfe_non_scalar_correlation": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "mfe_reference_policy": (
+            "Aggregate raw qDRIFT MFE counts/statistics across sampled circuits; "
+            "do not apply per-instance <vac|V_omega|vac> correction."
+        ),
         "template_depths": {
             "note": "See per-instance template_depths for stochastic mode."
         },
@@ -1047,7 +1452,7 @@ def stochastic_record_for_power(
         "sampled_group_histories": sampled_group_histories,
         "instance_records": instance_records,
         "mean_fidelities": average_fidelities(instance_records),
-        "summed_counts": count_totals_by_label(instance_records),
+        "summed_counts": summed_counts,
     }
     return measured_value, record
 
@@ -1157,7 +1562,14 @@ def main():
     )
     print_qdrift_circuit_structure(sampling_model, dt)
 
-    backend = build_backend()
+    backend, backend_metadata = build_backend(num_qubits)
+    print_header("Backend Summary")
+    print_kv("Backend mode:", BACKEND_MODE)
+    print_kv("Backend object:", backend_name(backend))
+    print_kv("Simulator method:", backend_metadata["simulator_method"])
+    print_kv("Noise model:", backend_metadata["noise_model"])
+    print_kv("Final MFE transpilation:", backend_metadata["final_mfe_transpilation"])
+
     rng = np.random.default_rng(RANDOM_SEED)
     measured_correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
     stored_correlations = np.zeros(MAX_CORRELATION_POWER + 1, dtype=np.complex128)
@@ -1197,14 +1609,20 @@ def main():
 
         measured_correlations[power] = measured_value
         stored_correlations[power] = stored_value
+        reference_policy = (
+            "raw_mfe_vacuum_reference_no_per_circuit_correction"
+        )
         record.update(
             {
                 "total_time": float(total_time),
                 "scalar_energy": float(sampling_model["scalar_energy"]),
-                "reference_branch_correction_applied": True,
-                "reference_branch_correction_formula": (
-                    "raw MFE y_k = C_k_non_scalar * r_k^*; "
-                    "reference-corrected C_k_non_scalar = y_k / r_k^*"
+                "reference_branch_correction_applied": False,
+                "mfe_reference_policy": reference_policy,
+                "mfe_reference_formula": (
+                    "Store raw MFE y_k as the non-scalar correlation measured "
+                    "relative to the vacuum branch. Do not divide by a simulated "
+                    "<vac|V_k|vac> or by per-sampled qDRIFT reference phases. "
+                    "Apply only the zero-body scalar phase analytically."
                 ),
                 "scalar_phase_applied_analytically": {
                     "real": float(scalar_phase.real),
@@ -1231,25 +1649,16 @@ def main():
                 record["raw_mfe_relative_correlation"]["real"],
                 record["raw_mfe_relative_correlation"]["imag"],
             )
-            r_for_print = complex(
-                record["reference_branch_amplitude"]["real"],
-                record["reference_branch_amplitude"]["imag"],
-            )
         else:
             raw_for_print = complex(
                 record["raw_mfe_relative_correlation_mean"]["real"],
                 record["raw_mfe_relative_correlation_mean"]["imag"],
             )
-            r_for_print = complex(
-                record["reference_branch_amplitude_mean"]["real"],
-                record["reference_branch_amplitude_mean"]["imag"],
-            )
         print(
             f"C_{power} raw MFE y = {raw_for_print.real:+.8f}"
             f"{raw_for_print.imag:+.8f}j; "
-            f"reference r = {r_for_print.real:+.8f}"
-            f"{r_for_print.imag:+.8f}j; "
-            f"corrected non-scalar = {non_scalar_measured_value.real:+.8f}"
+            "reference correction = not applied; "
+            f"non-scalar estimator = {non_scalar_measured_value.real:+.8f}"
             f"{non_scalar_measured_value.imag:+.8f}j; "
             f"scalar phase = {scalar_phase.real:+.8f}"
             f"{scalar_phase.imag:+.8f}j; "
@@ -1306,6 +1715,46 @@ def main():
             "trotter_order": int(circuit_metadata["options"]["trotter_sequence_order"]),
             "shots_per_mfe_experiment": SHOTS_PER_MFE_EXPERIMENT,
             "backend_mode": BACKEND_MODE,
+            "valid_backend_modes": sorted(VALID_BACKEND_MODES),
+            "output_label_override": OUTPUT_LABEL_OVERRIDE,
+            "output_label_suffix": OUTPUT_LABEL_SUFFIX,
+            "noisy_simulation_method": NOISY_SIMULATION_METHOD,
+            "transpile_mfe_circuits_for_noisy_backend": (
+                TRANSPILE_MFE_CIRCUITS_FOR_NOISY_BACKEND
+            ),
+            "noisy_transpile_optimization_level": (
+                NOISY_TRANSPILE_OPTIMIZATION_LEVEL
+            ),
+            "simple_noise_basis_gates": SIMPLE_NOISE_BASIS_GATES,
+            "simple_noise_one_qubit_depolarizing_probability": (
+                SIMPLE_NOISE_ONE_QUBIT_DEPOLARIZING_PROBABILITY
+            ),
+            "simple_noise_two_qubit_depolarizing_probability": (
+                SIMPLE_NOISE_TWO_QUBIT_DEPOLARIZING_PROBABILITY
+            ),
+            "simple_noise_readout_error_probability": (
+                SIMPLE_NOISE_READOUT_ERROR_PROBABILITY
+            ),
+            "simple_noise_include_thermal_relaxation": (
+                SIMPLE_NOISE_INCLUDE_THERMAL_RELAXATION
+            ),
+            "simple_noise_t1_seconds": SIMPLE_NOISE_T1_SECONDS,
+            "simple_noise_t2_seconds": SIMPLE_NOISE_T2_SECONDS,
+            "simple_noise_one_qubit_gate_time_seconds": (
+                SIMPLE_NOISE_ONE_QUBIT_GATE_TIME_SECONDS
+            ),
+            "simple_noise_two_qubit_gate_time_seconds": (
+                SIMPLE_NOISE_TWO_QUBIT_GATE_TIME_SECONDS
+            ),
+            "ibm_model_source": IBM_MODEL_SOURCE,
+            "ibm_model_fake_backend_class": IBM_MODEL_FAKE_BACKEND_CLASS,
+            "ibm_model_runtime_backend_name": IBM_MODEL_RUNTIME_BACKEND_NAME,
+            "ibm_model_runtime_instance": IBM_MODEL_RUNTIME_INSTANCE,
+            "ibm_model_compress_to_active_space": (
+                IBM_MODEL_COMPRESS_TO_ACTIVE_SPACE
+            ),
+            "ibm_model_basis_gates": IBM_MODEL_BASIS_GATES,
+            "ibm_model_two_qubit_gate": IBM_MODEL_TWO_QUBIT_GATE,
             "qdrift_segment_count_Nd": QDRIFT_SEGMENT_COUNT_ND,
             "stochastic_instances_per_correlation": STOCHASTIC_INSTANCES_PER_CORRELATION,
             "stochastic_weight_convention": STOCHASTIC_WEIGHT_CONVENTION,
@@ -1322,7 +1771,9 @@ def main():
             "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
             "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i. In stochastic mode this is per sampled instance.",
             "backend_mode": {
-                "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware."
+                "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware.",
+                "local_noisy_simple": "Aer noisy simulator with compact hand-controlled depolarizing, thermal, and readout noise.",
+                "local_noisy_ibm_model": "Aer noisy simulator with IBM fake/runtime backend-derived noise. The default compresses target averages to the active-space qubit count.",
             },
             "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
             "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
@@ -1350,6 +1801,7 @@ def main():
             "source_depth_statistics": circuit_metadata.get("depth_statistics"),
             "source_target": circuit_metadata.get("target"),
         },
+        "backend": backend_metadata,
         "stochastic_sampling": {
             "mode": UQK_MODE == "stochastic",
             "sampled_non_scalar_groups": len(sampling_model["entries"]),
@@ -1408,7 +1860,7 @@ def main():
             ),
             "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
             "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
-            "No IBM credentials or QPU backend are used in this script.",
+            "The local_noisy_ibm_model mode uses a local Aer simulator. Runtime credentials are only needed if IBM_MODEL_SOURCE='runtime_backend'.",
         ],
     }
     with output_metadata.open("w", encoding="utf-8") as handle:
