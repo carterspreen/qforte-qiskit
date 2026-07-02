@@ -36,9 +36,9 @@
     "hermitian_pairs_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_hermitian_pairs.json",
     "manifest_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/workflow_manifest.json",
     "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
-    "uqk_gep_summary_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_gep_summary.json",
-    "uqk_overlap_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix_metadata.json",
-    "uqk_overlap_npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots_uqk_overlap_matrix.npz"
+    "uqk_gep_summary_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/summaries/diatomic_h2_sto_3g_exact_stochastic_exact_mfe_uqk_gep_summary.json",
+    "uqk_overlap_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_exact_stochastic_exact_mfe_uqk_overlap_matrix_metadata.json",
+    "uqk_overlap_npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/results/h4_diatomic_h2_sto_3g_exact_stochastic_exact_mfe_uqk_overlap_matrix.npz"
   },
   "grouped_pauli_diagnostics": {
     "grouped_pauli_groups": 13,
@@ -125,7 +125,7 @@
     "trotter_sequence_order": 1
   },
   "schema_version": 1,
-  "updated_at_utc": "2026-06-24T20:38:32.771649Z",
+  "updated_at_utc": "2026-07-01T17:51:50.592818Z",
   "uqk_gep_options": {
     "dt": 0.1,
     "effective_overlap_eigenvalue_threshold": 1e-15,
@@ -156,9 +156,9 @@
     "mfe_verbose_for_first_nonzero_power": false,
     "noisy_simulation_method": "density_matrix",
     "noisy_transpile_optimization_level": 1,
-    "output_label_override": "diatomic_h2_sto_3g_standard_local_noiseless_statevector_20000_shots",
+    "output_label_override": "diatomic_h2_sto_3g_exact_stochastic_exact_mfe",
     "output_label_suffix": "",
-    "qdrift_segment_count_Nd": 50,
+    "qdrift_segment_count_Nd": 1,
     "random_seed": 230623,
     "shots_per_mfe_experiment": 20000,
     "simple_noise_basis_gates": [
@@ -180,13 +180,15 @@
     "stochastic_weight_convention": "group_pauli_l1_norm",
     "transpile_mfe_circuits_for_noisy_backend": true,
     "trotter_order": 1,
-    "uqk_mode": "standard",
+    "uqk_mode": "exact_stochastic",
     "valid_backend_modes": [
       "local_noiseless_statevector",
       "local_noisy_ibm_model",
       "local_noisy_simple"
     ],
     "valid_uqk_modes": [
+      "exact_stochastic",
+      "exact_trotter",
       "standard",
       "stochastic"
     ]

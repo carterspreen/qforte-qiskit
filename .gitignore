@@ -3,6 +3,10 @@
 .env
 .qiskit/
 qiskit-ibm.json
+hardware_runs/secrets/*
+!hardware_runs/secrets/ibm_quantum_runtime.example.json
+hardware_runs/runs/*
+!hardware_runs/runs/.gitkeep
 
 __pycache__/
 *.py[cod]

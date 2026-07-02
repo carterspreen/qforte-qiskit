@@ -113,6 +113,21 @@ def workflow_file(manifest, key):
     return Path(files[key])
 
 
+def assert_manifest_molecule_label(manifest, path, context):
+    """Ensure a workflow JSON belongs to the manifest molecule when labeled."""
+
+    expected = manifest.get("molecule_name")
+    if not expected:
+        return
+    payload = load_json(path)
+    actual = payload.get("molecule", {}).get("label")
+    if actual and actual != expected:
+        raise ValueError(
+            f"{context} molecule label mismatch: manifest has {expected!r}, "
+            f"but {path} records {actual!r}."
+        )
+
+
 def build_grouped_evolution_circuits(
     *,
     manifest_path,
@@ -219,6 +234,8 @@ def run_uqk_overlap_driver(
     This wraps scripts/qiskit/build_uqk_overlap_matrix.py. The helper sets all
     the script's hard-coded globals from the notebook cell, so the old CLI-style
     script remains intact while the notebook gets molecule-local outputs.
+    Supported uqk_mode values are "standard", "exact_trotter", "stochastic",
+    and "exact_stochastic".
     """
 
     repo_root = repo_root_from_helper()
@@ -239,11 +256,20 @@ def run_uqk_overlap_driver(
     module.INPUT_GROUPED_PAULI_JSON = workflow_file(manifest, "grouped_paulis_json")
     module.OUTPUT_DIR = results_dir
 
+    for context, path in [
+        ("Molecule metadata", module.INPUT_MOLECULE_METADATA_JSON),
+        ("Hermitian-pair metadata", module.INPUT_HERMITIAN_PAIR_JSON),
+        ("Grouped-Pauli metadata", module.INPUT_GROUPED_PAULI_JSON),
+        ("Grouped-evolution metadata", module.INPUT_CIRCUIT_METADATA_JSON),
+    ]:
+        assert_manifest_molecule_label(manifest, path, context)
+
     module.UQK_MODE = uqk_mode
     module.KRYLOV_DIMENSION = int(krylov_dimension)
     module.MAX_CORRELATION_POWER = int(max_correlation_power)
     module.SHOTS_PER_MFE_EXPERIMENT = int(shots_per_mfe_experiment)
     module.BACKEND_MODE = backend_mode
+    module.OUTPUT_FILE_STEM_PREFIX = ""
     module.OUTPUT_LABEL_OVERRIDE = output_label
     module.OUTPUT_LABEL_SUFFIX = ""
     module.NOISY_SIMULATION_METHOD = noisy_simulation_method
@@ -332,6 +358,13 @@ def solve_uqk_gep_from_manifest(
         manifest, "molecule_metadata_json"
     )
     module.INPUT_DIRECT_VALIDATION_NPZ = summaries_dir / "direct_validation_optional.npz"
+
+    for context, path in [
+        ("Correlation metadata", module.INPUT_CORRELATION_METADATA_JSON),
+        ("Molecule metadata", module.INPUT_MOLECULE_METADATA_JSON),
+    ]:
+        assert_manifest_molecule_label(manifest, path, context)
+
     module.OUTPUT_SUMMARY_JSON = output_summary
     module.KRYLOV_DIMENSION_TO_USE = int(krylov_dimension_to_use)
     module.KRYLOV_DT = float(dt)
@@ -358,4 +391,3 @@ def solve_uqk_gep_from_manifest(
     for root in summary["input_correlation_solution"]["energies_hartree"]:
         print_kv(f"root {root['root']} energy:", f"{root['energy']:+.12f}")
     return manifest, summary
-

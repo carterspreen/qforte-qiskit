@@ -5,10 +5,13 @@
 # Summary:
 #   Build a unitary quantum Krylov overlap matrix S. In standard mode, each
 #   Krylov time step uses the deterministic non-scalar Trotter block plus an
-#   analytic scalar phase. In stochastic mode, each correlation value is
-#   estimated from qDRIFT-sampled grouped chunks plus the same analytic scalar
-#   phase. Both modes use the same MFE templates to estimate C_k = <HF|U^k|HF>,
-#   then assemble S_mn = C_(n-m).
+#   analytic scalar phase and finite-shot MFE. In exact_trotter mode, the same
+#   Trotter circuits are evaluated with exact MFE return probabilities. In
+#   stochastic mode, each correlation value is estimated from qDRIFT-sampled
+#   grouped chunks plus the same analytic scalar phase. In exact_stochastic
+#   mode, the qDRIFT sampled chunks are kept but each MFE experiment uses exact
+#   return probabilities. All modes use the MFE templates to estimate
+#   C_k = <HF|U^k|HF>, then assemble S_mn = C_(n-m).
 #
 # Hard-coded options:
 #   INPUT_QPY = circuits/transpiled/h4_linear_sto3g_grouped_evolution.qpy
@@ -28,17 +31,17 @@
 #   STOCHASTIC_INSTANCES_PER_CORRELATION = 200
 #   STOCHASTIC_WEIGHT_CONVENTION = group_pauli_l1_norm
 #   RANDOM_SEED = 230623
-#   output path is results/krylov/h4_{output_label}_uqk_overlap_matrix.*
+#   output path is results/krylov/{prefix}_{output_label}_uqk_overlap_matrix.*
 #
 # Scalar convention:
 #   The zero-body scalar energy is not included in qDRIFT lambda and is not
 #   placed inside the MFE circuits. Identity Pauli terms that live inside
 #   non-scalar normal-ordered groups are also not directly measurable as global
 #   phases in the Qiskit circuits. The MFE vacuum-reference construction
-#   cancels the corresponding reference-branch phase in the sampled counts, so
-#   this script stores the raw MFE estimate as the non-scalar physical
-#   correlation. The true zero-body scalar phase exp(-i E_scalar k dt) is then
-#   applied analytically.
+#   cancels the corresponding reference-branch phase in the sampled counts or
+#   exact return probabilities, so this script stores the raw MFE estimate as
+#   the non-scalar physical correlation. The true zero-body scalar phase
+#   exp(-i E_scalar k dt) is then applied analytically.
 
 from __future__ import annotations
 
@@ -50,7 +53,7 @@ from pathlib import Path
 import numpy as np
 from qiskit import QuantumCircuit, qpy, transpile
 from qiskit.circuit.library import PauliEvolutionGate
-from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit.synthesis import LieTrotter
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import (
@@ -69,8 +72,10 @@ from mfe_measurement_building_blocks import (  # noqa: E402
     F1_LABEL,
     F2_I_LABEL,
     F2_PLUS_LABEL,
+    MFEFidelities,
     build_mfe_templates,
     estimate_z_from_counts,
+    estimate_z_from_fidelities,
     occupied_qubits_from_occupation,
     validate_hf_metadata,
 )
@@ -104,10 +109,20 @@ OUTPUT_DIR = REPO_ROOT / "results" / "krylov"
 #       implementation of C_k = <HF|U^k|HF>, but circuit depth grows roughly
 #       linearly with k times the non-scalar Trotter-step depth.
 #
+#   "exact_trotter"
+#       Deterministic UQK with the same full Trotter circuits as standard, but
+#       the MFE return probabilities are computed exactly from statevectors
+#       rather than estimated with finite measurement shots.
+#
 #   "stochastic"
 #       Stochastic UQK. For each nonzero k, estimate C_k by averaging several
 #       qDRIFT-sampled chunks for total time t = k*dt. Each chunk samples grouped
 #       non-scalar indices rather than applying every grouped factor.
+#
+#   "exact_stochastic"
+#       Stochastic UQK with the same qDRIFT-sampled chunks as stochastic mode,
+#       but each sampled MFE circuit is evaluated with exact return
+#       probabilities instead of finite measurement shots.
 # UQK_MODE = "standard"
 UQK_MODE = "stochastic"
 
@@ -126,11 +141,13 @@ KRYLOV_DIMENSION = 3
 # U_mn = C_(n+1-m).
 MAX_CORRELATION_POWER = KRYLOV_DIMENSION
 
-# SHOTS_PER_MFE_EXPERIMENT is used for each of the three MFE circuits:
-# F1, F2_plus, and F2_i. In stochastic mode this is per stochastic instance,
-# so total circuit shots scale like
+# SHOTS_PER_MFE_EXPERIMENT is used for each of the three finite-shot MFE
+# circuits: F1, F2_plus, and F2_i. In stochastic mode this is per stochastic
+# instance, so total circuit shots scale like
 #   3 * SHOTS_PER_MFE_EXPERIMENT * STOCHASTIC_INSTANCES_PER_CORRELATION
 # for each nonzero k.
+# In exact_trotter and exact_stochastic modes this option is recorded for
+# provenance but not used.
 #
 # Reasonable ranges:
 #   100-1000 for smoke tests.
@@ -159,6 +176,7 @@ BACKEND_MODE = "local_noiseless_statevector"
 # h4_standard_uqk_overlap_matrix.npz. Keep that default for compatibility with
 # downstream scripts. For sweeps, set OUTPUT_LABEL_OVERRIDE or
 # OUTPUT_LABEL_SUFFIX so backend variants do not overwrite each other.
+OUTPUT_FILE_STEM_PREFIX = "h4"
 OUTPUT_LABEL_OVERRIDE = None
 OUTPUT_LABEL_SUFFIX = ""
 
@@ -269,7 +287,14 @@ MFE_VERBOSE_FOR_FIRST_NONZERO_POWER = True
 # PRINT_CORRELATION_TABLE controls the final C_k summary printed before S.
 PRINT_CORRELATION_TABLE = True
 
-VALID_UQK_MODES = {"standard", "stochastic"}
+VALID_UQK_MODES = {
+    "standard",
+    "exact_trotter",
+    "stochastic",
+    "exact_stochastic",
+}
+EXACT_MFE_UQK_MODES = {"exact_trotter", "exact_stochastic"}
+QDRIFT_UQK_MODES = {"stochastic", "exact_stochastic"}
 VALID_BACKEND_MODES = {
     "local_noiseless_statevector",
     "local_noisy_simple",
@@ -310,17 +335,29 @@ def output_label(mode):
         label = str(OUTPUT_LABEL_OVERRIDE)
     else:
         label = str(mode)
+        if mode in QDRIFT_UQK_MODES:
+            label = (
+                f"{label}_Nd_{QDRIFT_SEGMENT_COUNT_ND}"
+                f"_sipc_{STOCHASTIC_INSTANCES_PER_CORRELATION}"
+            )
     if OUTPUT_LABEL_SUFFIX:
         label = f"{label}_{OUTPUT_LABEL_SUFFIX}"
     return label
 
 
+def output_file_stem(mode):
+    label = output_label(mode)
+    if OUTPUT_FILE_STEM_PREFIX:
+        return f"{OUTPUT_FILE_STEM_PREFIX}_{label}"
+    return label
+
+
 def output_npz_path(mode):
-    return OUTPUT_DIR / f"h4_{output_label(mode)}_uqk_overlap_matrix.npz"
+    return OUTPUT_DIR / f"{output_file_stem(mode)}_uqk_overlap_matrix.npz"
 
 
 def output_metadata_path(mode):
-    return OUTPUT_DIR / f"h4_{output_label(mode)}_uqk_overlap_matrix_metadata.json"
+    return OUTPUT_DIR / f"{output_file_stem(mode)}_uqk_overlap_matrix_metadata.json"
 
 
 def complex_from_record(record):
@@ -339,9 +376,9 @@ def validate_options(circuit_metadata):
             "MAX_CORRELATION_POWER must be at least KRYLOV_DIMENSION - 1 "
             "to assemble S."
         )
-    if SHOTS_PER_MFE_EXPERIMENT <= 0:
+    if UQK_MODE not in EXACT_MFE_UQK_MODES and SHOTS_PER_MFE_EXPERIMENT <= 0:
         raise ValueError("SHOTS_PER_MFE_EXPERIMENT must be positive.")
-    if BACKEND_MODE not in VALID_BACKEND_MODES:
+    if UQK_MODE not in EXACT_MFE_UQK_MODES and BACKEND_MODE not in VALID_BACKEND_MODES:
         raise ValueError(
             f"BACKEND_MODE must be one of {sorted(VALID_BACKEND_MODES)}, "
             f"not {BACKEND_MODE!r}."
@@ -372,7 +409,7 @@ def validate_options(circuit_metadata):
     encoded_order = int(circuit_metadata["options"]["trotter_sequence_order"])
     if encoded_order != 1:
         raise ValueError(
-            "This first standard UQK implementation expects first-order full-dt "
+            "This deterministic UQK implementation expects first-order full-dt "
             f"group circuits. Found trotter_sequence_order={encoded_order}."
         )
 
@@ -380,10 +417,16 @@ def validate_options(circuit_metadata):
 def print_startup(circuit_metadata, molecule_metadata):
     print_header("UQK Overlap Matrix Builder")
     print(
-        "This script has two deliberately separate branches:\n"
-        "  standard:   deterministic UQK, using saved non-scalar Trotter blocks.\n"
-        "  stochastic: stochastic UQK, using qDRIFT-sampled grouped blocks.\n"
-        "Both branches estimate C_k = <HF|U^k|HF> with the MFE circuits and\n"
+        "This script has four deliberately separate branches:\n"
+        "  standard:      deterministic UQK, saved non-scalar Trotter blocks,\n"
+        "                 finite-shot MFE.\n"
+        "  exact_trotter: deterministic UQK, saved non-scalar Trotter blocks,\n"
+        "                 exact MFE return probabilities.\n"
+        "  stochastic:    stochastic UQK, qDRIFT-sampled grouped blocks,\n"
+        "                 finite-shot MFE.\n"
+        "  exact_stochastic: stochastic UQK, qDRIFT-sampled grouped blocks,\n"
+        "                    exact MFE return probabilities.\n"
+        "All branches estimate C_k = <HF|U^k|HF> with the MFE circuits and\n"
         "assemble the Toeplitz overlap matrix S_mn = C_(n-m)."
     )
 
@@ -442,13 +485,14 @@ def print_startup(circuit_metadata, molecule_metadata):
     print(
         "For each k, V_k is the composed circuit U^k. The MFE templates estimate\n"
         "the HF branch relative to the vacuum reference branch using F1,\n"
-        "F2_plus, and F2_i return counts. The raw MFE estimate is kept as the\n"
+        "F2_plus, and F2_i return probabilities or counts. The raw MFE estimate\n"
+        "is kept as the\n"
         "non-scalar correlation. This is deliberate: identity Pauli terms inside\n"
         "normal-ordered non-scalar groups appear as unmeasurable circuit global\n"
         "phases, and the vacuum-reference MFE construction cancels the matching\n"
         "reference phase. The script only applies the separate zero-body scalar\n"
         "phase exp(-i E_scalar*k*dt) analytically.\n"
-        "C_0 is physically exactly 1. This script still measures the identity\n"
+        "C_0 is physically exactly 1. This script still evaluates the identity\n"
         "case for diagnostics, then stores C_0 = 1 when ENFORCE_C0_EXACT=True.\n"
         "Negative powers are not measured: S_mn uses C_-k = conj(C_k)."
     )
@@ -457,9 +501,17 @@ def print_startup(circuit_metadata, molecule_metadata):
         print(
             "STANDARD UQK: every time step uses every non-scalar saved grouped "
             "circuit in the first-order Trotter sequence. The separate scalar "
-            "phase is applied analytically to C_k."
+            "phase is applied analytically to C_k, and MFE probabilities are "
+            "estimated with finite shots."
         )
-    else:
+    elif UQK_MODE == "exact_trotter":
+        print(
+            "EXACT_TROTTER UQK: every time step uses the same full non-scalar "
+            "Trotter circuit as standard mode. The MFE return probabilities "
+            "are computed exactly from statevectors, so C_k has no finite-shot "
+            "sampling noise."
+        )
+    elif UQK_MODE == "stochastic":
         print(
             "STOCHASTIC UQK: each C_k uses several independently sampled qDRIFT "
             "instances. A sampled instance chooses non-scalar grouped indices "
@@ -467,6 +519,14 @@ def print_startup(circuit_metadata, molecule_metadata):
             "at theta_k=lambda*k*dt/N_d, runs MFE, and averages the raw "
             "counts-derived MFE statistics. It does not apply a per-sample "
             "reference-branch correction."
+        )
+    else:
+        print(
+            "EXACT_STOCHASTIC UQK: each C_k uses the same independently "
+            "sampled qDRIFT instances as stochastic mode, but each sampled "
+            "MFE circuit is evaluated with exact Statevector return "
+            "probabilities. The exact F1/F2 statistics are averaged across "
+            "instances before applying the MFE formula."
         )
 
 
@@ -480,8 +540,10 @@ def print_user_option_guide():
     )
     print(
         "UQK_MODE:\n"
-        "  standard   -> V_k is the saved non-scalar Trotter step repeated k times.\n"
-        "  stochastic -> V_k is estimated by averaging qDRIFT-sampled chunks.\n"
+        "  standard      -> saved non-scalar Trotter step repeated k times, finite-shot MFE.\n"
+        "  exact_trotter -> same Trotter step powers, exact statevector MFE probabilities.\n"
+        "  stochastic    -> V_k is estimated by averaging qDRIFT-sampled chunks.\n"
+        "  exact_stochastic -> same qDRIFT samples, exact statevector MFE probabilities.\n"
     )
     print(
         "KRYLOV_DIMENSION M:\n"
@@ -498,6 +560,8 @@ def print_user_option_guide():
         "SHOTS_PER_MFE_EXPERIMENT:\n"
         "  Shots for each F1/F2_plus/F2_i circuit. Stochastic mode multiplies this\n"
         "  by STOCHASTIC_INSTANCES_PER_CORRELATION for each nonzero C_k.\n"
+        "  exact_trotter and exact_stochastic ignore this knob because they\n"
+        "  compute exact MFE probabilities instead of sampling counts.\n"
     )
     print(
         "QDRIFT_SEGMENT_COUNT_ND and STOCHASTIC_INSTANCES_PER_CORRELATION:\n"
@@ -511,6 +575,7 @@ def print_user_option_guide():
         "  local_noiseless_statevector -> Aer shot sampling without noise.\n"
         "  local_noisy_simple         -> compact hand-tuned depolarizing/readout noise.\n"
         "  local_noisy_ibm_model      -> IBM-style fake/runtime backend noise model.\n"
+        "  exact_trotter and exact_stochastic ignore BACKEND_MODE and use local Statevector probabilities.\n"
     )
     print(
         "Noisy backend notes:\n"
@@ -528,7 +593,7 @@ def print_qdrift_circuit_structure(sampling_model, dt):
         "The grouped Hamiltonian is treated as\n"
         "  H = E_scalar I + sum_mu K_mu\n"
         "  K_mu = sum_rho alpha_{mu,rho} P_{mu,rho}\n"
-        "For stochastic mode this script defines\n"
+        "For stochastic modes this script defines\n"
         "  h_mu = w_mu = sum_rho |alpha_{mu,rho}|\n"
         "  G_mu = K_mu / h_mu\n"
         "  lambda = sum_mu w_mu,       p_mu = w_mu / lambda\n"
@@ -542,9 +607,9 @@ def print_qdrift_circuit_structure(sampling_model, dt):
         "it is multiplied into C_k analytically after MFE estimation."
     )
     print(
-        "Standard mode still uses the saved fixed-dt QPY group circuits, but it\n"
-        "skips the separate scalar group for the same MFE reason and applies the\n"
-        "same analytic scalar phase to the final C_k."
+        "The deterministic Trotter modes still use the saved fixed-dt QPY group\n"
+        "circuits, but skip the separate scalar group for the same MFE reason\n"
+        "and apply the same analytic scalar phase to the final C_k."
     )
     first_entry = sampling_model["entries"][0]
     example_theta = sampling_model["weight_sum_lambda"] * dt / QDRIFT_SEGMENT_COUNT_ND
@@ -1188,6 +1253,60 @@ def run_mfe_for_power(backend, power_circuit, occupation, hf_count_key, verbose)
     }
 
 
+def hf_return_probability_exact(circuit, hf_count_key):
+    no_measurements = circuit.remove_final_measurements(inplace=False)
+    state = Statevector.from_instruction(no_measurements)
+    probability = float(state.probabilities_dict().get(hf_count_key, 0.0))
+    if abs(probability) < 1.0e-14:
+        probability = 0.0
+    if abs(probability - 1.0) < 1.0e-14:
+        probability = 1.0
+    return probability
+
+
+def run_exact_mfe_for_power(power_circuit, occupation, hf_count_key, verbose):
+    templates = build_mfe_templates(power_circuit, occupation, verbose=verbose)
+    labels = [F1_LABEL, F2_PLUS_LABEL, F2_I_LABEL]
+    probabilities_by_label = {
+        label: hf_return_probability_exact(templates[label], hf_count_key)
+        for label in labels
+    }
+    fidelities = MFEFidelities(
+        f1=probabilities_by_label[F1_LABEL],
+        f2_plus=probabilities_by_label[F2_PLUS_LABEL],
+        f2_i=probabilities_by_label[F2_I_LABEL],
+    )
+    estimate = estimate_z_from_fidelities(fidelities, verbose=verbose)
+    fidelity_record = {
+        "F1": estimate.f1,
+        "F2_plus": estimate.f2_plus,
+        "F2_i": estimate.f2_i,
+    }
+    depths = {label: int(circuit.depth()) for label, circuit in templates.items()}
+    ops = {label: operation_counts(circuit) for label, circuit in templates.items()}
+    return {
+        "counts": None,
+        "exact_return_probabilities": {
+            "F1": probabilities_by_label[F1_LABEL],
+            "F2_plus": probabilities_by_label[F2_PLUS_LABEL],
+            "F2_i": probabilities_by_label[F2_I_LABEL],
+        },
+        "fidelities": fidelity_record,
+        "estimate": {
+            "real": estimate.real,
+            "imag": estimate.imag,
+            "abs": abs(estimate.z),
+        },
+        "template_depths": depths,
+        "template_operation_counts": ops,
+        "execution_template_depths": depths,
+        "execution_template_operation_counts": ops,
+        "final_mfe_transpiled_for_backend": False,
+        "mfe_measurement_mode": "exact_statevector_probabilities",
+        "shots_per_mfe_experiment_used": None,
+    }
+
+
 def count_totals_by_label(instance_records):
     totals = {}
     for label in [F1_LABEL, F2_PLUS_LABEL, F2_I_LABEL]:
@@ -1269,6 +1388,55 @@ def standard_record_for_power(
             "sampled_group_histories": [],
             "mean_fidelities": record["fidelities"],
             "summed_counts": record["counts"],
+        }
+    )
+    return measured_value, record
+
+
+def exact_trotter_record_for_power(
+    full_step,
+    power,
+    occupation,
+    hf_count_key,
+):
+    power_circuit = build_trotter_power(full_step, power)
+    verbose = MFE_VERBOSE_FOR_FIRST_NONZERO_POWER and power == 1
+    print(
+        f"\nC_{power}: EXACT_TROTTER V_{power}=U^{power}, "
+        f"depth {power_circuit.depth()}, size {power_circuit.size()}"
+    )
+    record = run_exact_mfe_for_power(
+        power_circuit,
+        occupation,
+        hf_count_key,
+        verbose=verbose,
+    )
+    raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
+    measured_value = raw_mfe_value
+    record.update(
+        {
+            "mode": "exact_trotter",
+            "power": power,
+            "num_instances": 1,
+            "raw_mfe_relative_correlation": {
+                "real": float(raw_mfe_value.real),
+                "imag": float(raw_mfe_value.imag),
+            },
+            "mfe_reference_policy": (
+                "Use exact MFE return probabilities as the non-scalar "
+                "correlation; do not divide by <vac|V|vac> from a simulator "
+                "or full-Trotter reference circuit."
+            ),
+            "raw_mfe_non_scalar_correlation": {
+                "real": float(measured_value.real),
+                "imag": float(measured_value.imag),
+            },
+            "power_circuit_depth": int(power_circuit.depth()),
+            "power_circuit_size": int(power_circuit.size()),
+            "power_circuit_operation_counts": operation_counts(power_circuit),
+            "sampled_group_histories": [],
+            "mean_fidelities": record["fidelities"],
+            "summed_counts": None,
         }
     )
     return measured_value, record
@@ -1457,6 +1625,196 @@ def stochastic_record_for_power(
     return measured_value, record
 
 
+def exact_stochastic_record_for_power(
+    sampling_model,
+    power,
+    occupation,
+    hf_count_key,
+    num_qubits,
+    basis_gates,
+    rng,
+    dt,
+):
+    total_time = power * dt
+    if power == 0:
+        identity = QuantumCircuit(num_qubits, name="exact_suqk_identity_power_0")
+        print("\nC_0: EXACT_STOCHASTIC mode evaluates identity once for diagnostics")
+        record = run_exact_mfe_for_power(
+            identity,
+            occupation,
+            hf_count_key,
+            verbose=False,
+        )
+        raw_mfe_value = complex(record["estimate"]["real"], record["estimate"]["imag"])
+        measured_value = raw_mfe_value
+        record.update(
+            {
+                "mode": "exact_stochastic",
+                "power": power,
+                "num_instances": 1,
+                "total_time": float(total_time),
+                "qdrift_segment_count": 0,
+                "raw_mfe_relative_correlation": {
+                    "real": float(raw_mfe_value.real),
+                    "imag": float(raw_mfe_value.imag),
+                },
+                "mfe_reference_policy": (
+                    "Use exact MFE probabilities as the non-scalar qDRIFT "
+                    "correlation; no per-instance reference-branch correction "
+                    "is applied."
+                ),
+                "raw_mfe_non_scalar_correlation": {
+                    "real": float(measured_value.real),
+                    "imag": float(measured_value.imag),
+                },
+                "aggregate_exact_return_probabilities": record[
+                    "exact_return_probabilities"
+                ],
+                "power_circuit_depth": 0,
+                "power_circuit_size": 0,
+                "power_circuit_operation_counts": {},
+                "sampled_group_histories": [],
+                "instance_records": [],
+                "mean_fidelities": record["fidelities"],
+                "summed_counts": None,
+            }
+        )
+        return measured_value, record
+
+    print(
+        f"\nC_{power}: EXACT_STOCHASTIC qDRIFT total_time={total_time:.8f}, "
+        f"N_d={QDRIFT_SEGMENT_COUNT_ND}, "
+        f"instances={STOCHASTIC_INSTANCES_PER_CORRELATION}"
+    )
+    instance_records = []
+    sampled_group_histories = []
+    for instance_index in range(STOCHASTIC_INSTANCES_PER_CORRELATION):
+        chunk, history = build_stochastic_qdrift_instance(
+            sampling_model,
+            total_time,
+            rng,
+            num_qubits,
+            basis_gates,
+            power,
+            instance_index,
+        )
+        verbose = (
+            MFE_VERBOSE_FOR_FIRST_NONZERO_POWER
+            and power == 1
+            and instance_index == 0
+        )
+        print(
+            f"  exact sample {instance_index}: groups "
+            f"{[item['group_index'] for item in history]}, "
+            f"theta {[round(item['segment_angle_theta'], 8) for item in history]}, "
+            f"depth {chunk.depth()}, size {chunk.size()}"
+        )
+        instance_record = run_exact_mfe_for_power(
+            chunk,
+            occupation,
+            hf_count_key,
+            verbose=verbose,
+        )
+        # qDRIFT is a randomized channel. Exact-stochastic mode removes only
+        # finite measurement noise: it still forgets the sampled circuit label by
+        # averaging the exact F1/F2 probabilities before applying MFE arithmetic.
+        raw_mfe_value = complex(
+            instance_record["estimate"]["real"],
+            instance_record["estimate"]["imag"],
+        )
+        instance_record.update(
+            {
+                "instance_index": int(instance_index),
+                "chunk_depth": int(chunk.depth()),
+                "chunk_size": int(chunk.size()),
+                "chunk_operation_counts": operation_counts(chunk),
+                "sampled_group_history": history,
+                "raw_mfe_relative_correlation": {
+                    "real": float(raw_mfe_value.real),
+                    "imag": float(raw_mfe_value.imag),
+                },
+                "mfe_reference_policy": (
+                    "exact qDRIFT MFE sample; no per-sample reference correction"
+                ),
+            }
+        )
+        instance_records.append(instance_record)
+        sampled_group_histories.append(history)
+
+    aggregate_fidelities = average_fidelities(instance_records)
+    aggregate_estimate = estimate_z_from_fidelities(
+        MFEFidelities(
+            f1=aggregate_fidelities["F1"],
+            f2_plus=aggregate_fidelities["F2_plus"],
+            f2_i=aggregate_fidelities["F2_i"],
+        ),
+        verbose=False,
+    )
+    measured_value = complex(aggregate_estimate.real, aggregate_estimate.imag)
+    raw_instance_mean_value = average_estimate(instance_records)
+    max_depth = max(record["chunk_depth"] for record in instance_records)
+    mean_depth = float(np.mean([record["chunk_depth"] for record in instance_records]))
+    record = {
+        "mode": "exact_stochastic",
+        "power": power,
+        "num_instances": STOCHASTIC_INSTANCES_PER_CORRELATION,
+        "total_time": float(total_time),
+        "qdrift_segment_count": QDRIFT_SEGMENT_COUNT_ND,
+        "power_circuit_depth": int(max_depth),
+        "mean_power_circuit_depth": mean_depth,
+        "power_circuit_size": int(max(record["chunk_size"] for record in instance_records)),
+        "power_circuit_operation_counts": {
+            "note": "See per-instance chunk_operation_counts for exact_stochastic mode."
+        },
+        "counts": None,
+        "summed_counts": None,
+        "exact_return_probabilities": aggregate_fidelities,
+        "aggregate_exact_return_probabilities": aggregate_fidelities,
+        "fidelities": {
+            "F1": aggregate_estimate.f1,
+            "F2_plus": aggregate_estimate.f2_plus,
+            "F2_i": aggregate_estimate.f2_i,
+        },
+        "estimate": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "raw_mfe_relative_correlation_mean": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "raw_mfe_relative_correlation_instance_mean": {
+            "real": float(raw_instance_mean_value.real),
+            "imag": float(raw_instance_mean_value.imag),
+            "abs": float(abs(raw_instance_mean_value)),
+        },
+        "raw_mfe_non_scalar_correlation": {
+            "real": float(measured_value.real),
+            "imag": float(measured_value.imag),
+            "abs": float(abs(measured_value)),
+        },
+        "mfe_reference_policy": (
+            "Aggregate exact qDRIFT MFE probabilities across sampled circuits; "
+            "do not apply per-instance <vac|V_omega|vac> correction."
+        ),
+        "mfe_measurement_mode": (
+            "exact_statevector_probabilities_averaged_over_qdrift_samples"
+        ),
+        "template_depths": {
+            "note": "See per-instance template_depths for exact_stochastic mode."
+        },
+        "template_operation_counts": {
+            "note": "See per-instance template_operation_counts for exact_stochastic mode."
+        },
+        "sampled_group_histories": sampled_group_histories,
+        "instance_records": instance_records,
+        "mean_fidelities": aggregate_fidelities,
+    }
+    return measured_value, record
+
+
 def assemble_overlap_matrix(correlations):
     matrix = np.empty((KRYLOV_DIMENSION, KRYLOV_DIMENSION), dtype=np.complex128)
     for m in range(KRYLOV_DIMENSION):
@@ -1560,12 +1918,40 @@ def main():
             for entry in sampling_model["entries"][:5]
         ],
     )
-    print_qdrift_circuit_structure(sampling_model, dt)
+    if UQK_MODE in QDRIFT_UQK_MODES:
+        print_qdrift_circuit_structure(sampling_model, dt)
+    else:
+        print_header("Deterministic Trotter Circuit Structure")
+        print(
+            "This mode uses the saved fixed-dt QPY group circuits, skips the "
+            "separate scalar group in the MFE circuit, and applies the scalar "
+            "phase analytically to the final C_k."
+        )
 
-    backend, backend_metadata = build_backend(num_qubits)
+    if UQK_MODE in EXACT_MFE_UQK_MODES:
+        backend = None
+        backend_metadata = {
+            "backend_mode": BACKEND_MODE,
+            "simulator_method": "statevector_exact_probabilities",
+            "noise_model": None,
+            "final_mfe_transpilation": False,
+            "backend_ignored_by_exact_mfe": True,
+            "backend_ignored_by_exact_trotter": UQK_MODE == "exact_trotter",
+            "backend_ignored_by_exact_stochastic": UQK_MODE == "exact_stochastic",
+            "note": (
+                f"{UQK_MODE} computes MFE return probabilities exactly with "
+                "qiskit.quantum_info.Statevector and does not run a "
+                "finite-shot backend."
+            ),
+        }
+    else:
+        backend, backend_metadata = build_backend(num_qubits)
     print_header("Backend Summary")
     print_kv("Backend mode:", BACKEND_MODE)
-    print_kv("Backend object:", backend_name(backend))
+    print_kv(
+        "Backend object:",
+        "not used for exact MFE modes" if backend is None else backend_name(backend),
+    )
     print_kv("Simulator method:", backend_metadata["simulator_method"])
     print_kv("Noise model:", backend_metadata["noise_model"])
     print_kv("Final MFE transpilation:", backend_metadata["final_mfe_transpilation"])
@@ -1585,9 +1971,27 @@ def main():
                 occupation,
                 hf_count_key,
             )
+        elif UQK_MODE == "exact_trotter":
+            non_scalar_measured_value, record = exact_trotter_record_for_power(
+                full_step,
+                power,
+                occupation,
+                hf_count_key,
+            )
         elif UQK_MODE == "stochastic":
             non_scalar_measured_value, record = stochastic_record_for_power(
                 backend,
+                sampling_model,
+                power,
+                occupation,
+                hf_count_key,
+                num_qubits,
+                basis_gates,
+                rng,
+                dt,
+            )
+        elif UQK_MODE == "exact_stochastic":
+            non_scalar_measured_value, record = exact_stochastic_record_for_power(
                 sampling_model,
                 power,
                 occupation,
@@ -1678,6 +2082,32 @@ def main():
     print_kv("Hermiticity error ||S-S^dag||:", f"{hermiticity_error:.12e}")
     print_kv("Condition number:", f"{condition_number:.12e}")
 
+    if UQK_MODE == "standard":
+        mode_note = (
+            "This is the deterministic finite-shot UQK branch: every time step "
+            "uses the saved non-scalar Trotter block, estimates MFE return "
+            "probabilities with shots, and applies the scalar phase analytically."
+        )
+    elif UQK_MODE == "exact_trotter":
+        mode_note = (
+            "This is the deterministic exact-trotter UQK branch: every time "
+            "step uses the saved non-scalar Trotter block, computes MFE return "
+            "probabilities exactly with Statevector, and applies the scalar "
+            "phase analytically."
+        )
+    elif UQK_MODE == "stochastic":
+        mode_note = (
+            "This is the stochastic UQK branch: each nonzero C_k averages "
+            "independently sampled qDRIFT grouped chunks with finite-shot MFE."
+        )
+    else:
+        mode_note = (
+            "This is the exact-stochastic UQK branch: each nonzero C_k "
+            "averages independently sampled qDRIFT grouped chunks, computes "
+            "MFE return probabilities exactly with Statevector for every "
+            "sampled chunk, and applies the scalar phase analytically."
+        )
+
     output_npz = output_npz_path(UQK_MODE)
     output_metadata = output_metadata_path(UQK_MODE)
     output_npz.parent.mkdir(parents=True, exist_ok=True)
@@ -1716,6 +2146,7 @@ def main():
             "shots_per_mfe_experiment": SHOTS_PER_MFE_EXPERIMENT,
             "backend_mode": BACKEND_MODE,
             "valid_backend_modes": sorted(VALID_BACKEND_MODES),
+            "output_file_stem_prefix": OUTPUT_FILE_STEM_PREFIX,
             "output_label_override": OUTPUT_LABEL_OVERRIDE,
             "output_label_suffix": OUTPUT_LABEL_SUFFIX,
             "noisy_simulation_method": NOISY_SIMULATION_METHOD,
@@ -1764,16 +2195,19 @@ def main():
         },
         "option_documentation": {
             "uqk_mode": {
-                "standard": "Use deterministic non-scalar Trotter blocks plus the analytic scalar phase.",
-                "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt.",
+                "standard": "Use deterministic non-scalar Trotter blocks, finite-shot MFE, and the analytic scalar phase.",
+                "exact_trotter": "Use deterministic non-scalar Trotter blocks, exact Statevector MFE return probabilities, and the analytic scalar phase.",
+                "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt with finite-shot MFE.",
+                "exact_stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt with exact Statevector MFE return probabilities.",
             },
             "krylov_dimension": "Matrix dimension M; S has shape M x M.",
             "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
-            "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i. In stochastic mode this is per sampled instance.",
+            "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i in finite-shot modes. In stochastic mode this is per sampled instance. exact_trotter and exact_stochastic record but ignore this value.",
             "backend_mode": {
                 "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware.",
                 "local_noisy_simple": "Aer noisy simulator with compact hand-controlled depolarizing, thermal, and readout noise.",
                 "local_noisy_ibm_model": "Aer noisy simulator with IBM fake/runtime backend-derived noise. The default compresses target averages to the active-space qubit count.",
+                "exact_mfe_note": "exact_trotter and exact_stochastic ignore BACKEND_MODE and evaluate MFE probabilities with local Statevector simulation.",
             },
             "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
             "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
@@ -1802,8 +2236,19 @@ def main():
             "source_target": circuit_metadata.get("target"),
         },
         "backend": backend_metadata,
+        "mfe_execution": {
+            "finite_shot_sampling": UQK_MODE not in EXACT_MFE_UQK_MODES,
+            "exact_statevector_probabilities": UQK_MODE in EXACT_MFE_UQK_MODES,
+            "shots_per_mfe_experiment_used": (
+                None
+                if UQK_MODE in EXACT_MFE_UQK_MODES
+                else SHOTS_PER_MFE_EXPERIMENT
+            ),
+        },
         "stochastic_sampling": {
-            "mode": UQK_MODE == "stochastic",
+            "mode": UQK_MODE in QDRIFT_UQK_MODES,
+            "finite_shot_sampling": UQK_MODE == "stochastic",
+            "exact_statevector_probabilities": UQK_MODE == "exact_stochastic",
             "sampled_non_scalar_groups": len(sampling_model["entries"]),
             "weight_sum_lambda": sampling_model["weight_sum_lambda"],
             "lambda_excludes_zero_body_scalar": True,
@@ -1853,12 +2298,8 @@ def main():
         },
         "mfe_by_power": per_power_metadata,
         "notes": [
-            (
-                "This is the deterministic UQK branch: every time step uses the saved non-scalar Trotter block and applies the scalar phase analytically."
-                if UQK_MODE == "standard"
-                else "This is the stochastic UQK branch: each nonzero C_k averages independently sampled qDRIFT grouped chunks."
-            ),
-            "C0 is measured for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+            mode_note,
+            "C0 is evaluated for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
             "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
             "The local_noisy_ibm_model mode uses a local Aer simulator. Runtime credentials are only needed if IBM_MODEL_SOURCE='runtime_backend'.",
         ],

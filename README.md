@@ -48,6 +48,8 @@ assembly, direct validation, and post-processing.
 - `results/krylov_matrices/`: generated overlap/correlation matrix data.
 - `results/summaries/`: generated energy summaries and comparisons.
 - `results/hardware_jobs/`: non-secret hardware job metadata and retrieved counts.
+- `hardware_runs/`: script-driven IBM hardware UQK planning, submission,
+  retrieval, and assembly workflow.
 - `docs/`: human-readable workflow notes.
 
 ## Workflow Order
@@ -57,10 +59,20 @@ assembly, direct validation, and post-processing.
 3. Convert Hermitian-pair groups to OpenFermion and Jordan-Wigner Pauli terms.
 4. Build and transpile Qiskit circuits for each grouped time-evolution factor.
 5. Build the multifidelity-estimation circuit/counting primitives.
-6. Assemble the standard UQK overlap matrix using full Trotter blocks.
-7. Assemble the stochastic UQK overlap matrix using sampled grouped blocks.
-8. Add a safe IBM hardware dry-run/submission path.
-9. Validate overlap matrices by direct noiseless linear algebra.
-10. Solve the UQK generalized eigenvalue problem and summarize energies.
+6. Assemble the standard UQK overlap matrix using full Trotter blocks and finite-shot MFE.
+7. Assemble the exact-trotter UQK overlap matrix using full Trotter blocks and exact MFE probabilities.
+8. Assemble the stochastic UQK overlap matrix using sampled grouped blocks and finite-shot MFE.
+9. Assemble the exact-stochastic UQK overlap matrix using sampled grouped blocks and exact MFE probabilities.
+10. Add a safe IBM hardware dry-run/submission path.
+11. Validate overlap matrices by direct noiseless linear algebra.
+12. Solve the UQK generalized eigenvalue problem and summarize energies.
+
+Notebook 02 includes `Nd_<QDRIFT_SEGMENT_COUNT_ND>_sipc_<STOCHASTIC_INSTANCES_PER_CORRELATION>`
+in stochastic and exact-stochastic output labels so sweeps do not overwrite
+different qDRIFT runtime settings.
+
+Notebook 03 runs the UQK overlap hyperparameter sweeps against a clearly named
+`S_reference` matrix and writes cached runs, data, plots, tables, and logs under
+`notebooks/<molecule>/experiments/uqk_overlap_hyperparameters/`.
 
 See `gameplan.md` for the copy-paste implementation prompts.

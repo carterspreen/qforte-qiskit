@@ -1,0 +1,4001 @@
+{
+  "active_space": {
+    "frozen_core_orbitals": 0,
+    "frozen_virtual_orbitals": 0,
+    "num_electrons": 2,
+    "num_qubits": 4,
+    "num_spatial_orbitals": 2,
+    "num_spin_orbitals": 4
+  },
+  "backend": {
+    "backend_ignored_by_exact_mfe": true,
+    "backend_ignored_by_exact_stochastic": true,
+    "backend_ignored_by_exact_trotter": false,
+    "backend_mode": "local_noiseless_statevector",
+    "final_mfe_transpilation": false,
+    "noise_model": null,
+    "note": "exact_stochastic computes MFE return probabilities exactly with qiskit.quantum_info.Statevector and does not run a finite-shot backend.",
+    "simulator_method": "statevector_exact_probabilities"
+  },
+  "correlations": [
+    {
+      "imag": 0.0,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.15294959582371404,
+      "index": 1,
+      "real": 0.9220805129329248
+    },
+    {
+      "imag": 0.2454253145140852,
+      "index": 2,
+      "real": 0.8086800759677817
+    },
+    {
+      "imag": 0.11320554677384481,
+      "index": 3,
+      "real": 0.2979010790556752
+    },
+    {
+      "imag": 0.35857136725913846,
+      "index": 4,
+      "real": 0.21730035151325972
+    }
+  ],
+  "diagnostics": {
+    "condition_number": 63.40328706595718,
+    "hermiticity_error_frobenius": 0.0
+  },
+  "full_trotter_step": {
+    "depth": 191,
+    "non_scalar_group_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "operation_counts": {
+      "cx": 104,
+      "rz": 130,
+      "sx": 56,
+      "x": 4
+    },
+    "scalar_groups_skipped_for_mfe": [
+      0
+    ],
+    "scalar_phase_applied_analytically_to_correlations": 0.52917721067,
+    "size": 294
+  },
+  "generated_at_utc": "2026-07-01T21:22:12.418398Z",
+  "hf_reference": {
+    "endianness_note": "The occupation list is indexed as n_p for spin orbital/qubit p. Qiskit count strings are printed as c[n-1]...c[0] when q[i] is measured into c[i].",
+    "occupation_little_endian": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "occupied_spin_orbitals": [
+      0,
+      1
+    ],
+    "orbital_to_qubit_order": "spin orbital p maps to qubit p",
+    "qforte_occupation_bitstring": "1100",
+    "qiskit_counts_bitstring_if_measured_q_to_c_same_index": "0011"
+  },
+  "inputs": {
+    "circuit_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution_metadata.json",
+    "grouped_pauli_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_grouped_paulis.json",
+    "hermitian_pair_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/hamiltonian_blocks/diatomic_h2_sto_3g_hermitian_pairs.json",
+    "molecule_metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/metadata/diatomic_h2_sto_3g_metadata.json",
+    "qpy": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/circuits/diatomic_h2_sto_3g_grouped_evolution.qpy"
+  },
+  "measured_correlations": [
+    {
+      "imag": -2.220446049250313e-16,
+      "index": 0,
+      "real": 1.0
+    },
+    {
+      "imag": 0.15294959582371404,
+      "index": 1,
+      "real": 0.9220805129329248
+    },
+    {
+      "imag": 0.2454253145140852,
+      "index": 2,
+      "real": 0.8086800759677817
+    },
+    {
+      "imag": 0.11320554677384481,
+      "index": 3,
+      "real": 0.2979010790556752
+    },
+    {
+      "imag": 0.35857136725913846,
+      "index": 4,
+      "real": 0.21730035151325972
+    }
+  ],
+  "mfe_by_power": [
+    {
+      "aggregate_exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.4999999999999999,
+        "F2_plus": 1.0
+      },
+      "c0_enforced": true,
+      "counts": null,
+      "estimate": {
+        "abs": 1.0,
+        "imag": -2.220446049250313e-16,
+        "real": 1.0
+      },
+      "exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.4999999999999999,
+        "F2_plus": 1.0
+      },
+      "execution_template_depths": {
+        "F1": 2,
+        "F2_i": 7,
+        "F2_plus": 6
+      },
+      "execution_template_operation_counts": {
+        "F1": {
+          "measure": 4,
+          "x": 2
+        },
+        "F2_i": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "sdg": 1,
+          "x": 2
+        },
+        "F2_plus": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "x": 2
+        }
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.4999999999999999,
+        "F2_plus": 1.0
+      },
+      "final_mfe_transpiled_for_backend": false,
+      "instance_records": [],
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.4999999999999999,
+        "F2_plus": 1.0
+      },
+      "measured_correlation": {
+        "imag": -2.220446049250313e-16,
+        "real": 1.0
+      },
+      "mfe_measurement_mode": "exact_statevector_probabilities",
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "exact_stochastic",
+      "non_scalar_measured_correlation": {
+        "imag": -2.220446049250313e-16,
+        "real": 1.0
+      },
+      "num_instances": 1,
+      "power": 0,
+      "power_circuit_depth": 0,
+      "power_circuit_operation_counts": {},
+      "power_circuit_size": 0,
+      "qdrift_segment_count": 0,
+      "raw_mfe_non_scalar_correlation": {
+        "imag": -2.220446049250313e-16,
+        "real": 1.0
+      },
+      "raw_mfe_relative_correlation": {
+        "imag": -2.220446049250313e-16,
+        "real": 1.0
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "shots_per_mfe_experiment_used": null,
+      "stored_correlation": {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      "summed_counts": null,
+      "template_depths": {
+        "F1": 2,
+        "F2_i": 7,
+        "F2_plus": 6
+      },
+      "template_operation_counts": {
+        "F1": {
+          "measure": 4,
+          "x": 2
+        },
+        "F2_i": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "sdg": 1,
+          "x": 2
+        },
+        "F2_plus": {
+          "cx": 2,
+          "h": 2,
+          "measure": 4,
+          "x": 2
+        }
+      },
+      "total_time": 0.0
+    },
+    {
+      "aggregate_exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.6007535620408576,
+        "F2_plus": 0.9563499014291554
+      },
+      "c0_enforced": false,
+      "counts": null,
+      "estimate": {
+        "abs": 0.934679651641825,
+        "imag": 0.20150712408171523,
+        "real": 0.9126998028583109
+      },
+      "exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.6007535620408576,
+        "F2_plus": 0.9563499014291554
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6007535620408576,
+        "F2_plus": 0.9563499014291554
+      },
+      "instance_records": [
+        {
+          "chunk_depth": 1,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999986,
+            "imag": 0.6568421191800602,
+            "real": 0.7540281363921673
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.8284210595900301,
+            "F2_plus": 0.8770140681960836
+          },
+          "execution_template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.8284210595900301,
+            "F2_plus": 0.8770140681960836
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 0,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.6568421191800602,
+            "real": 0.7540281363921673
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999988,
+            "imag": 0.3506935012285166,
+            "real": 0.9364902926331282
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.6753467506142583,
+            "F2_plus": 0.9682451463165641
+          },
+          "execution_template_depths": {
+            "F1": 5,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.6753467506142583,
+            "F2_plus": 0.9682451463165641
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 1,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.3506935012285166,
+            "real": 0.9364902926331282
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.5312276729548038,
+              "group_depth": 4,
+              "group_index": 12,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6530707468669921,
+              "probability": 0.09113169493844027,
+              "segment": 0,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.6530707468669921,
+              "weight": 0.6530707468669921
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 5,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 8,
+          "chunk_operation_counts": {
+            "cx": 4,
+            "rz": 6
+          },
+          "chunk_size": 10,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0000000000000004,
+            "imag": -0.35069350122851684,
+            "real": 0.93649029263313
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.3246532493857416,
+            "F2_plus": 0.968245146316565
+          },
+          "execution_template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.3246532493857416,
+            "F2_plus": 0.968245146316565
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 2,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -0.35069350122851684,
+            "real": 0.93649029263313
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.6084753447027769,
+              "group_depth": 4,
+              "group_index": 10,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6217067630494427,
+              "probability": 0.08675505884039558,
+              "segment": 0,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.6217067630494427,
+              "weight": 0.6217067630494427
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5964176402310601,
+              "group_depth": 4,
+              "group_index": 3,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6264024994457361,
+              "probability": 0.08741031773666566,
+              "segment": 1,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.6264024994457361,
+              "weight": 0.6264024994457361
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 1,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999987,
+            "imag": 0.35069350122851617,
+            "real": 0.9364902926331282
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.6753467506142581,
+            "F2_plus": 0.9682451463165641
+          },
+          "execution_template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.6753467506142581,
+            "F2_plus": 0.9682451463165641
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 3,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.35069350122851617,
+            "real": 0.9364902926331282
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 5,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 1,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 5,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 7,
+            "F2_plus": 6
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 4,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 5,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 0,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5312276729548038,
+              "group_depth": 4,
+              "group_index": 12,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6530707468669921,
+              "probability": 0.09113169493844027,
+              "segment": 1,
+              "segment_angle_theta": 0.35831153327508247,
+              "w_mu": 0.6530707468669921,
+              "weight": 0.6530707468669921
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 7,
+            "F2_plus": 6
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        }
+      ],
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6007535620408576,
+        "F2_plus": 0.9563499014291554
+      },
+      "mean_power_circuit_depth": 3.8,
+      "measured_correlation": {
+        "imag": 0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      "mfe_measurement_mode": "exact_statevector_probabilities_averaged_over_qdrift_samples",
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "exact_stochastic",
+      "non_scalar_measured_correlation": {
+        "imag": 0.20150712408171523,
+        "real": 0.9126998028583109
+      },
+      "num_instances": 5,
+      "power": 1,
+      "power_circuit_depth": 8,
+      "power_circuit_operation_counts": {
+        "note": "See per-instance chunk_operation_counts for exact_stochastic mode."
+      },
+      "power_circuit_size": 10,
+      "qdrift_segment_count": 2,
+      "raw_mfe_non_scalar_correlation": {
+        "abs": 0.934679651641825,
+        "imag": 0.20150712408171523,
+        "real": 0.9126998028583109
+      },
+      "raw_mfe_relative_correlation_instance_mean": {
+        "abs": 0.934679651641825,
+        "imag": 0.2015071240817152,
+        "real": 0.9126998028583109
+      },
+      "raw_mfe_relative_correlation_mean": {
+        "abs": 0.934679651641825,
+        "imag": 0.20150712408171523,
+        "real": 0.9126998028583109
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.5312276729548038,
+            "group_depth": 4,
+            "group_index": 12,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6530707468669921,
+            "probability": 0.09113169493844027,
+            "segment": 0,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.6530707468669921,
+            "weight": 0.6530707468669921
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.6084753447027769,
+            "group_depth": 4,
+            "group_index": 10,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6217067630494427,
+            "probability": 0.08675505884039558,
+            "segment": 0,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.6217067630494427,
+            "weight": 0.6217067630494427
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5964176402310601,
+            "group_depth": 4,
+            "group_index": 3,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6264024994457361,
+            "probability": 0.08741031773666566,
+            "segment": 1,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.6264024994457361,
+            "weight": 0.6264024994457361
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 5,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 1,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 5,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 0,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5312276729548038,
+            "group_depth": 4,
+            "group_index": 12,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6530707468669921,
+            "probability": 0.09113169493844027,
+            "segment": 1,
+            "segment_angle_theta": 0.35831153327508247,
+            "w_mu": 0.6530707468669921,
+            "weight": 0.6530707468669921
+          }
+        ]
+      ],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.052893027072885505,
+        "real": 0.9986001841012583
+      },
+      "stored_correlation": {
+        "imag": 0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      "summed_counts": null,
+      "template_depths": {
+        "note": "See per-instance template_depths for exact_stochastic mode."
+      },
+      "template_operation_counts": {
+        "note": "See per-instance template_operation_counts for exact_stochastic mode."
+      },
+      "total_time": 0.1
+    },
+    {
+      "aggregate_exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.6647396997238506,
+        "F2_plus": 0.8891144997334258
+      },
+      "c0_enforced": false,
+      "counts": null,
+      "estimate": {
+        "abs": 0.8451017987624893,
+        "imag": 0.3294793994477012,
+        "real": 0.7782289994668516
+      },
+      "exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.6647396997238506,
+        "F2_plus": 0.8891144997334258
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6647396997238506,
+        "F2_plus": 0.8891144997334258
+      },
+      "instance_records": [
+        {
+          "chunk_depth": 5,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 7,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 0,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 6,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 0,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 5,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 1,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 7,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999989,
+            "imag": 0.6568421191800604,
+            "real": 0.7540281363921675
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.8284210595900302,
+            "F2_plus": 0.8770140681960837
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.8284210595900302,
+            "F2_plus": 0.8770140681960837
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 1,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.6568421191800604,
+            "real": 0.7540281363921675
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6084753447027769,
+              "group_depth": 4,
+              "group_index": 10,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6217067630494427,
+              "probability": 0.08675505884039558,
+              "segment": 1,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.6217067630494427,
+              "weight": 0.6217067630494427
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 2,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999983,
+            "imag": 0.9905548780584466,
+            "real": 0.1371168609420912
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292233,
+            "F2_plus": 0.5685584304710456
+          },
+          "execution_template_depths": {
+            "F1": 4,
+            "F2_i": 9,
+            "F2_plus": 8
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292233,
+            "F2_plus": 0.5685584304710456
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 2,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.9905548780584466,
+            "real": 0.1371168609420912
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 4,
+            "F2_i": 9,
+            "F2_plus": 8
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 8,
+          "chunk_operation_counts": {
+            "cx": 4,
+            "rz": 6
+          },
+          "chunk_size": 10,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -1.1102230246251565e-15,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.49999999999999944,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.49999999999999944,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 3,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -1.1102230246251565e-15,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 11,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 0,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            },
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 11,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 1,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 5,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 7,
+            "F2_plus": 6
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 4,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 5,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 0,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5312276729548038,
+              "group_depth": 4,
+              "group_index": 12,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6530707468669921,
+              "probability": 0.09113169493844027,
+              "segment": 1,
+              "segment_angle_theta": 0.7166230665501649,
+              "w_mu": 0.6530707468669921,
+              "weight": 0.6530707468669921
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 7,
+            "F2_plus": 6
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        }
+      ],
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.6647396997238506,
+        "F2_plus": 0.8891144997334258
+      },
+      "mean_power_circuit_depth": 4.8,
+      "measured_correlation": {
+        "imag": 0.2454253145140852,
+        "real": 0.8086800759677817
+      },
+      "mfe_measurement_mode": "exact_statevector_probabilities_averaged_over_qdrift_samples",
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "exact_stochastic",
+      "non_scalar_measured_correlation": {
+        "imag": 0.3294793994477012,
+        "real": 0.7782289994668516
+      },
+      "num_instances": 5,
+      "power": 2,
+      "power_circuit_depth": 8,
+      "power_circuit_operation_counts": {
+        "note": "See per-instance chunk_operation_counts for exact_stochastic mode."
+      },
+      "power_circuit_size": 10,
+      "qdrift_segment_count": 2,
+      "raw_mfe_non_scalar_correlation": {
+        "abs": 0.8451017987624893,
+        "imag": 0.3294793994477012,
+        "real": 0.7782289994668516
+      },
+      "raw_mfe_relative_correlation_instance_mean": {
+        "abs": 0.8451017987624893,
+        "imag": 0.3294793994477011,
+        "real": 0.7782289994668518
+      },
+      "raw_mfe_relative_correlation_mean": {
+        "abs": 0.8451017987624893,
+        "imag": 0.3294793994477012,
+        "real": 0.7782289994668516
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [
+        [
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 6,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 0,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 5,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 1,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6084753447027769,
+            "group_depth": 4,
+            "group_index": 10,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6217067630494427,
+            "probability": 0.08675505884039558,
+            "segment": 1,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.6217067630494427,
+            "weight": 0.6217067630494427
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 11,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 0,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          },
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 11,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 1,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 5,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 0,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5312276729548038,
+            "group_depth": 4,
+            "group_index": 12,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6530707468669921,
+            "probability": 0.09113169493844027,
+            "segment": 1,
+            "segment_angle_theta": 0.7166230665501649,
+            "w_mu": 0.6530707468669921,
+            "weight": 0.6530707468669921
+          }
+        ]
+      ],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.1056379731453126,
+        "real": 0.994404655374134
+      },
+      "stored_correlation": {
+        "imag": 0.2454253145140852,
+        "real": 0.8086800759677817
+      },
+      "summed_counts": null,
+      "template_depths": {
+        "note": "See per-instance template_depths for exact_stochastic mode."
+      },
+      "template_operation_counts": {
+        "note": "See per-instance template_operation_counts for exact_stochastic mode."
+      },
+      "total_time": 0.2
+    },
+    {
+      "aggregate_exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.5794381720845324,
+        "F2_plus": 0.6381293379286002
+      },
+      "c0_enforced": false,
+      "counts": null,
+      "estimate": {
+        "abs": 0.31868565816945826,
+        "imag": 0.15887634416906482,
+        "real": 0.2762586758572003
+      },
+      "exact_return_probabilities": {
+        "F1": 1.0,
+        "F2_i": 0.5794381720845324,
+        "F2_plus": 0.6381293379286002
+      },
+      "fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.5794381720845324,
+        "F2_plus": 0.6381293379286002
+      },
+      "instance_records": [
+        {
+          "chunk_depth": 1,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0000000000000002,
+            "imag": 0.8369703782131046,
+            "real": -0.5472481941439489
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9184851891065523,
+            "F2_plus": 0.2263759029280256
+          },
+          "execution_template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9184851891065523,
+            "F2_plus": 0.2263759029280256
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 0,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.8369703782131046,
+            "real": -0.5472481941439489
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 2,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0000000000000002,
+            "imag": 0.8369703782131046,
+            "real": -0.5472481941439489
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9184851891065523,
+            "F2_plus": 0.2263759029280256
+          },
+          "execution_template_depths": {
+            "F1": 4,
+            "F2_i": 9,
+            "F2_plus": 8
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9184851891065523,
+            "F2_plus": 0.2263759029280256
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 1,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.8369703782131046,
+            "real": -0.5472481941439489
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 4,
+            "F2_i": 9,
+            "F2_plus": 8
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999998,
+            "imag": -0.8795590355808839,
+            "real": 0.4757897675738991
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.060220482209558064,
+            "F2_plus": 0.7378948837869496
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.060220482209558064,
+            "F2_plus": 0.7378948837869496
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 2,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -0.8795590355808839,
+            "real": 0.4757897675738991
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 9,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 0,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5964176402310601,
+              "group_depth": 4,
+              "group_index": 3,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6264024994457361,
+              "probability": 0.08741031773666566,
+              "segment": 1,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.6264024994457361,
+              "weight": 0.6264024994457361
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999999,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 3,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -2.220446049250313e-16,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 9,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 0,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            },
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 6,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 1,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 8,
+          "chunk_operation_counts": {
+            "cx": 4,
+            "rz": 6
+          },
+          "chunk_size": 10,
+          "counts": null,
+          "estimate": {
+            "abs": 1.0,
+            "imag": -4.440892098500626e-16,
+            "real": 1.0
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999998,
+            "F2_plus": 1.0
+          },
+          "execution_template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.4999999999999998,
+            "F2_plus": 1.0
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 4,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -4.440892098500626e-16,
+            "real": 1.0
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 11,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 0,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6084753447027769,
+              "group_depth": 4,
+              "group_index": 7,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6217067630494427,
+              "probability": 0.08675505884039558,
+              "segment": 1,
+              "segment_angle_theta": 1.0749345998252475,
+              "w_mu": 0.6217067630494427,
+              "weight": 0.6217067630494427
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 10,
+            "F2_i": 15,
+            "F2_plus": 14
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          }
+        }
+      ],
+      "mean_fidelities": {
+        "F1": 1.0,
+        "F2_i": 0.5794381720845324,
+        "F2_plus": 0.6381293379286002
+      },
+      "mean_power_circuit_depth": 3.8,
+      "measured_correlation": {
+        "imag": 0.11320554677384481,
+        "real": 0.2979010790556752
+      },
+      "mfe_measurement_mode": "exact_statevector_probabilities_averaged_over_qdrift_samples",
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "exact_stochastic",
+      "non_scalar_measured_correlation": {
+        "imag": 0.15887634416906482,
+        "real": 0.2762586758572003
+      },
+      "num_instances": 5,
+      "power": 3,
+      "power_circuit_depth": 8,
+      "power_circuit_operation_counts": {
+        "note": "See per-instance chunk_operation_counts for exact_stochastic mode."
+      },
+      "power_circuit_size": 10,
+      "qdrift_segment_count": 2,
+      "raw_mfe_non_scalar_correlation": {
+        "abs": 0.31868565816945826,
+        "imag": 0.15887634416906482,
+        "real": 0.2762586758572003
+      },
+      "raw_mfe_relative_correlation_instance_mean": {
+        "abs": 0.31868565816945826,
+        "imag": 0.15887634416906493,
+        "real": 0.27625867585720026
+      },
+      "raw_mfe_relative_correlation_mean": {
+        "abs": 0.31868565816945826,
+        "imag": 0.15887634416906482,
+        "real": 0.2762586758572003
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 9,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 0,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5964176402310601,
+            "group_depth": 4,
+            "group_index": 3,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6264024994457361,
+            "probability": 0.08741031773666566,
+            "segment": 1,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.6264024994457361,
+            "weight": 0.6264024994457361
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 9,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 0,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          },
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 6,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 1,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 11,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 0,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6084753447027769,
+            "group_depth": 4,
+            "group_index": 7,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6217067630494427,
+            "probability": 0.08675505884039558,
+            "segment": 1,
+            "segment_angle_theta": 1.0749345998252475,
+            "w_mu": 0.6217067630494427,
+            "weight": 0.6217067630494427
+          }
+        ]
+      ],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.15808717178910042,
+        "real": 0.9874251597542588
+      },
+      "stored_correlation": {
+        "imag": 0.11320554677384481,
+        "real": 0.2979010790556752
+      },
+      "summed_counts": null,
+      "template_depths": {
+        "note": "See per-instance template_depths for exact_stochastic mode."
+      },
+      "template_operation_counts": {
+        "note": "See per-instance template_operation_counts for exact_stochastic mode."
+      },
+      "total_time": 0.30000000000000004
+    },
+    {
+      "aggregate_exact_return_probabilities": {
+        "F1": 0.8037602067109226,
+        "F2_i": 0.6490510272894199,
+        "F2_plus": 0.5194984821487765
+      },
+      "c0_enforced": false,
+      "counts": null,
+      "estimate": {
+        "abs": 0.4192766010474162,
+        "imag": 0.39622195122337844,
+        "real": 0.13711686094209163
+      },
+      "exact_return_probabilities": {
+        "F1": 0.8037602067109226,
+        "F2_i": 0.6490510272894199,
+        "F2_plus": 0.5194984821487765
+      },
+      "fidelities": {
+        "F1": 0.8037602067109226,
+        "F2_i": 0.6490510272894199,
+        "F2_plus": 0.5194984821487765
+      },
+      "instance_records": [
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999989,
+            "imag": 0.990554878058447,
+            "real": 0.13711686094209163
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292235,
+            "F2_plus": 0.5685584304710458
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292235,
+            "F2_plus": 0.5685584304710458
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 0,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.990554878058447,
+            "real": 0.13711686094209163
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 2.353405325955376,
+              "group_depth": 4,
+              "group_index": 11,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.42491617953403127,
+              "probability": 0.05929423700796915,
+              "segment": 0,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.42491617953403127,
+              "weight": 0.42491617953403127
+            },
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 1,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 85,
+          "chunk_operation_counts": {
+            "cx": 50,
+            "rz": 53,
+            "sx": 24
+          },
+          "chunk_size": 127,
+          "counts": null,
+          "estimate": {
+            "abs": 0.13711686094209163,
+            "imag": -7.771561172376096e-16,
+            "real": 0.13711686094209163
+          },
+          "exact_return_probabilities": {
+            "F1": 0.018801033554612993,
+            "F2_i": 0.25470025838865284,
+            "F2_plus": 0.32325868885969905
+          },
+          "execution_template_depths": {
+            "F1": 86,
+            "F2_i": 91,
+            "F2_plus": 90
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 50,
+              "measure": 4,
+              "rz": 53,
+              "sx": 24,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 52,
+              "h": 2,
+              "measure": 4,
+              "rz": 53,
+              "sdg": 1,
+              "sx": 24,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 52,
+              "h": 2,
+              "measure": 4,
+              "rz": 53,
+              "sx": 24,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 0.018801033554612993,
+            "F2_i": 0.25470025838865284,
+            "F2_plus": 0.32325868885969905
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 1,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -7.771561172376096e-16,
+            "real": 0.13711686094209163
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 5.081543954676503,
+              "group_depth": 81,
+              "group_index": 4,
+              "group_operation_counts": {
+                "cx": 48,
+                "rz": 50,
+                "sx": 24
+              },
+              "h_mu": 0.19679058351541134,
+              "probability": 0.027460821832426412,
+              "segment": 0,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.19679058351541134,
+              "weight": 0.19679058351541134
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6084753447027769,
+              "group_depth": 4,
+              "group_index": 7,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6217067630494427,
+              "probability": 0.08675505884039558,
+              "segment": 1,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.6217067630494427,
+              "weight": 0.6217067630494427
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 86,
+            "F2_i": 91,
+            "F2_plus": 90
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 50,
+              "measure": 4,
+              "rz": 53,
+              "sx": 24,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 52,
+              "h": 2,
+              "measure": 4,
+              "rz": 53,
+              "sdg": 1,
+              "sx": 24,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 52,
+              "h": 2,
+              "measure": 4,
+              "rz": 53,
+              "sx": 24,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 4,
+            "rz": 6
+          },
+          "chunk_size": 10,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999999,
+            "imag": -0.9905548780584481,
+            "real": 0.1371168609420912
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.004722560970775947,
+            "F2_plus": 0.5685584304710456
+          },
+          "execution_template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.004722560970775947,
+            "F2_plus": 0.5685584304710456
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 2,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": -0.9905548780584481,
+            "real": 0.1371168609420912
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 1.5312276729548038,
+              "group_depth": 4,
+              "group_index": 12,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6530707468669921,
+              "probability": 0.09113169493844027,
+              "segment": 0,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.6530707468669921,
+              "weight": 0.6530707468669921
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5964176402310601,
+              "group_depth": 4,
+              "group_index": 3,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6264024994457361,
+              "probability": 0.08741031773666566,
+              "segment": 1,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.6264024994457361,
+              "weight": 0.6264024994457361
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 6,
+            "F2_i": 11,
+            "F2_plus": 10
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 4,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 6,
+              "h": 2,
+              "measure": 4,
+              "rz": 6,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 4,
+          "chunk_operation_counts": {
+            "cx": 2,
+            "rz": 4
+          },
+          "chunk_size": 6,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999989,
+            "imag": 0.990554878058447,
+            "real": 0.13711686094209163
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292235,
+            "F2_plus": 0.5685584304710458
+          },
+          "execution_template_depths": {
+            "F1": 5,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292235,
+            "F2_plus": 0.5685584304710458
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 3,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.990554878058447,
+            "real": 0.13711686094209163
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 2,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.5312276729548038,
+              "group_depth": 4,
+              "group_index": 12,
+              "group_operation_counts": {
+                "cx": 2,
+                "rz": 3
+              },
+              "h_mu": 0.6530707468669921,
+              "probability": 0.09113169493844027,
+              "segment": 1,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.6530707468669921,
+              "weight": 0.6530707468669921
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 5,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "cx": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 4,
+              "h": 2,
+              "measure": 4,
+              "rz": 4,
+              "x": 2
+            }
+          }
+        },
+        {
+          "chunk_depth": 1,
+          "chunk_operation_counts": {
+            "rz": 2
+          },
+          "chunk_size": 2,
+          "counts": null,
+          "estimate": {
+            "abs": 0.9999999999999997,
+            "imag": 0.9905548780584479,
+            "real": 0.13711686094209186
+          },
+          "exact_return_probabilities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292239,
+            "F2_plus": 0.5685584304710459
+          },
+          "execution_template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "execution_template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          },
+          "fidelities": {
+            "F1": 1.0,
+            "F2_i": 0.9952774390292239,
+            "F2_plus": 0.5685584304710459
+          },
+          "final_mfe_transpiled_for_backend": false,
+          "instance_index": 4,
+          "mfe_measurement_mode": "exact_statevector_probabilities",
+          "mfe_reference_policy": "exact qDRIFT MFE sample; no per-sample reference correction",
+          "raw_mfe_relative_correlation": {
+            "imag": 0.9905548780584479,
+            "real": 0.13711686094209186
+          },
+          "sampled_group_history": [
+            {
+              "coefficient_scale_for_G_mu": 0.9002162664385587,
+              "group_depth": 1,
+              "group_index": 1,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 1.110844179650526,
+              "probability": 0.155010943898045,
+              "segment": 0,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 1.110844179650526,
+              "weight": 1.110844179650526
+            },
+            {
+              "coefficient_scale_for_G_mu": 1.6974441472519977,
+              "group_depth": 1,
+              "group_index": 5,
+              "group_operation_counts": {
+                "rz": 1
+              },
+              "h_mu": 0.589121003845049,
+              "probability": 0.08220793208361085,
+              "segment": 1,
+              "segment_angle_theta": 1.4332461331003299,
+              "w_mu": 0.589121003845049,
+              "weight": 0.589121003845049
+            }
+          ],
+          "shots_per_mfe_experiment_used": null,
+          "template_depths": {
+            "F1": 3,
+            "F2_i": 8,
+            "F2_plus": 7
+          },
+          "template_operation_counts": {
+            "F1": {
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            },
+            "F2_i": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "sdg": 1,
+              "x": 2
+            },
+            "F2_plus": {
+              "cx": 2,
+              "h": 2,
+              "measure": 4,
+              "rz": 2,
+              "x": 2
+            }
+          }
+        }
+      ],
+      "mean_fidelities": {
+        "F1": 0.8037602067109226,
+        "F2_i": 0.6490510272894199,
+        "F2_plus": 0.5194984821487765
+      },
+      "mean_power_circuit_depth": 19.6,
+      "measured_correlation": {
+        "imag": 0.35857136725913846,
+        "real": 0.21730035151325972
+      },
+      "mfe_measurement_mode": "exact_statevector_probabilities_averaged_over_qdrift_samples",
+      "mfe_reference_formula": "Store raw MFE y_k as the non-scalar correlation measured relative to the vacuum branch. Do not divide by a simulated <vac|V_k|vac> or by per-sampled qDRIFT reference phases. Apply only the zero-body scalar phase analytically.",
+      "mfe_reference_policy": "raw_mfe_vacuum_reference_no_per_circuit_correction",
+      "mode": "exact_stochastic",
+      "non_scalar_measured_correlation": {
+        "imag": 0.39622195122337844,
+        "real": 0.13711686094209163
+      },
+      "num_instances": 5,
+      "power": 4,
+      "power_circuit_depth": 85,
+      "power_circuit_operation_counts": {
+        "note": "See per-instance chunk_operation_counts for exact_stochastic mode."
+      },
+      "power_circuit_size": 127,
+      "qdrift_segment_count": 2,
+      "raw_mfe_non_scalar_correlation": {
+        "abs": 0.4192766010474162,
+        "imag": 0.39622195122337844,
+        "real": 0.13711686094209163
+      },
+      "raw_mfe_relative_correlation_instance_mean": {
+        "abs": 0.4192766010474164,
+        "imag": 0.39622195122337867,
+        "real": 0.1371168609420916
+      },
+      "raw_mfe_relative_correlation_mean": {
+        "abs": 0.4192766010474162,
+        "imag": 0.39622195122337844,
+        "real": 0.13711686094209163
+      },
+      "reference_branch_correction_applied": false,
+      "sampled_group_histories": [
+        [
+          {
+            "coefficient_scale_for_G_mu": 2.353405325955376,
+            "group_depth": 4,
+            "group_index": 11,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.42491617953403127,
+            "probability": 0.05929423700796915,
+            "segment": 0,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.42491617953403127,
+            "weight": 0.42491617953403127
+          },
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 1,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 5.081543954676503,
+            "group_depth": 81,
+            "group_index": 4,
+            "group_operation_counts": {
+              "cx": 48,
+              "rz": 50,
+              "sx": 24
+            },
+            "h_mu": 0.19679058351541134,
+            "probability": 0.027460821832426412,
+            "segment": 0,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.19679058351541134,
+            "weight": 0.19679058351541134
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6084753447027769,
+            "group_depth": 4,
+            "group_index": 7,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6217067630494427,
+            "probability": 0.08675505884039558,
+            "segment": 1,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.6217067630494427,
+            "weight": 0.6217067630494427
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 1.5312276729548038,
+            "group_depth": 4,
+            "group_index": 12,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6530707468669921,
+            "probability": 0.09113169493844027,
+            "segment": 0,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.6530707468669921,
+            "weight": 0.6530707468669921
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5964176402310601,
+            "group_depth": 4,
+            "group_index": 3,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6264024994457361,
+            "probability": 0.08741031773666566,
+            "segment": 1,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.6264024994457361,
+            "weight": 0.6264024994457361
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 2,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.5312276729548038,
+            "group_depth": 4,
+            "group_index": 12,
+            "group_operation_counts": {
+              "cx": 2,
+              "rz": 3
+            },
+            "h_mu": 0.6530707468669921,
+            "probability": 0.09113169493844027,
+            "segment": 1,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.6530707468669921,
+            "weight": 0.6530707468669921
+          }
+        ],
+        [
+          {
+            "coefficient_scale_for_G_mu": 0.9002162664385587,
+            "group_depth": 1,
+            "group_index": 1,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 1.110844179650526,
+            "probability": 0.155010943898045,
+            "segment": 0,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 1.110844179650526,
+            "weight": 1.110844179650526
+          },
+          {
+            "coefficient_scale_for_G_mu": 1.6974441472519977,
+            "group_depth": 1,
+            "group_index": 5,
+            "group_operation_counts": {
+              "rz": 1
+            },
+            "h_mu": 0.589121003845049,
+            "probability": 0.08220793208361085,
+            "segment": 1,
+            "segment_angle_theta": 1.4332461331003299,
+            "w_mu": 0.589121003845049,
+            "weight": 0.589121003845049
+          }
+        ]
+      ],
+      "scalar_energy": 0.52917721067,
+      "scalar_phase_applied_analytically": {
+        "imag": -0.2100937845599732,
+        "real": 0.9776812372595004
+      },
+      "stored_correlation": {
+        "imag": 0.35857136725913846,
+        "real": 0.21730035151325972
+      },
+      "summed_counts": null,
+      "template_depths": {
+        "note": "See per-instance template_depths for exact_stochastic mode."
+      },
+      "template_operation_counts": {
+        "note": "See per-instance template_operation_counts for exact_stochastic mode."
+      },
+      "total_time": 0.4
+    }
+  ],
+  "mfe_execution": {
+    "exact_statevector_probabilities": true,
+    "finite_shot_sampling": false,
+    "shots_per_mfe_experiment_used": null
+  },
+  "molecule": {
+    "basis": "sto-3g",
+    "charge": 0,
+    "geometry": [
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "atom": "H",
+        "xyz": [
+          0.0,
+          0.0,
+          2.0
+        ]
+      }
+    ],
+    "geometry_units": "angstrom",
+    "label": "diatomic_h2_sto_3g",
+    "multiplicity": 1,
+    "point_group": [
+      "c1",
+      [
+        "A"
+      ]
+    ],
+    "symmetry": "c1"
+  },
+  "notes": [
+    "This is the exact-stochastic UQK branch: each nonzero C_k averages independently sampled qDRIFT grouped chunks, computes MFE return probabilities exactly with Statevector for every sampled chunk, and applies the scalar phase analytically.",
+    "C0 is evaluated for diagnostics and then stored as exactly 1 when ENFORCE_C0_EXACT is true.",
+    "The S matrix uses Toeplitz symmetry S_mn=C_(n-m) and C_-k=conj(C_k).",
+    "The local_noisy_ibm_model mode uses a local Aer simulator. Runtime credentials are only needed if IBM_MODEL_SOURCE='runtime_backend'."
+  ],
+  "occupied_qubits": [
+    0,
+    1
+  ],
+  "option_documentation": {
+    "backend_mode": {
+      "exact_mfe_note": "exact_trotter and exact_stochastic ignore BACKEND_MODE and evaluate MFE probabilities with local Statevector simulation.",
+      "local_noiseless_statevector": "Aer statevector simulator with shot sampling; no credentials or hardware.",
+      "local_noisy_ibm_model": "Aer noisy simulator with IBM fake/runtime backend-derived noise. The default compresses target averages to the active-space qubit count.",
+      "local_noisy_simple": "Aer noisy simulator with compact hand-controlled depolarizing, thermal, and readout noise."
+    },
+    "krylov_dimension": "Matrix dimension M; S has shape M x M.",
+    "max_correlation_power": "Must be >= M-1 for S; using M also prepares C_M for projected U later.",
+    "qdrift_segment_count_Nd": "Number of sampled grouped factors per stochastic chunk.",
+    "rough_numeric_ranges": {
+      "krylov_dimension": "2-4 for debugging, 5-10 for early studies, larger values need care with conditioning.",
+      "qdrift_segment_count_Nd": "2-8 debugging, 10-100 convergence studies.",
+      "shots_per_mfe_experiment": "100-1000 smoke tests, 2000-10000 smoother simulator studies.",
+      "stochastic_instances_per_correlation": "1-5 plumbing checks, 10-100 convergence studies."
+    },
+    "shots_per_mfe_experiment": "Shots for each of F1, F2_plus, F2_i in finite-shot modes. In stochastic mode this is per sampled instance. exact_trotter and exact_stochastic record but ignore this value.",
+    "stochastic_instances_per_correlation": "Number of independent stochastic chunks averaged for each nonzero C_k.",
+    "stochastic_weight_convention": {
+      "group_pauli_l1_norm": "For non-scalar K_mu=sum_rho alpha_mu,rho P_mu,rho, use h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda."
+    },
+    "uqk_mode": {
+      "exact_stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt with exact Statevector MFE return probabilities.",
+      "exact_trotter": "Use deterministic non-scalar Trotter blocks, exact Statevector MFE return probabilities, and the analytic scalar phase.",
+      "standard": "Use deterministic non-scalar Trotter blocks, finite-shot MFE, and the analytic scalar phase.",
+      "stochastic": "Average qDRIFT-sampled grouped chunks for total time T_k=k*dt with finite-shot MFE."
+    }
+  },
+  "options": {
+    "backend_mode": "local_noiseless_statevector",
+    "dt": 0.1,
+    "enforce_c0_exact": true,
+    "ibm_model_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "ecr"
+    ],
+    "ibm_model_compress_to_active_space": true,
+    "ibm_model_fake_backend_class": "FakeBrisbane",
+    "ibm_model_runtime_backend_name": "ibm_brisbane",
+    "ibm_model_runtime_instance": null,
+    "ibm_model_source": "fake_backend",
+    "ibm_model_two_qubit_gate": "ecr",
+    "krylov_dimension": 4,
+    "max_correlation_power": 4,
+    "mfe_verbose_for_first_nonzero_power": false,
+    "noisy_simulation_method": "density_matrix",
+    "noisy_transpile_optimization_level": 1,
+    "output_file_stem_prefix": "",
+    "output_label_override": "diatomic_h2_sto_3g_plot1_exact_stochastic_backend_local_noiseless_statevector_M_4_dt_0p1_Nd_2_sipc_5_seed_240624",
+    "output_label_suffix": "",
+    "qdrift_segment_count_Nd": 2,
+    "random_seed": 240624,
+    "shots_per_mfe_experiment": 0,
+    "simple_noise_basis_gates": [
+      "id",
+      "rz",
+      "sx",
+      "x",
+      "cx"
+    ],
+    "simple_noise_include_thermal_relaxation": true,
+    "simple_noise_one_qubit_depolarizing_probability": 0.001,
+    "simple_noise_one_qubit_gate_time_seconds": 5e-08,
+    "simple_noise_readout_error_probability": 0.02,
+    "simple_noise_t1_seconds": 0.0001,
+    "simple_noise_t2_seconds": 8e-05,
+    "simple_noise_two_qubit_depolarizing_probability": 0.01,
+    "simple_noise_two_qubit_gate_time_seconds": 3e-07,
+    "stochastic_instances_per_correlation": 5,
+    "stochastic_weight_convention": "group_pauli_l1_norm",
+    "transpile_mfe_circuits_for_noisy_backend": true,
+    "trotter_order": 1,
+    "uqk_mode": "exact_stochastic",
+    "valid_backend_modes": [
+      "local_noiseless_statevector",
+      "local_noisy_ibm_model",
+      "local_noisy_simple"
+    ],
+    "valid_uqk_modes": [
+      "exact_stochastic",
+      "exact_trotter",
+      "standard",
+      "stochastic"
+    ]
+  },
+  "outputs": {
+    "metadata_json": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/experiments/uqk_overlap_hyperparameters/results/plot1_exact_stochastic/diatomic_h2_sto_3g_plot1_exact_stochastic_backend_local_noiseless_statevector_M_4_dt_0p1_Nd_2_sipc_5_seed_240624_uqk_overlap_matrix_metadata.json",
+    "npz": "/Users/nstair/Src/qforte-qiskit/notebooks/diatomic_h2_sto_3g/experiments/uqk_overlap_hyperparameters/results/plot1_exact_stochastic/diatomic_h2_sto_3g_plot1_exact_stochastic_backend_local_noiseless_statevector_M_4_dt_0p1_Nd_2_sipc_5_seed_240624_uqk_overlap_matrix.npz"
+  },
+  "overlap_matrix": [
+    [
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      {
+        "imag": 0.2454253145140852,
+        "real": 0.8086800759677817
+      },
+      {
+        "imag": 0.11320554677384481,
+        "real": 0.2979010790556752
+      }
+    ],
+    [
+      {
+        "imag": -0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      {
+        "imag": 0.2454253145140852,
+        "real": 0.8086800759677817
+      }
+    ],
+    [
+      {
+        "imag": -0.2454253145140852,
+        "real": 0.8086800759677817
+      },
+      {
+        "imag": -0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      },
+      {
+        "imag": 0.15294959582371404,
+        "real": 0.9220805129329248
+      }
+    ],
+    [
+      {
+        "imag": -0.11320554677384481,
+        "real": 0.2979010790556752
+      },
+      {
+        "imag": -0.2454253145140852,
+        "real": 0.8086800759677817
+      },
+      {
+        "imag": -0.15294959582371404,
+        "real": 0.9220805129329248
+      },
+      {
+        "imag": 0.0,
+        "real": 1.0
+      }
+    ]
+  ],
+  "schema_version": 1,
+  "script": "scripts/qiskit/build_uqk_overlap_matrix.py",
+  "source_circuit_archive": {
+    "num_group_circuits": 13,
+    "source_depth_statistics": {
+      "raw_max": 1,
+      "raw_min": 1,
+      "raw_sum": 13,
+      "transpiled_max": 83,
+      "transpiled_min": 0,
+      "transpiled_sum": 194
+    },
+    "source_qiskit_version": "2.2.2",
+    "source_target": {
+      "backend": null,
+      "description": "Local, topology-free transpilation to GENERIC_BASIS_GATES. No hardware coupling map is imposed.",
+      "mode": "generic_simulator",
+      "note": "This script transpiles and serializes circuits; it does not submit jobs."
+    }
+  },
+  "stochastic_sampling": {
+    "current_archive_convention_note": "The grouped Pauli archive stores K_mu directly rather than a separate h_mu and normalized G_mu. This script defines an effective positive h_mu from the Pauli L1 norm and leaves all coefficient signs in G_mu.",
+    "entries": [
+      {
+        "coefficient_scale_for_G_mu": 0.9002162664385587,
+        "group_index": 1,
+        "h_mu": 1.110844179650526,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.155010943898045,
+        "source_classification": "operator",
+        "w_mu": 1.110844179650526,
+        "weight": 1.110844179650526
+      },
+      {
+        "coefficient_scale_for_G_mu": 0.9002162664385587,
+        "group_index": 2,
+        "h_mu": 1.110844179650526,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.155010943898045,
+        "source_classification": "operator",
+        "w_mu": 1.110844179650526,
+        "weight": 1.110844179650526
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.5964176402310601,
+        "group_index": 3,
+        "h_mu": 0.6264024994457361,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08741031773666566,
+        "source_classification": "operator",
+        "w_mu": 0.6264024994457361,
+        "weight": 0.6264024994457361
+      },
+      {
+        "coefficient_scale_for_G_mu": 5.081543954676503,
+        "group_index": 4,
+        "h_mu": 0.19679058351541134,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.027460821832426412,
+        "source_classification": "operator",
+        "w_mu": 0.19679058351541134,
+        "weight": 0.19679058351541134
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6974441472519977,
+        "group_index": 5,
+        "h_mu": 0.589121003845049,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.08220793208361085,
+        "source_classification": "operator",
+        "w_mu": 0.589121003845049,
+        "weight": 0.589121003845049
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.353405325955376,
+        "group_index": 6,
+        "h_mu": 0.42491617953403127,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.05929423700796915,
+        "source_classification": "operator",
+        "w_mu": 0.42491617953403127,
+        "weight": 0.42491617953403127
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6084753447027769,
+        "group_index": 7,
+        "h_mu": 0.6217067630494427,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08675505884039558,
+        "source_classification": "operator",
+        "w_mu": 0.6217067630494427,
+        "weight": 0.6217067630494427
+      },
+      {
+        "coefficient_scale_for_G_mu": 5.0815439546765,
+        "group_index": 8,
+        "h_mu": 0.19679058351541143,
+        "num_identity_terms": 0,
+        "num_non_identity_terms": 8,
+        "num_pauli_terms": 8,
+        "probability": 0.027460821832426423,
+        "source_classification": "operator",
+        "w_mu": 0.19679058351541143,
+        "weight": 0.19679058351541143
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6974441472519977,
+        "group_index": 9,
+        "h_mu": 0.589121003845049,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 1,
+        "num_pauli_terms": 2,
+        "probability": 0.08220793208361085,
+        "source_classification": "operator",
+        "w_mu": 0.589121003845049,
+        "weight": 0.589121003845049
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.6084753447027769,
+        "group_index": 10,
+        "h_mu": 0.6217067630494427,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.08675505884039558,
+        "source_classification": "operator",
+        "w_mu": 0.6217067630494427,
+        "weight": 0.6217067630494427
+      },
+      {
+        "coefficient_scale_for_G_mu": 2.353405325955376,
+        "group_index": 11,
+        "h_mu": 0.42491617953403127,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.05929423700796915,
+        "source_classification": "operator",
+        "w_mu": 0.42491617953403127,
+        "weight": 0.42491617953403127
+      },
+      {
+        "coefficient_scale_for_G_mu": 1.5312276729548038,
+        "group_index": 12,
+        "h_mu": 0.6530707468669921,
+        "num_identity_terms": 1,
+        "num_non_identity_terms": 3,
+        "num_pauli_terms": 4,
+        "probability": 0.09113169493844027,
+        "source_classification": "operator",
+        "w_mu": 0.6530707468669921,
+        "weight": 0.6530707468669921
+      }
+    ],
+    "exact_statevector_probabilities": true,
+    "finite_shot_sampling": false,
+    "implemented_sampled_circuit": "For total time T_k=k*dt, each sampled instance is prod_s exp[-i theta_k G_mu_s], theta_k=lambda*T_k/N_d. Each G_mu is rebuilt from grouped Pauli terms using PauliEvolutionGate(SparsePauliOp(K_mu/h_mu), time=theta_k).",
+    "lambda_excludes_zero_body_scalar": true,
+    "mode": true,
+    "qdrift_formula": "Write H=E_scalar I + sum_mu K_mu. For non-scalar groups, define h_mu=w_mu=sum_rho |alpha_mu,rho|, G_mu=K_mu/h_mu, lambda=sum_mu w_mu, and p_mu=w_mu/lambda. A sampled chunk for T_k=k*dt uses prod_s exp[-i (lambda*T_k/N_d) G_mu_s]. The zero-body scalar phase exp(-i E_scalar T_k) is applied analytically after MFE.",
+    "sampled_non_scalar_groups": 12,
+    "scalar_energy_applied_analytically_to_correlations": 0.52917721067,
+    "scalar_energy_excluded_from_lambda": 0.52917721067,
+    "weight_convention": "group_pauli_l1_norm",
+    "weight_sum_lambda": 7.166230665501649
+  }
+}
