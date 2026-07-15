@@ -58,20 +58,27 @@ def assemble_overlap_matrix(correlations):
 
 def load_counts_by_circuit(retrieval_summary):
     counts_by_circuit = {}
-    missing = []
+    pending_jobs = []
     for job_record in retrieval_summary["jobs"]:
         if not job_record.get("result_ready"):
-            missing.append(job_record["job_id"])
+            pending_jobs.append(job_record)
             continue
         payload = load_json(job_record["result_file"])
         for item in payload["counts_by_circuit"]:
             counts_by_circuit[int(item["circuit_index"])] = item["counts"]
-    if missing:
-        raise RuntimeError(
-            "Some jobs do not have retrieved results yet. Re-run retrieval later. "
-            f"Missing job IDs: {missing}"
-        )
-    return counts_by_circuit
+    return counts_by_circuit, pending_jobs
+
+
+def concise_job_record(job_record):
+    return {
+        "job_group_id": job_record.get("job_group_id"),
+        "job_id": job_record.get("job_id"),
+        "point_id": job_record.get("point_id"),
+        "result_ready": bool(job_record.get("result_ready")),
+        "status_at_retrieve": job_record.get("status_at_retrieve"),
+        "shots": job_record.get("shots"),
+        "total_executions": job_record.get("total_executions"),
+    }
 
 
 def entries_by_point(plan_metadata):
@@ -209,11 +216,41 @@ def main():
     estimate_z_from_counts = import_mfe_helpers()
     plan_metadata = load_json(plan_metadata_path(run_id))
     retrieval_summary = load_json(retrieval_summary_path(run_id))
-    counts_by_circuit = load_counts_by_circuit(retrieval_summary)
+    counts_by_circuit, pending_jobs = load_counts_by_circuit(retrieval_summary)
     reference_matrix, reference_path = load_reference_matrix()
+    pending_jobs_by_point = {}
+    for job_record in pending_jobs:
+        pending_jobs_by_point.setdefault(job_record.get("point_id"), []).append(
+            concise_job_record(job_record)
+        )
 
     records = []
+    skipped_points = []
     for point_id, entries in sorted(entries_by_point(plan_metadata).items()):
+        missing_circuit_indices = [
+            int(entry["circuit_index"])
+            for entry in entries
+            if int(entry["circuit_index"]) not in counts_by_circuit
+        ]
+        if missing_circuit_indices:
+            skipped = {
+                "point_id": point_id,
+                "reason": "retrieved_counts_incomplete",
+                "expected_circuit_count": len(entries),
+                "retrieved_circuit_count": len(entries) - len(missing_circuit_indices),
+                "missing_circuit_count": len(missing_circuit_indices),
+                "pending_jobs": pending_jobs_by_point.get(point_id, []),
+            }
+            skipped_points.append(skipped)
+            print(
+                "Skipping incomplete",
+                point_id,
+                "retrieved_circuits=",
+                skipped["retrieved_circuit_count"],
+                "expected_circuits=",
+                skipped["expected_circuit_count"],
+            )
+            continue
         point_result = assemble_point(
             point_id,
             entries,
@@ -260,6 +297,11 @@ def main():
         "plan_metadata_path": str(plan_metadata_path(run_id)),
         "retrieval_summary_path": str(retrieval_summary_path(run_id)),
         "S_reference_npz": str(reference_path) if reference_path else None,
+        "retrieval_complete": not pending_jobs,
+        "pending_job_count": len(pending_jobs),
+        "pending_jobs": [concise_job_record(job_record) for job_record in pending_jobs],
+        "assembled_point_count": len(records),
+        "skipped_points": skipped_points,
         "records": records,
     }
     save_json(assemble_dir(run_id) / "hardware_overlap_records.json", summary)

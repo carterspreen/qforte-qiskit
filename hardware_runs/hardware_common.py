@@ -438,7 +438,7 @@ def build_hardware_circuit_plan(profile, backend_source=IBM_BACKEND_SOURCE):
     circuit_index = []
     point_summaries = []
     circuit_counter = 0
-    points = iter_profile_points(profile)
+    points = list(iter_profile_points(profile))
     log_progress(f"Planning {len(points)} profile point(s).")
     for point_index, point in enumerate(points, start=1):
         log_progress(
